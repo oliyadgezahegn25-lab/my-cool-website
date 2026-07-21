@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Nova Studio</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    background: radial-gradient(circle at top, #1b1b4f, #050510);
+    color: white;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* floating background circles */
+.circle {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.5;
+    animation: float 8s infinite alternate;
+}
+
+.c1 {
+    width:300px;
+    height:300px;
+    background:#00ffff;
+    top:10%;
+    left:10%;
+}
+
+.c2 {
+    width:250px;
+    height:250px;
+    background:#ff00cc;
+    right:10%;
+    bottom:10%;
+}
+
+@keyframes float {
+    from {transform:translateY(0);}
+    to {transform:translateY(50px);}
+}
+
+
+nav {
+    display:flex;
+    justify-content:space-between;
+    padding:30px 10%;
+    position:relative;
+    z-index:2;
+}
+
+.logo {
+    font-size:28px;
+    font-weight:bold;
+    color:#00ffff;
+}
+
+nav a {
+    color:white;
+    text-decoration:none;
+    margin-left:25px;
+}
+
+
+.hero {
+    height:80vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    position:relative;
+    z-index:2;
+}
+
+.content h1 {
+    font-size:70px;
+    background:linear-gradient(90deg,#00ffff,#ff00cc);
+    -webkit-background-clip:text;
+    color:transparent;
+}
+
+.content p {
+    margin:25px auto;
+    max-width:600px;
+    font-size:20px;
+    color:#ccc;
+}
+
+
+button {
+    padding:15px 35px;
+    border:none;
+    border-radius:30px;
+    background:linear-gradient(90deg,#00ffff,#ff00cc);
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+button:hover {
+    transform:scale(1.1);
+}
+
+
+.cards {
+    display:flex;
+    justify-content:center;
+    gap:30px;
+    padding:40px;
+    position:relative;
+    z-index:2;
+}
+
+
+.card {
+    width:250px;
+    padding:30px;
+    background:rgba(255,255,255,0.1);
+    backdrop-filter:blur(10px);
+    border-radius:20px;
+    border:1px solid rgba(255,255,255,.2);
+    text-align:center;
+    transition:.4s;
+}
+
+.card:hover {
+    transform:translateY(-15px);
+}
+
+
+footer {
+    text-align:center;
+    padding:30px;
+    color:#aaa;
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="circle c1"></div>
+<div class="circle c2"></div>
+
+
+<nav>
+    <div class="logo">Nova</div>
+
+    <div>
+        <a href="#">Home</a>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+    </div>
+</nav>
+
+
+
+<section class="hero">
+
+<div class="content">
+
+<h1>Create The Future</h1>
+
+<p>
+A simple one-file website made for experimenting with GitHub Pages.
+No images. No libraries. Just pure HTML, CSS and JavaScript.
+</p>
+
+<button onclick="hello()">Explore</button>
+
+</div>
+
+</section>
+
+
+
+<section class="cards">
+
+<div class="card">
+<h2>? Fast</h2>
+<p>Lightweight design with zero dependencies.</p>
+</div>
+
+
+<div class="card">
+<h2>?? Modern</h2>
+<p>Glass effects, gradients and animations.</p>
+</div>
+
+
+<div class="card">
+<h2>?? Free</h2>
+<p>Perfect for GitHub Pages hosting.</p>
+</div>
+
+</section>
+
+
+<footer>
+© 2026 Nova Studio | Built for fun
+</footer>
+
+
+
+<script>
+
+function hello(){
+    alert("Welcome to Nova ??");
+}
+
+</script>
+
+
+</body>
+</html>
