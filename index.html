@@ -237,7 +237,7 @@
         color:#020617;
     }
 
-    /* SELL BUTTON */
+    /* ACTION BUTTONS */
     .btn-sell {
         background:#10b981;
         border:none;
@@ -251,14 +251,19 @@
         margin-right:5px;
     }
 
-    .btn-sell:hover {
+    .btn-sell:hover:not(:disabled) {
         transform:scale(1.1);
         box-shadow:0 0 15px #10b981;
     }
 
-    /* DELETE BUTTON */
-    .btn-delete {
-        background:#ef4444;
+    .btn-sell:disabled {
+        background:#64748b;
+        cursor:not-allowed;
+        opacity:0.5;
+    }
+
+    .btn-add-stock {
+        background:#3b82f6;
         border:none;
         padding:8px 14px;
         border-radius:20px;
@@ -269,9 +274,19 @@
         font-size:14px;
     }
 
-    .btn-delete:hover {
+    .btn-add-stock:hover {
         transform:scale(1.1);
-        box-shadow:0 0 15px red;
+        box-shadow:0 0 15px #3b82f6;
+    }
+
+    .badge-out-of-stock {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        border: 1px solid #ef4444;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: bold;
     }
   </style>
 </head>
@@ -310,7 +325,7 @@
           <input type="text" id="unit_of_measure" placeholder="e.g. Pcs, Box, Pack">
 
           <label>Quantity</label>
-          <input type="number" id="quantity" placeholder="0" required>
+          <input type="number" id="quantity" placeholder="0" required min="0">
 
           <!-- PRICE INPUT -->
           <label>Unit Price (ETB)</label>
@@ -403,7 +418,7 @@
           <td>${cleanValue(item.brand)}</td>
           <td>${cleanValue(item.model)}</td>
           <td>${cleanValue(item.unit_of_measure)}</td>
-          <td>${item.quantity}</td>
+          <td>${item.quantity > 0 ? item.quantity : '<span class="badge-out-of-stock">Out of Stock</span>'}</td>
           <td><strong style="color:#67e8f9;">${formatPrice(item.price)}</strong></td>
           <td>
             ${item.pdf_url 
@@ -411,8 +426,8 @@
               : `<span style="font-size:13px; color:#64748b;">N/A</span>`}
           </td>
           <td style="white-space: nowrap;">
-            <button class="btn-sell" onclick="sellItem(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}')">Sell</button>
-            <button class="btn-delete" onclick="deleteItem(${item.id}, '${item.item_name.replace(/'/g, "\\'")}', '${item.pdf_url || ''}')">Delete</button>
+            <button class="btn-sell" ${item.quantity <= 0 ? 'disabled' : ''} onclick="sellItem(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}')">Sell</button>
+            <button class="btn-add-stock" onclick="addStock(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}')">+ Stock</button>
           </td>
         </tr>
       `).join('');
@@ -450,7 +465,29 @@
       }
     }
 
-    // 5. SEARCH / FILTER FUNCTION
+    // 5. ADD QUANTITY / RESTOCK FUNCTION
+    async function addStock(id, currentQty, name) {
+      const addQtyInput = prompt(`How many units of "${name}" are you adding to stock?`, "1");
+      if (addQtyInput === null) return; // User cancelled
+
+      const addQty = parseInt(addQtyInput, 10);
+      if (isNaN(addQty) || addQty <= 0) {
+        alert("Please enter a valid number greater than 0.");
+        return;
+      }
+
+      const newQty = currentQty + addQty;
+
+      const { error } = await db.from('items').update({ quantity: newQty }).eq('id', id);
+
+      if (error) {
+        alert("Could not update quantity: " + error.message);
+      } else {
+        loadInventory();
+      }
+    }
+
+    // 6. SEARCH / FILTER FUNCTION
     function filterItems() {
       const query = document.getElementById('search').value.toLowerCase();
       const filtered = allItems.filter(i => 
@@ -461,7 +498,7 @@
       renderTable(filtered);
     }
 
-    // 6. ADD ITEM & UPLOAD PDF
+    // 7. ADD ITEM & UPLOAD PDF
     document.getElementById('add-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -521,32 +558,6 @@
         loadInventory();
       }
     });
-
-    // 7. DELETE ITEM & OPTIONALLY ITS PDF
-    async function deleteItem(id, name, pdfUrl) {
-      if (confirm(`Remove "${name}" from inventory?`)) {
-        
-        if (pdfUrl) {
-          try {
-            const urlParts = pdfUrl.split('/item-docs/');
-            if (urlParts.length > 1) {
-              const filePath = urlParts[1];
-              await db.storage.from('item-docs').remove([filePath]);
-            }
-          } catch (err) {
-            console.error("Failed to delete PDF file from storage", err);
-          }
-        }
-
-        const { error } = await db.from('items').delete().eq('id', id);
-
-        if (error) {
-          alert("Could not delete item: " + error.message);
-        } else {
-          loadInventory();
-        }
-      }
-    }
 
     // Initial load
     loadInventory();
