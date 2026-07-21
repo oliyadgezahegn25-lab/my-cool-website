@@ -237,11 +237,30 @@
         color:#020617;
     }
 
+    /* SELL BUTTON */
+    .btn-sell {
+        background:#10b981;
+        border:none;
+        padding:8px 14px;
+        border-radius:20px;
+        color:white;
+        cursor:pointer;
+        transition:.3s;
+        font-family: 'Times New Roman', Times, serif;
+        font-size:14px;
+        margin-right:5px;
+    }
+
+    .btn-sell:hover {
+        transform:scale(1.1);
+        box-shadow:0 0 15px #10b981;
+    }
+
     /* DELETE BUTTON */
     .btn-delete {
         background:#ef4444;
         border:none;
-        padding:8px 15px;
+        padding:8px 14px;
         border-radius:20px;
         color:white;
         cursor:pointer;
@@ -252,7 +271,7 @@
 
     .btn-delete:hover {
         transform:scale(1.1);
-        box-shadow:0 0 20px red;
+        box-shadow:0 0 15px red;
     }
   </style>
 </head>
@@ -293,7 +312,7 @@
           <label>Quantity</label>
           <input type="number" id="quantity" placeholder="0" required>
 
-          <!-- NEW PRICE INPUT -->
+          <!-- PRICE INPUT -->
           <label>Unit Price (ETB)</label>
           <input type="number" id="price" step="0.01" placeholder="e.g. 15000.00 (or leave empty)">
 
@@ -369,7 +388,7 @@
       renderTable(allItems);
     }
 
-    // 3. RENDER TABLE WITH PRICE & PDF LINKS
+    // 3. RENDER TABLE
     function renderTable(items) {
       const tbody = document.getElementById('inventory-rows');
       if (items.length === 0) {
@@ -391,14 +410,47 @@
               ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">📄 View PDF</a>` 
               : `<span style="font-size:13px; color:#64748b;">N/A</span>`}
           </td>
-          <td>
-            <button class="btn-delete" onclick="deleteItem(${item.id}, '${item.item_name}', '${item.pdf_url || ''}')">Delete</button>
+          <td style="white-space: nowrap;">
+            <button class="btn-sell" onclick="sellItem(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}')">Sell</button>
+            <button class="btn-delete" onclick="deleteItem(${item.id}, '${item.item_name.replace(/'/g, "\\'")}', '${item.pdf_url || ''}')">Delete</button>
           </td>
         </tr>
       `).join('');
     }
 
-    // 4. SEARCH / FILTER FUNCTION
+    // 4. SELL / REDUCE QUANTITY FUNCTION
+    async function sellItem(id, currentQty, name) {
+      if (currentQty <= 0) {
+        alert(`"${name}" is currently out of stock.`);
+        return;
+      }
+
+      const soldQtyInput = prompt(`How many units of "${name}" were sold?`, "1");
+      if (soldQtyInput === null) return; // User cancelled
+
+      const soldQty = parseInt(soldQtyInput, 10);
+      if (isNaN(soldQty) || soldQty <= 0) {
+        alert("Please enter a valid number greater than 0.");
+        return;
+      }
+
+      if (soldQty > currentQty) {
+        alert(`Cannot sell ${soldQty} units. Only ${currentQty} currently in stock.`);
+        return;
+      }
+
+      const newQty = currentQty - soldQty;
+
+      const { error } = await db.from('items').update({ quantity: newQty }).eq('id', id);
+
+      if (error) {
+        alert("Could not update quantity: " + error.message);
+      } else {
+        loadInventory();
+      }
+    }
+
+    // 5. SEARCH / FILTER FUNCTION
     function filterItems() {
       const query = document.getElementById('search').value.toLowerCase();
       const filtered = allItems.filter(i => 
@@ -409,7 +461,7 @@
       renderTable(filtered);
     }
 
-    // 5. ADD ITEM & UPLOAD PDF TO SUPABASE STORAGE
+    // 6. ADD ITEM & UPLOAD PDF
     document.getElementById('add-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -420,7 +472,6 @@
       const pdfInput = document.getElementById('pdf_file');
       let pdf_url = null;
 
-      // Check if file selected and upload to Supabase Storage
       if (pdfInput.files.length > 0) {
         const file = pdfInput.files[0];
         const fileExt = file.name.split('.').pop();
@@ -438,7 +489,6 @@
           return;
         }
 
-        // Retrieve public URL for uploaded file
         const { data: publicUrlData } = db.storage
           .from('item-docs')
           .getPublicUrl(filePath);
@@ -472,11 +522,10 @@
       }
     });
 
-    // 6. DELETE ITEM & OPTIONALLY ITS PDF
+    // 7. DELETE ITEM & OPTIONALLY ITS PDF
     async function deleteItem(id, name, pdfUrl) {
       if (confirm(`Remove "${name}" from inventory?`)) {
         
-        // If there's an associated PDF in storage, clean it up
         if (pdfUrl) {
           try {
             const urlParts = pdfUrl.split('/item-docs/');
