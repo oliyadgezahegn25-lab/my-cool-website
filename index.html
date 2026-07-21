@@ -1,228 +1,351 @@
-<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Labaid Trading PLC - Laboratory & Educational Supplies Portal</title>
+  
+  <!-- Supabase Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #0f172a;
+      --accent: #0284c7;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #334155;
+      --border: #e2e8f0;
+    }
 
-<title>Nova Studio</title>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+    }
 
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, Helvetica, sans-serif;
-}
+    header {
+      background-color: var(--primary);
+      color: #fff;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
 
-body {
-    background: radial-gradient(circle at top, #1b1b4f, #050510);
-    color: white;
-    min-height: 100vh;
-    overflow-x: hidden;
-}
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-/* floating background circles */
-.circle {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(60px);
-    opacity: 0.5;
-    animation: float 8s infinite alternate;
-}
+    header h1 span {
+      color: #38bdf8;
+      font-weight: 300;
+      font-size: 14px;
+      border: 1px solid #38bdf8;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
 
-.c1 {
-    width:300px;
-    height:300px;
-    background:#00ffff;
-    top:10%;
-    left:10%;
-}
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
 
-.c2 {
-    width:250px;
-    height:250px;
-    background:#ff00cc;
-    right:10%;
-    bottom:10%;
-}
+    .grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 30px;
+    }
 
-@keyframes float {
-    from {transform:translateY(0);}
-    to {transform:translateY(50px);}
-}
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
 
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
 
-nav {
-    display:flex;
-    justify-content:space-between;
-    padding:30px 10%;
-    position:relative;
-    z-index:2;
-}
+    .card h2 {
+      margin-top: 0;
+      font-size: 18px;
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
 
-.logo {
-    font-size:28px;
-    font-weight:bold;
-    color:#00ffff;
-}
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 6px;
+      display: block;
+    }
 
-nav a {
-    color:white;
-    text-decoration:none;
-    margin-left:25px;
-}
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
 
+    input:focus, select:focus {
+      outline: 2px solid var(--accent);
+      border-color: transparent;
+    }
 
-.hero {
-    height:80vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    text-align:center;
-    position:relative;
-    z-index:2;
-}
+    button.btn-primary {
+      width: 100%;
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
 
-.content h1 {
-    font-size:70px;
-    background:linear-gradient(90deg,#00ffff,#ff00cc);
-    -webkit-background-clip:text;
-    color:transparent;
-}
+    button.btn-primary:hover { background: #0369a1; }
 
-.content p {
-    margin:25px auto;
-    max-width:600px;
-    font-size:20px;
-    color:#ccc;
-}
+    .search-bar {
+      margin-bottom: 20px;
+    }
 
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 14px;
+    }
 
-button {
-    padding:15px 35px;
-    border:none;
-    border-radius:30px;
-    background:linear-gradient(90deg,#00ffff,#ff00cc);
-    color:white;
-    font-size:18px;
-    cursor:pointer;
-    transition:.3s;
-}
+    th {
+      background: #f1f5f9;
+      color: #475569;
+      padding: 12px;
+      font-weight: 600;
+      border-bottom: 2px solid var(--border);
+    }
 
-button:hover {
-    transform:scale(1.1);
-}
+    td {
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--border);
+    }
 
+    .badge {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
 
-.cards {
-    display:flex;
-    justify-content:center;
-    gap:30px;
-    padding:40px;
-    position:relative;
-    z-index:2;
-}
+    .badge-success { background: #dcfce7; color: #166534; }
+    .badge-danger { background: #fee2e2; color: #991b1b; }
 
+    .btn-delete {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
 
-.card {
-    width:250px;
-    padding:30px;
-    background:rgba(255,255,255,0.1);
-    backdrop-filter:blur(10px);
-    border-radius:20px;
-    border:1px solid rgba(255,255,255,.2);
-    text-align:center;
-    transition:.4s;
-}
-
-.card:hover {
-    transform:translateY(-15px);
-}
-
-
-footer {
-    text-align:center;
-    padding:30px;
-    color:#aaa;
-}
-
-</style>
+    .btn-delete:hover { background: #dc2626; }
+  </style>
 </head>
-
-
 <body>
 
-<div class="circle c1"></div>
-<div class="circle c2"></div>
+  <header>
+    <h1>Labaid Trading PLC <span>Inventory Management System</span></h1>
+  </header>
 
+  <div class="container">
+    <div class="grid">
+      
+      <!-- ADD ITEM FORM -->
+      <div class="card">
+        <h2>Add Inventory Item</h2>
+        <form id="add-form">
+          <label>Category</label>
+          <select id="category">
+            <option value="Laboratory Equipment">Laboratory Equipment</option>
+            <option value="Educational & Lab Supplies">Educational & Lab Supplies</option>
+            <option value="Electrical Supplies">Electrical Supplies</option>
+            <option value="Agricultural Equipment">Agricultural Equipment</option>
+            <option value="Industrial Equipment">Industrial Equipment</option>
+          </select>
 
-<nav>
-    <div class="logo">Nova</div>
+          <label>Item Description / Name</label>
+          <input type="text" id="item_name" placeholder="e.g. Water Distiller 5L/hr" required>
 
-    <div>
-        <a href="#">Home</a>
-        <a href="#">About</a>
-        <a href="#">Contact</a>
+          <label>Brand / Manufacturer</label>
+          <input type="text" id="brand" placeholder="e.g. Pyrex (or leave empty)">
+
+          <label>Model / Specifications</label>
+          <input type="text" id="model" placeholder="e.g. YZD-5 (or leave empty)">
+
+          <label>Unit of Measure</label>
+          <input type="text" id="unit_of_measure" placeholder="e.g. Pcs, Box, Pack">
+
+          <label>Quantity</label>
+          <input type="number" id="quantity" placeholder="0" required>
+
+          <button type="submit" class="btn-primary">Save to Inventory</button>
+        </form>
+      </div>
+
+      <!-- INVENTORY DISPLAY TABLE -->
+      <div class="card">
+        <h2>Current Stock Directory</h2>
+        
+        <div class="search-bar">
+          <input type="text" id="search" placeholder="🔍 Search items, models, or brands..." onkeyup="filterItems()">
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Item Name</th>
+              <th>Category</th>
+              <th>Brand</th>
+              <th>Model</th>
+              <th>Unit</th>
+              <th>Qty</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="inventory-rows">
+            <tr><td colspan="7">Loading records...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
     </div>
-</nav>
+  </div>
 
+  <script>
+    // 1. SUPABASE CONFIGURATION
+    // Replace these two lines with your actual Supabase details from Settings -> API
+    const SUPABASE_URL = "YOUR_SUPABASE_URL_HERE";
+    const SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY_HERE";
 
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let allItems = [];
 
-<section class="hero">
+    // Helper function to handle empty inputs cleanly
+    function cleanValue(val) {
+      return (val && val.trim() !== "") ? val : "None";
+    }
 
-<div class="content">
+    // 2. FETCH ITEMS FROM SUPABASE
+    async function loadInventory() {
+      const { data, error } = await supabase.from('items').select('*').order('id', { ascending: false });
+      
+      if (error) {
+        document.getElementById('inventory-rows').innerHTML = `<tr><td colspan="7">Error loading data. Verify table setup.</td></tr>`;
+        return;
+      }
 
-<h1>Create The Future</h1>
+      allItems = data;
+      renderTable(allItems);
+    }
 
-<p>
-A simple one-file website made for experimenting with GitHub Pages.
-No images. No libraries. Just pure HTML, CSS and JavaScript.
-</p>
+    // 3. RENDER TABLE WITH STATUS BADGES & FALLBACKS
+    function renderTable(items) {
+      const tbody = document.getElementById('inventory-rows');
+      if (items.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No inventory records found.</td></tr>`;
+        return;
+      }
 
-<button onclick="hello()">Explore</button>
+      tbody.innerHTML = items.map(item => `
+        <tr>
+          <td><strong>${item.item_name}</strong></td>
+          <td><span style="font-size:12px; color:#64748b;">${cleanValue(item.category)}</span></td>
+          <td>${cleanValue(item.brand)}</td>
+          <td>${cleanValue(item.model)}</td>
+          <td>${cleanValue(item.unit_of_measure)}</td>
+          <td>
+            <span class="badge ${item.quantity > 0 ? 'badge-success' : 'badge-danger'}">
+              ${item.quantity} ${cleanValue(item.unit_of_measure)}
+            </span>
+          </td>
+          <td>
+            <button class="btn-delete" onclick="deleteItem(${item.id}, '${item.item_name}')">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
 
-</div>
+    // 4. SEARCH / FILTER FUNCTION
+    function filterItems() {
+      const query = document.getElementById('search').value.toLowerCase();
+      const filtered = allItems.filter(i => 
+        i.item_name.toLowerCase().includes(query) ||
+        (i.brand && i.brand.toLowerCase().includes(query)) ||
+        (i.model && i.model.toLowerCase().includes(query))
+      );
+      renderTable(filtered);
+    }
 
-</section>
+    // 5. ADD ITEM TO DATABASE
+    document.getElementById('add-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
 
+      const newItem = {
+        category: document.getElementById('category').value,
+        item_name: document.getElementById('item_name').value,
+        brand: cleanValue(document.getElementById('brand').value),
+        model: cleanValue(document.getElementById('model').value),
+        unit_of_measure: cleanValue(document.getElementById('unit_of_measure').value),
+        quantity: parseInt(document.getElementById('quantity').value) || 0
+      };
 
+      const { error } = await supabase.from('items').insert([newItem]);
 
-<section class="cards">
+      if (error) {
+        alert("Database error: " + error.message);
+      } else {
+        document.getElementById('add-form').reset();
+        loadInventory();
+      }
+    });
 
-<div class="card">
-<h2>? Fast</h2>
-<p>Lightweight design with zero dependencies.</p>
-</div>
+    // 6. DELETE ITEM FROM DATABASE
+    async function deleteItem(id, name) {
+      if (confirm(`Remove "${name}" from inventory?`)) {
+        const { error } = await supabase.from('items').delete().eq('id', id);
 
+        if (error) {
+          alert("Could not delete item: " + error.message);
+        } else {
+          loadInventory();
+        }
+      }
+    }
 
-<div class="card">
-<h2>?? Modern</h2>
-<p>Glass effects, gradients and animations.</p>
-</div>
-
-
-<div class="card">
-<h2>?? Free</h2>
-<p>Perfect for GitHub Pages hosting.</p>
-</div>
-
-</section>
-
-
-<footer>
-© 2026 Nova Studio | Built for fun
-</footer>
-
-
-
-<script>
-
-function hello(){
-    alert("Welcome to Nova ??");
-}
-
-</script>
-
-
+    // Initial load
+    loadInventory();
+  </script>
 </body>
 </html>
