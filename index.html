@@ -1,3 +1,6 @@
+HTML
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,461 +14,261 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   
- <style>
-
-:root {
-    --primary:#020617;
-    --accent:#06b6d4;
-    --purple:#a855f7;
-    --bg:#020617;
-    --card:rgba(255,255,255,0.08);
-    --text:#e2e8f0;
-    --border:rgba(255,255,255,0.15);
-}
-
-
-*{
-    box-sizing:border-box;
-}
-
-
-body {
-
-    font-family:'Inter',sans-serif;
-
-    margin:0;
-
-    min-height:100vh;
-
-    color:white;
-
-    background:
-    radial-gradient(circle at top left,#1e1b4b,transparent 40%),
-    radial-gradient(circle at bottom right,#0f766e,transparent 35%),
-    #020617;
-
-    overflow-x:hidden;
-
-}
-
-
-
-/* floating lights */
-
-body::before,
-body::after {
-
-    content:"";
-
-    position:fixed;
-
-    width:350px;
-
-    height:350px;
-
-    border-radius:50%;
-
-    filter:blur(100px);
-
-    opacity:.5;
-
-    z-index:-1;
-
-}
-
-
-body::before {
-
-    background:#06b6d4;
-
-    top:10%;
-
-    left:5%;
-
-}
-
-
-body::after {
-
-    background:#a855f7;
-
-    bottom:10%;
-
-    right:5%;
-
-}
-
-
-
-/* HEADER */
-
-header {
-
-    padding:25px 8%;
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    background:rgba(255,255,255,.08);
-
-    backdrop-filter:blur(15px);
-
-    border-bottom:1px solid var(--border);
-
-    box-shadow:0 10px 30px rgba(0,0,0,.3);
-
-}
-
-
-
-header h1 {
-
-    margin:0;
-
-    font-size:28px;
-
-    letter-spacing:-1px;
-
-}
-
-
-header h1 span {
-
-    margin-left:10px;
-
-    color:#22d3ee;
-
-    font-size:13px;
-
-    border:1px solid #22d3ee;
-
-    padding:5px 12px;
-
-    border-radius:20px;
-
-}
-
-
-
-/* CONTAINER */
-
-
-.container {
-
-    max-width:1400px;
-
-    margin:40px auto;
-
-    padding:0 25px;
-
-}
-
-
-.grid {
-
-    display:grid;
-
-    grid-template-columns:350px 1fr;
-
-    gap:35px;
-
-}
-
-
-@media(max-width:900px){
-
-.grid{
-
-grid-template-columns:1fr;
-
-}
-
-}
-
-
-
-/* GLASS CARD */
-
-
-.card {
-
-    background:var(--card);
-
-    backdrop-filter:blur(20px);
-
-    border-radius:25px;
-
-    padding:30px;
-
-    border:1px solid var(--border);
-
-    box-shadow:
-
-    0 20px 50px rgba(0,0,0,.4);
-
-    transition:.4s;
-
-}
-
-
-
-.card:hover {
-
-    transform:translateY(-8px);
-
-    box-shadow:
-
-    0 30px 70px rgba(0,0,0,.6);
-
-}
-
-
-
-.card h2 {
-
-    color:#67e8f9;
-
-    margin-top:0;
-
-    font-size:22px;
-
-}
-
-
-
-/* INPUTS */
-
-
-label {
-
-    color:#cbd5e1;
-
-    font-size:12px;
-
-    letter-spacing:1px;
-
-}
-
-
-
-input,
-select {
-
-    width:100%;
-
-    padding:14px;
-
-    margin:8px 0 18px;
-
-    border-radius:12px;
-
-    border:1px solid rgba(255,255,255,.2);
-
-    background:rgba(255,255,255,.1);
-
-    color:white;
-
-    outline:none;
-
-}
-
-
-
-select option {
-
-    color:black;
-
-}
-
-
-
-input:focus,
-select:focus {
-
-    border-color:#22d3ee;
-
-    box-shadow:0 0 20px rgba(34,211,238,.5);
-
-}
-
-
-
-/* BUTTON */
-
-
-.btn-primary {
-
-    width:100%;
-
-    padding:15px;
-
-    border:none;
-
-    border-radius:30px;
-
-    color:white;
-
-    font-size:16px;
-
-    font-weight:bold;
-
-    cursor:pointer;
-
-
-    background:
-
-    linear-gradient(90deg,#06b6d4,#a855f7);
-
-
-    transition:.3s;
-
-}
-
-
-
-.btn-primary:hover {
-
-    transform:scale(1.05);
-
-    box-shadow:0 0 30px #06b6d4;
-
-}
-
-
-
-/* SEARCH */
-
-
-.search-bar input {
-
-    background:rgba(255,255,255,.12);
-
-}
-
-
-
-/* TABLE */
-
-
-table {
-
-    width:100%;
-
-    border-collapse:collapse;
-
-}
-
-
-
-th {
-
-    background:rgba(255,255,255,.1);
-
-    padding:15px;
-
-    color:#67e8f9;
-
-}
-
-
-td {
-
-    padding:15px;
-
-    border-bottom:1px solid rgba(255,255,255,.1);
-
-    color:#e2e8f0;
-
-}
-
-
-
-tr {
-
-    transition:.3s;
-
-}
-
-
-
-tr:hover {
-
-    background:rgba(255,255,255,.08);
-
-}
-
-
-
-/* BADGES */
-
-
-.badge {
-
-    padding:7px 14px;
-
-    border-radius:20px;
-
-    font-size:12px;
-
-}
-
-
-.badge-success {
-
-    background:#22c55e33;
-
-    color:#86efac;
-
-}
-
-
-
-.badge-danger {
-
-    background:#ef444433;
-
-    color:#fca5a5;
-
-}
-
-
-
-/* DELETE BUTTON */
-
-
-.btn-delete {
-
-    background:#ef4444;
-
-    border:none;
-
-    padding:8px 15px;
-
-    border-radius:20px;
-
-    color:white;
-
-    cursor:pointer;
-
-    transition:.3s;
-
-}
-
-
-
-.btn-delete:hover {
-
-    transform:scale(1.1);
-
-    box-shadow:0 0 20px red;
-
-}
-
-
-</style>
+  <style>
+    :root {
+        --primary:#020617;
+        --accent:#06b6d4;
+        --purple:#a855f7;
+        --bg:#020617;
+        --card:rgba(255,255,255,0.08);
+        --text:#e2e8f0;
+        --border:rgba(255,255,255,0.15);
+    }
+
+    *{
+        box-sizing:border-box;
+    }
+
+    body {
+        font-family:'Inter',sans-serif;
+        margin:0;
+        min-height:100vh;
+        color:white;
+        background:
+        radial-gradient(circle at top left,#1e1b4b,transparent 40%),
+        radial-gradient(circle at bottom right,#0f766e,transparent 35%),
+        #020617;
+        overflow-x:hidden;
+    }
+
+    /* floating lights */
+    body::before,
+    body::after {
+        content:"";
+        position:fixed;
+        width:350px;
+        height:350px;
+        border-radius:50%;
+        filter:blur(100px);
+        opacity:.5;
+        z-index:-1;
+    }
+
+    body::before {
+        background:#06b6d4;
+        top:10%;
+        left:5%;
+    }
+
+    body::after {
+        background:#a855f7;
+        bottom:10%;
+        right:5%;
+    }
+
+    /* HEADER */
+    header {
+        padding:25px 8%;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        background:rgba(255,255,255,.08);
+        backdrop-filter:blur(15px);
+        border-bottom:1px solid var(--border);
+        box-shadow:0 10px 30px rgba(0,0,0,.3);
+    }
+
+    header h1 {
+        margin:0;
+        font-size:28px;
+        letter-spacing:-1px;
+    }
+
+    header h1 span {
+        margin-left:10px;
+        color:#22d3ee;
+        font-size:13px;
+        border:1px solid #22d3ee;
+        padding:5px 12px;
+        border-radius:20px;
+    }
+
+    /* CONTAINER */
+    .container {
+        max-width:1400px;
+        margin:40px auto;
+        padding:0 25px;
+    }
+
+    .grid {
+        display:grid;
+        grid-template-columns:350px 1fr;
+        gap:35px;
+    }
+
+    @media(max-width:900px){
+      .grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    /* GLASS CARD */
+    .card {
+        background:var(--card);
+        backdrop-filter:blur(20px);
+        border-radius:25px;
+        padding:30px;
+        border:1px solid var(--border);
+        box-shadow: 0 20px 50px rgba(0,0,0,.4);
+        transition:.4s;
+    }
+
+    .card:hover {
+        transform:translateY(-8px);
+        box-shadow: 0 30px 70px rgba(0,0,0,.6);
+    }
+
+    .card h2 {
+        color:#67e8f9;
+        margin-top:0;
+        font-size:22px;
+    }
+
+    /* INPUTS */
+    label {
+        color:#cbd5e1;
+        font-size:12px;
+        letter-spacing:1px;
+    }
+
+    input, select {
+        width:100%;
+        padding:14px;
+        margin:8px 0 18px;
+        border-radius:12px;
+        border:1px solid rgba(255,255,255,.2);
+        background:rgba(255,255,255,.1);
+        color:white;
+        outline:none;
+    }
+
+    select option {
+        color:black;
+    }
+
+    input:focus, select:focus {
+        border-color:#22d3ee;
+        box-shadow:0 0 20px rgba(34,211,238,.5);
+    }
+
+    /* BUTTON */
+    .btn-primary {
+        width:100%;
+        padding:15px;
+        border:none;
+        border-radius:30px;
+        color:white;
+        font-size:16px;
+        font-weight:bold;
+        cursor:pointer;
+        background: linear-gradient(90deg,#06b6d4,#a855f7);
+        transition:.3s;
+    }
+
+    .btn-primary:hover {
+        transform:scale(1.05);
+        box-shadow:0 0 30px #06b6d4;
+    }
+
+    .btn-primary:disabled {
+        opacity:0.6;
+        cursor:not-allowed;
+        transform:none;
+    }
+
+    /* SEARCH */
+    .search-bar input {
+        background:rgba(255,255,255,.12);
+    }
+
+    /* TABLE */
+    table {
+        width:100%;
+        border-collapse:collapse;
+    }
+
+    th {
+        background:rgba(255,255,255,.1);
+        padding:15px;
+        color:#67e8f9;
+        text-align:left;
+    }
+
+    td {
+        padding:15px;
+        border-bottom:1px solid rgba(255,255,255,.1);
+        color:#e2e8f0;
+    }
+
+    tr {
+        transition:.3s;
+    }
+
+    tr:hover {
+        background:rgba(255,255,255,.08);
+    }
+
+    /* BADGES */
+    .badge {
+        padding:7px 14px;
+        border-radius:20px;
+        font-size:12px;
+    }
+
+    .badge-success {
+        background:#22c55e33;
+        color:#86efac;
+    }
+
+    .badge-danger {
+        background:#ef444433;
+        color:#fca5a5;
+    }
+
+    /* PDF LINK BUTTON */
+    .btn-pdf {
+        color:#22d3ee;
+        text-decoration:none;
+        font-size:13px;
+        font-weight:600;
+        border:1px solid #22d3ee;
+        padding:5px 10px;
+        border-radius:15px;
+        transition:.3s;
+        display:inline-block;
+    }
+
+    .btn-pdf:hover {
+        background:#22d3ee;
+        color:#020617;
+    }
+
+    /* DELETE BUTTON */
+    .btn-delete {
+        background:#ef4444;
+        border:none;
+        padding:8px 15px;
+        border-radius:20px;
+        color:white;
+        cursor:pointer;
+        transition:.3s;
+    }
+
+    .btn-delete:hover {
+        transform:scale(1.1);
+        box-shadow:0 0 20px red;
+    }
+  </style>
 </head>
 <body>
 
@@ -504,7 +307,11 @@ tr:hover {
           <label>Quantity</label>
           <input type="number" id="quantity" placeholder="0" required>
 
-          <button type="submit" class="btn-primary">Save to Inventory</button>
+          <!-- NEW PDF INPUT -->
+          <label>Technical Sheet / Specification (PDF)</label>
+          <input type="file" id="pdf_file" accept="application/pdf">
+
+          <button type="submit" id="submit-btn" class="btn-primary">Save to Inventory</button>
         </form>
       </div>
 
@@ -525,11 +332,12 @@ tr:hover {
               <th>Model</th>
               <th>Unit</th>
               <th>Qty</th>
+              <th>Spec Sheet</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody id="inventory-rows">
-            <tr><td colspan="7">Loading records...</td></tr>
+            <tr><td colspan="8">Loading records...</td></tr>
           </tbody>
         </table>
       </div>
@@ -538,11 +346,10 @@ tr:hover {
   </div>
 
   <script>
-    // 1. SUPABASE CONFIGURATION (FIXED INITIALIZATION)
+    // 1. SUPABASE CONFIGURATION
     const SUPABASE_URL = "https://cbmvbbfbgauqusibdnup.supabase.co";
     const SUPABASE_KEY = "sb_publishable_gq0-KFzH8Ru9-etDSZ_Cwg_pQrHCYcY";
 
-    // Use window.supabase to avoid variable name collision
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     let allItems = [];
 
@@ -556,7 +363,7 @@ tr:hover {
       const { data, error } = await db.from('items').select('*').order('id', { ascending: false });
       
       if (error) {
-        document.getElementById('inventory-rows').innerHTML = `<tr><td colspan="7">Error loading data. Verify table setup.</td></tr>`;
+        document.getElementById('inventory-rows').innerHTML = `<tr><td colspan="8">Error loading data. Verify table setup.</td></tr>`;
         console.error(error);
         return;
       }
@@ -565,18 +372,18 @@ tr:hover {
       renderTable(allItems);
     }
 
-    // 3. RENDER TABLE WITH STATUS BADGES & FALLBACKS
+    // 3. RENDER TABLE WITH STATUS BADGES & PDF LINKS
     function renderTable(items) {
       const tbody = document.getElementById('inventory-rows');
       if (items.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No inventory records found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;">No inventory records found.</td></tr>`;
         return;
       }
 
       tbody.innerHTML = items.map(item => `
         <tr>
           <td><strong>${item.item_name}</strong></td>
-          <td><span style="font-size:12px; color:#64748b;">${cleanValue(item.category)}</span></td>
+          <td><span style="font-size:12px; color:#94a3b8;">${cleanValue(item.category)}</span></td>
           <td>${cleanValue(item.brand)}</td>
           <td>${cleanValue(item.model)}</td>
           <td>${cleanValue(item.unit_of_measure)}</td>
@@ -586,7 +393,12 @@ tr:hover {
             </span>
           </td>
           <td>
-            <button class="btn-delete" onclick="deleteItem(${item.id}, '${item.item_name}')">Delete</button>
+            ${item.pdf_url 
+              ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">📄 View PDF</a>` 
+              : `<span style="font-size:12px; color:#64748b;">N/A</span>`}
+          </td>
+          <td>
+            <button class="btn-delete" onclick="deleteItem(${item.id}, '${item.item_name}', '${item.pdf_url || ''}')">Delete</button>
           </td>
         </tr>
       `).join('');
@@ -603,9 +415,42 @@ tr:hover {
       renderTable(filtered);
     }
 
-    // 5. ADD ITEM TO DATABASE
+    // 5. ADD ITEM & UPLOAD PDF TO SUPABASE STORAGE
     document.getElementById('add-form').addEventListener('submit', async (e) => {
       e.preventDefault();
+      
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Saving & Uploading...";
+
+      const pdfInput = document.getElementById('pdf_file');
+      let pdf_url = null;
+
+      // Check if file selected and upload to Supabase Storage
+      if (pdfInput.files.length > 0) {
+        const file = pdfInput.files[0];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `specs/${fileName}`;
+
+        const { data: uploadData, error: uploadError } = await db.storage
+          .from('item-docs')
+          .upload(filePath, file);
+
+        if (uploadError) {
+          alert("PDF Upload failed: " + uploadError.message);
+          submitBtn.disabled = false;
+          submitBtn.innerText = "Save to Inventory";
+          return;
+        }
+
+        // Retrieve public URL for uploaded file
+        const { data: publicUrlData } = db.storage
+          .from('item-docs')
+          .getPublicUrl(filePath);
+
+        pdf_url = publicUrlData.publicUrl;
+      }
 
       const newItem = {
         category: document.getElementById('category').value,
@@ -613,10 +458,14 @@ tr:hover {
         brand: cleanValue(document.getElementById('brand').value),
         model: cleanValue(document.getElementById('model').value),
         unit_of_measure: cleanValue(document.getElementById('unit_of_measure').value),
-        quantity: parseInt(document.getElementById('quantity').value) || 0
+        quantity: parseInt(document.getElementById('quantity').value) || 0,
+        pdf_url: pdf_url
       };
 
       const { error } = await db.from('items').insert([newItem]);
+
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Save to Inventory";
 
       if (error) {
         alert("Database error: " + error.message);
@@ -626,9 +475,23 @@ tr:hover {
       }
     });
 
-    // 6. DELETE ITEM FROM DATABASE
-    async function deleteItem(id, name) {
+    // 6. DELETE ITEM & OPTIONALLY ITS PDF
+    async function deleteItem(id, name, pdfUrl) {
       if (confirm(`Remove "${name}" from inventory?`)) {
+        
+        // If there's an associated PDF in storage, clean it up
+        if (pdfUrl) {
+          try {
+            const urlParts = pdfUrl.split('/item-docs/');
+            if (urlParts.length > 1) {
+              const filePath = urlParts[1];
+              await db.storage.from('item-docs').remove([filePath]);
+            }
+          } catch (err) {
+            console.error("Failed to delete PDF file from storage", err);
+          }
+        }
+
         const { error } = await db.from('items').delete().eq('id', id);
 
         if (error) {
