@@ -218,24 +218,6 @@
         background:rgba(255,255,255,.08);
     }
 
-    /* BADGES */
-    .badge {
-        padding:7px 14px;
-        border-radius:20px;
-        font-size:13px;
-        font-family: 'Times New Roman', Times, serif;
-    }
-
-    .badge-success {
-        background:#22c55e33;
-        color:#86efac;
-    }
-
-    .badge-danger {
-        background:#ef444433;
-        color:#fca5a5;
-    }
-
     /* PDF LINK BUTTON */
     .btn-pdf {
         color:#22d3ee;
@@ -387,7 +369,7 @@
       renderTable(allItems);
     }
 
-    // 3. RENDER TABLE WITH STATUS BADGES, PRICE, & PDF LINKS
+    // 3. RENDER TABLE WITH PRICE & PDF LINKS
     function renderTable(items) {
       const tbody = document.getElementById('inventory-rows');
       if (items.length === 0) {
@@ -402,11 +384,7 @@
           <td>${cleanValue(item.brand)}</td>
           <td>${cleanValue(item.model)}</td>
           <td>${cleanValue(item.unit_of_measure)}</td>
-          <td>
-            <span class="badge ${item.quantity > 0 ? 'badge-success' : 'badge-danger'}">
-              ${item.quantity}
-            </span>
-          </td>
+          <td>${item.quantity}</td>
           <td><strong style="color:#67e8f9;">${formatPrice(item.price)}</strong></td>
           <td>
             ${item.pdf_url 
