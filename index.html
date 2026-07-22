@@ -429,37 +429,82 @@
         font-weight: bold;
     }
 
-    /* TOUR STEPS */
-    .tour-step {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 12px 16px;
-        margin-bottom: 12px;
+    /* STEP-BY-STEP INTERACTIVE TOUR SYSTEM */
+    .tour-spotlight-highlight {
+        position: relative !important;
+        z-index: 201 !important;
+        box-shadow: 0 0 0 9999px rgba(2, 6, 23, 0.85), 0 0 25px #06b6d4 !important;
+        border-radius: 16px;
+        transition: all 0.3s ease-in-out;
     }
-    .tour-step h4 {
-        margin: 0 0 5px 0;
-        color: #38bdf8;
+
+    .tour-tooltip {
+        position: fixed;
+        z-index: 202;
+        background: #0f172a;
+        border: 2px solid #06b6d4;
+        border-radius: 18px;
+        padding: 22px;
+        width: 320px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        display: none;
+        transition: all 0.2s ease-in-out;
     }
-    .tour-step p {
-        margin: 0;
+
+    .tour-tooltip h4 {
+        margin: 0 0 8px 0;
+        color: #67e8f9;
+        font-size: 18px;
+    }
+
+    .tour-tooltip p {
+        margin: 0 0 18px 0;
         font-size: 14px;
         color: #cbd5e1;
+        line-height: 1.4;
     }
+
+    .tour-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .tour-btn {
+        background: #06b6d4;
+        color: #020617;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        font-family: 'Times New Roman', Times, serif;
+    }
+
+    .tour-btn-skip {
+        background: transparent;
+        color: #94a3b8;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        font-family: 'Times New Roman', Times, serif;
+    }
+
+    .tour-btn-skip:hover { color: white; }
   </style>
 </head>
 <body>
 
   <header>
     <h1>Labaid Trading PLC <span>Inventory Portal</span></h1>
-    <button class="top-menu-btn" onclick="toggleDrawer()">📋 Menu & Past Transactions</button>
+    <button class="top-menu-btn" id="tour-step-menu" onclick="toggleDrawer()">📋 Menu & Past Transactions</button>
   </header>
 
   <div class="container">
     <div class="grid">
       
       <!-- ADD ITEM FORM -->
-      <div class="card" id="tour-add-section">
+      <div class="card" id="tour-step-add">
         <h2>Add Inventory Item</h2>
         <form id="add-form">
           <label>Category</label>
@@ -514,8 +559,8 @@
               <th>Unit</th>
               <th>Qty</th>
               <th>Unit Price</th>
-              <th>Spec Sheet</th>
-              <th>Action</th>
+              <th id="tour-step-pdf">Spec Sheet</th>
+              <th id="tour-step-actions">Action</th>
             </tr>
           </thead>
           <tbody id="inventory-rows">
@@ -557,37 +602,6 @@
     </div>
   </div>
 
-  <!-- WELCOME / GUIDED TOUR MODAL -->
-  <div class="modal-overlay" id="tour-modal">
-    <div class="modal">
-      <button class="close-modal" onclick="closeTourModal()">&times;</button>
-      <h3>Hello! Welcome to Labaid Trading PLC</h3>
-      <p style="color: #cbd5e1; font-size: 14px; margin-bottom: 20px;">Here is a quick guide to navigating your inventory system:</p>
-      
-      <div class="tour-step">
-        <h4>1. Adding Inventory</h4>
-        <p>Use the left-hand form to register new products, quantities, prices, and optional PDF specification sheets.</p>
-      </div>
-
-      <div class="tour-step">
-        <h4>2. Catalog PDF Management</h4>
-        <p>View attached catalog PDFs directly from the table, remove existing links, or upload/replace PDFs anytime.</p>
-      </div>
-
-      <div class="tour-step">
-        <h4>3. Processing Transactions</h4>
-        <p>Click "Sell" on any item to log sales, credit units, or samples while instantly auto-updating stock counts.</p>
-      </div>
-
-      <div class="tour-step">
-        <h4>4. Past Transactions & Filter</h4>
-        <p>Click "Menu & Past Transactions" on the top-right to view complete sales history filtered by Week, Month, or Year.</p>
-      </div>
-
-      <button class="btn-primary" onclick="closeTourModal()" style="margin-top: 15px;">Got it, let's start!</button>
-    </div>
-  </div>
-
   <!-- RIGHT DRAWER: PAST TRANSACTIONS -->
   <div class="drawer" id="transactions-drawer">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -614,6 +628,16 @@
         <tr><td colspan="4">Loading history...</td></tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- TOUR TOOLTIP POPUP -->
+  <div class="tour-tooltip" id="tour-tooltip">
+    <h4 id="tour-title">Welcome</h4>
+    <p id="tour-desc">Tour description...</p>
+    <div class="tour-nav">
+      <button class="tour-btn-skip" onclick="endTour()">Skip Tour</button>
+      <button class="tour-btn" id="tour-next-btn" onclick="nextTourStep()">Next &rarr;</button>
+    </div>
   </div>
 
   <!-- HIDDEN FILE INPUT FOR IN-TABLE PDF UPLOADS -->
@@ -869,16 +893,92 @@
       renderTable(filtered);
     }
 
-    // 9. INITIAL GUIDED TOUR MODAL
-    function checkTour() {
-      if (!localStorage.getItem('labaid_tour_seen')) {
-        document.getElementById('tour-modal').classList.add('active');
+    // 9. INTERACTIVE STEP-BY-STEP GUIDED TOUR ENGINE
+    const tourSteps = [
+      {
+        elementId: 'tour-step-add',
+        title: '1. Add New Items Here',
+        desc: 'This is the section where you add items into your stock catalog. Enter category, brand, quantity, unit price, and optionally upload a PDF specification sheet.',
+        position: 'right'
+      },
+      {
+        elementId: 'tour-step-pdf',
+        title: '2. Catalog PDF Controls',
+        desc: 'In this column, you can view existing PDF specification sheets, click the ✕ button to remove them anytime, or click + Attach PDF to upload a new catalog.',
+        position: 'bottom'
+      },
+      {
+        elementId: 'tour-step-actions',
+        title: '3. Sell & Restock Buttons',
+        desc: 'Click "Sell" on any item line to trigger the modal where you pick standard Sell, Credit, or Sample, select client organization, and choose transaction date. Click "+ Stock" to restock.',
+        position: 'left'
+      },
+      {
+        elementId: 'tour-step-menu',
+        title: '4. Menu & Past Transactions',
+        desc: 'Click this button anytime to open the side menu drawer where you can view past transaction history filtered by This Week, This Month, or This Year.',
+        position: 'bottom'
       }
+    ];
+
+    let currentTourStep = 0;
+
+    function startInteractiveTour() {
+      if (localStorage.getItem('labaid_interactive_tour_seen')) return;
+      currentTourStep = 0;
+      showTourStep(currentTourStep);
     }
 
-    function closeTourModal() {
-      localStorage.setItem('labaid_tour_seen', 'true');
-      document.getElementById('tour-modal').classList.remove('active');
+    function showTourStep(index) {
+      document.querySelectorAll('.tour-spotlight-highlight').forEach(el => el.classList.remove('tour-spotlight-highlight'));
+
+      if (index >= tourSteps.length) {
+        endTour();
+        return;
+      }
+
+      const step = tourSteps[index];
+      const targetEl = document.getElementById(step.elementId);
+      const tooltip = document.getElementById('tour-tooltip');
+
+      if (!targetEl) return;
+
+      targetEl.classList.add('tour-spotlight-highlight');
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      document.getElementById('tour-title').innerText = step.title;
+      document.getElementById('tour-desc').innerText = step.desc;
+      
+      const nextBtn = document.getElementById('tour-next-btn');
+      nextBtn.innerText = index === tourSteps.length - 1 ? 'Finish Tour' : 'Next →';
+
+      tooltip.style.display = 'block';
+
+      setTimeout(() => {
+        const rect = targetEl.getBoundingClientRect();
+        
+        if (step.position === 'right') {
+          tooltip.style.top = `${rect.top}px`;
+          tooltip.style.left = `${rect.right + 20}px`;
+        } else if (step.position === 'left') {
+          tooltip.style.top = `${rect.top}px`;
+          tooltip.style.left = `${rect.left - 340}px`;
+        } else {
+          tooltip.style.top = `${rect.bottom + 15}px`;
+          tooltip.style.left = `${rect.left}px`;
+        }
+      }, 350);
+    }
+
+    function nextTourStep() {
+      currentTourStep++;
+      showTourStep(currentTourStep);
+    }
+
+    function endTour() {
+      document.querySelectorAll('.tour-spotlight-highlight').forEach(el => el.classList.remove('tour-spotlight-highlight'));
+      document.getElementById('tour-tooltip').style.display = 'none';
+      localStorage.setItem('labaid_interactive_tour_seen', 'true');
     }
 
     // 10. ADD ITEM FORM SUBMISSION
@@ -943,8 +1043,9 @@
     });
 
     // Initial load calls
-    loadInventory();
-    checkTour();
+    loadInventory().then(() => {
+      setTimeout(startInteractiveTour, 800);
+    });
   </script>
 </body>
 </html>
