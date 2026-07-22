@@ -62,7 +62,7 @@
 
     /* HEADER */
     header {
-        padding:25px 8%;
+        padding:20px 8%;
         display:flex;
         justify-content:space-between;
         align-items:center;
@@ -70,11 +70,13 @@
         backdrop-filter:blur(15px);
         border-bottom:1px solid var(--border);
         box-shadow:0 10px 30px rgba(0,0,0,.3);
+        position: relative;
+        z-index: 10;
     }
 
     header h1 {
         margin:0;
-        font-size:30px;
+        font-size:26px;
         letter-spacing:-0.5px;
     }
 
@@ -86,6 +88,23 @@
         padding:5px 12px;
         border-radius:20px;
         font-family: 'Times New Roman', Times, serif;
+    }
+
+    .top-menu-btn {
+        background: rgba(255,255,255,0.12);
+        border: 1px solid var(--border);
+        color: white;
+        padding: 10px 18px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 15px;
+        transition: 0.3s;
+    }
+
+    .top-menu-btn:hover {
+        background: #06b6d4;
+        color: #020617;
     }
 
     /* CONTAINER */
@@ -119,7 +138,7 @@
     }
 
     .card:hover {
-        transform:translateY(-8px);
+        transform:translateY(-4px);
         box-shadow: 0 30px 70px rgba(0,0,0,.6);
     }
 
@@ -138,8 +157,8 @@
 
     input, select {
         width:100%;
-        padding:14px;
-        margin:8px 0 18px;
+        padding:12px;
+        margin:8px 0 16px;
         border-radius:12px;
         border:1px solid rgba(255,255,255,.2);
         background:rgba(255,255,255,.1);
@@ -174,8 +193,8 @@
     }
 
     .btn-primary:hover {
-        transform:scale(1.05);
-        box-shadow:0 0 30px #06b6d4;
+        transform:scale(1.02);
+        box-shadow:0 0 25px #06b6d4;
     }
 
     .btn-primary:disabled {
@@ -200,14 +219,14 @@
         padding:15px;
         color:#67e8f9;
         text-align:left;
-        font-size:16px;
+        font-size:15px;
     }
 
     td {
-        padding:15px;
+        padding:12px 15px;
         border-bottom:1px solid rgba(255,255,255,.1);
         color:#e2e8f0;
-        font-size:15px;
+        font-size:14px;
     }
 
     tr {
@@ -218,18 +237,23 @@
         background:rgba(255,255,255,.08);
     }
 
-    /* PDF LINK BUTTON */
+    /* PDF CONTROLS */
+    .pdf-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
     .btn-pdf {
         color:#22d3ee;
         text-decoration:none;
-        font-size:14px;
+        font-size:13px;
         font-weight:600;
         border:1px solid #22d3ee;
-        padding:5px 10px;
-        border-radius:15px;
+        padding:4px 8px;
+        border-radius:12px;
         transition:.3s;
         display:inline-block;
-        font-family: 'Times New Roman', Times, serif;
     }
 
     .btn-pdf:hover {
@@ -237,23 +261,47 @@
         color:#020617;
     }
 
+    .btn-pdf-remove {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        border: 1px solid #ef4444;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+    }
+
+    .btn-pdf-add {
+        background: rgba(6, 182, 212, 0.2);
+        color: #06b6d4;
+        border: 1px solid #06b6d4;
+        padding: 3px 8px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
     /* ACTION BUTTONS */
     .btn-sell {
         background:#10b981;
         border:none;
-        padding:8px 14px;
-        border-radius:20px;
+        padding:6px 12px;
+        border-radius:15px;
         color:white;
         cursor:pointer;
         transition:.3s;
         font-family: 'Times New Roman', Times, serif;
-        font-size:14px;
-        margin-right:5px;
+        font-size:13px;
+        margin-right:4px;
     }
 
     .btn-sell:hover:not(:disabled) {
-        transform:scale(1.1);
-        box-shadow:0 0 15px #10b981;
+        transform:scale(1.05);
+        box-shadow:0 0 12px #10b981;
     }
 
     .btn-sell:disabled {
@@ -265,42 +313,153 @@
     .btn-add-stock {
         background:#3b82f6;
         border:none;
-        padding:8px 14px;
-        border-radius:20px;
+        padding:6px 12px;
+        border-radius:15px;
         color:white;
         cursor:pointer;
         transition:.3s;
         font-family: 'Times New Roman', Times, serif;
-        font-size:14px;
+        font-size:13px;
     }
 
     .btn-add-stock:hover {
-        transform:scale(1.1);
-        box-shadow:0 0 15px #3b82f6;
+        transform:scale(1.05);
+        box-shadow:0 0 12px #3b82f6;
     }
 
     .badge-out-of-stock {
         background: rgba(239, 68, 68, 0.2);
         color: #ef4444;
         border: 1px solid #ef4444;
-        padding: 3px 8px;
+        padding: 2px 6px;
+        border-radius: 10px;
+        font-size: 12px;
+    }
+
+    /* MODAL SYSTEM */
+    .modal-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.75);
+        backdrop-filter: blur(8px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .modal {
+        background: #0f172a;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        width: 90%;
+        max-width: 550px;
+        padding: 30px;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        position: relative;
+    }
+
+    .modal h3 {
+        margin-top: 0;
+        color: #67e8f9;
+        font-size: 22px;
+    }
+
+    .close-modal {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        background: none;
+        border: none;
+        color: #94a3b8;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    .close-modal:hover { color: white; }
+
+    /* DRAWER / PAST TRANSACTIONS PANEL */
+    .drawer {
+        position: fixed;
+        top: 0; right: -450px;
+        width: 420px;
+        height: 100vh;
+        background: #090d16;
+        border-left: 1px solid var(--border);
+        box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        z-index: 90;
+        transition: right 0.3s ease;
+        padding: 30px 20px;
+        overflow-y: auto;
+    }
+
+    .drawer.open {
+        right: 0;
+    }
+
+    .filter-btn-group {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .filter-btn {
+        flex: 1;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid var(--border);
+        color: white;
+        padding: 8px;
         border-radius: 12px;
+        cursor: pointer;
         font-size: 13px;
+        font-family: 'Times New Roman', Times, serif;
+    }
+
+    .filter-btn.active {
+        background: #06b6d4;
+        color: #020617;
         font-weight: bold;
+    }
+
+    /* TOUR STEPS */
+    .tour-step {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin-bottom: 12px;
+    }
+    .tour-step h4 {
+        margin: 0 0 5px 0;
+        color: #38bdf8;
+    }
+    .tour-step p {
+        margin: 0;
+        font-size: 14px;
+        color: #cbd5e1;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>Labaid Trading PLC <span>Inventory Management System</span></h1>
+    <h1>Labaid Trading PLC <span>Inventory Portal</span></h1>
+    <button class="top-menu-btn" onclick="toggleDrawer()">📋 Menu & Past Transactions</button>
   </header>
 
   <div class="container">
     <div class="grid">
       
       <!-- ADD ITEM FORM -->
-      <div class="card">
+      <div class="card" id="tour-add-section">
         <h2>Add Inventory Item</h2>
         <form id="add-form">
           <label>Category</label>
@@ -327,11 +486,9 @@
           <label>Quantity</label>
           <input type="number" id="quantity" placeholder="0" required min="0">
 
-          <!-- PRICE INPUT -->
           <label>Unit Price (ETB)</label>
-          <input type="number" id="price" step="0.01" placeholder="e.g. 15000.00 (or leave empty)">
+          <input type="number" id="price" step="0.01" placeholder="e.g. 15000.00">
 
-          <!-- TECHNICAL SHEET PDF INPUT -->
           <label>Technical Sheet / Specification (PDF)</label>
           <input type="file" id="pdf_file" accept="application/pdf">
 
@@ -370,6 +527,98 @@
     </div>
   </div>
 
+  <!-- SELL MODAL -->
+  <div class="modal-overlay" id="sell-modal">
+    <div class="modal">
+      <button class="close-modal" onclick="closeSellModal()">&times;</button>
+      <h3 id="modal-item-title">Sell Item</h3>
+      <form id="sell-form">
+        <input type="hidden" id="modal-item-id">
+        <input type="hidden" id="modal-item-max-qty">
+
+        <label>Transaction Type</label>
+        <select id="modal-sale-type" required>
+          <option value="Sell">Sell (Standard)</option>
+          <option value="Credit">Credit</option>
+          <option value="Sample">Sample</option>
+        </select>
+
+        <label>Organization / Client Name</label>
+        <input type="text" id="modal-org" placeholder="e.g. Ministry of Innovation / Client Name" required>
+
+        <label>Date of Transaction</label>
+        <input type="date" id="modal-date" required>
+
+        <label>Quantity to Deduct</label>
+        <input type="number" id="modal-qty" min="1" required placeholder="1">
+
+        <button type="submit" class="btn-primary" style="margin-top: 10px;">Confirm & Save Transaction</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- WELCOME / GUIDED TOUR MODAL -->
+  <div class="modal-overlay" id="tour-modal">
+    <div class="modal">
+      <button class="close-modal" onclick="closeTourModal()">&times;</button>
+      <h3>Hello! Welcome to Labaid Trading PLC</h3>
+      <p style="color: #cbd5e1; font-size: 14px; margin-bottom: 20px;">Here is a quick guide to navigating your inventory system:</p>
+      
+      <div class="tour-step">
+        <h4>1. Adding Inventory</h4>
+        <p>Use the left-hand form to register new products, quantities, prices, and optional PDF specification sheets.</p>
+      </div>
+
+      <div class="tour-step">
+        <h4>2. Catalog PDF Management</h4>
+        <p>View attached catalog PDFs directly from the table, remove existing links, or upload/replace PDFs anytime.</p>
+      </div>
+
+      <div class="tour-step">
+        <h4>3. Processing Transactions</h4>
+        <p>Click "Sell" on any item to log sales, credit units, or samples while instantly auto-updating stock counts.</p>
+      </div>
+
+      <div class="tour-step">
+        <h4>4. Past Transactions & Filter</h4>
+        <p>Click "Menu & Past Transactions" on the top-right to view complete sales history filtered by Week, Month, or Year.</p>
+      </div>
+
+      <button class="btn-primary" onclick="closeTourModal()" style="margin-top: 15px;">Got it, let's start!</button>
+    </div>
+  </div>
+
+  <!-- RIGHT DRAWER: PAST TRANSACTIONS -->
+  <div class="drawer" id="transactions-drawer">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h3 style="margin:0; color:#67e8f9;">Past Transactions</h3>
+      <button onclick="toggleDrawer()" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">&times;</button>
+    </div>
+
+    <div class="filter-btn-group">
+      <button class="filter-btn active" id="btn-filter-week" onclick="setSalesFilter('week')">This Week</button>
+      <button class="filter-btn" id="btn-filter-month" onclick="setSalesFilter('month')">This Month</button>
+      <button class="filter-btn" id="btn-filter-year" onclick="setSalesFilter('year')">This Year</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Type</th>
+          <th>Qty</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody id="sales-history-rows">
+        <tr><td colspan="4">Loading history...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- HIDDEN FILE INPUT FOR IN-TABLE PDF UPLOADS -->
+  <input type="file" id="inline-pdf-input" accept="application/pdf" style="display:none;">
+
   <script>
     // 1. SUPABASE CONFIGURATION
     const SUPABASE_URL = "https://cbmvbbfbgauqusibdnup.supabase.co";
@@ -377,13 +626,15 @@
 
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     let allItems = [];
+    let allSales = [];
+    let activePdfItemId = null;
+    let currentFilter = 'week';
 
-    // Helper function to handle empty inputs cleanly
+    // Helper functions
     function cleanValue(val) {
       return (val && val.toString().trim() !== "") ? val : "None";
     }
 
-    // Helper to format currency
     function formatPrice(val) {
       if (val === null || val === undefined || val === "" || isNaN(val)) return "N/A";
       return parseFloat(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ETB";
@@ -403,7 +654,7 @@
       renderTable(allItems);
     }
 
-    // 3. RENDER TABLE
+    // 3. RENDER INVENTORY TABLE WITH DYNAMIC PDF ACTIONS
     function renderTable(items) {
       const tbody = document.getElementById('inventory-rows');
       if (items.length === 0) {
@@ -421,54 +672,122 @@
           <td>${item.quantity > 0 ? item.quantity : '<span class="badge-out-of-stock">Out of Stock</span>'}</td>
           <td><strong style="color:#67e8f9;">${formatPrice(item.price)}</strong></td>
           <td>
-            ${item.pdf_url 
-              ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">📄 View PDF</a>` 
-              : `<span style="font-size:13px; color:#64748b;">N/A</span>`}
+            <div class="pdf-actions">
+              ${item.pdf_url 
+                ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">📄 View</a>
+                   <button class="btn-pdf-remove" onclick="removePdf(${item.id})" title="Remove PDF">&times;</button>` 
+                : `<button class="btn-pdf-add" onclick="triggerInlinePdfUpload(${item.id})">+ Attach PDF</button>`}
+            </div>
           </td>
           <td style="white-space: nowrap;">
-            <button class="btn-sell" ${item.quantity <= 0 ? 'disabled' : ''} onclick="sellItem(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}')">Sell</button>
+            <button class="btn-sell" ${item.quantity <= 0 ? 'disabled' : ''} onclick="openSellModal(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}')">Sell</button>
             <button class="btn-add-stock" onclick="addStock(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}')">+ Stock</button>
           </td>
         </tr>
       `).join('');
     }
 
-    // 4. SELL / REDUCE QUANTITY FUNCTION
-    async function sellItem(id, currentQty, name) {
-      if (currentQty <= 0) {
-        alert(`"${name}" is currently out of stock.`);
-        return;
-      }
-
-      const soldQtyInput = prompt(`How many units of "${name}" were sold?`, "1");
-      if (soldQtyInput === null) return; // User cancelled
-
-      const soldQty = parseInt(soldQtyInput, 10);
-      if (isNaN(soldQty) || soldQty <= 0) {
-        alert("Please enter a valid number greater than 0.");
-        return;
-      }
-
-      if (soldQty > currentQty) {
-        alert(`Cannot sell ${soldQty} units. Only ${currentQty} currently in stock.`);
-        return;
-      }
-
-      const newQty = currentQty - soldQty;
-
-      const { error } = await db.from('items').update({ quantity: newQty }).eq('id', id);
-
-      if (error) {
-        alert("Could not update quantity: " + error.message);
-      } else {
-        loadInventory();
-      }
+    // 4. PDF ADD / REMOVE LOGIC
+    function triggerInlinePdfUpload(itemId) {
+      activePdfItemId = itemId;
+      document.getElementById('inline-pdf-input').click();
     }
 
-    // 5. ADD QUANTITY / RESTOCK FUNCTION
+    document.getElementById('inline-pdf-input').addEventListener('change', async (e) => {
+      if (!e.target.files.length || !activePdfItemId) return;
+      
+      const file = e.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `specs/${fileName}`;
+
+      const { data: uploadData, error: uploadError } = await db.storage
+        .from('item-docs')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        alert("PDF Upload failed: " + uploadError.message);
+        return;
+      }
+
+      const { data: publicUrlData } = db.storage
+        .from('item-docs')
+        .getPublicUrl(filePath);
+
+      const pdf_url = publicUrlData.publicUrl;
+
+      const { error } = await db.from('items').update({ pdf_url }).eq('id', activePdfItemId);
+      if (error) alert("Could not attach PDF: " + error.message);
+      else loadInventory();
+      
+      e.target.value = ""; 
+    });
+
+    async function removePdf(itemId) {
+      if (!confirm("Are you sure you want to remove this PDF catalog?")) return;
+      const { error } = await db.from('items').update({ pdf_url: null }).eq('id', itemId);
+      if (error) alert("Could not remove PDF: " + error.message);
+      else loadInventory();
+    }
+
+    // 5. TRANSACTION / SELL MODAL & LOGIC
+    function openSellModal(id, maxQty, name) {
+      document.getElementById('modal-item-id').value = id;
+      document.getElementById('modal-item-max-qty').value = maxQty;
+      document.getElementById('modal-item-title').innerText = `Record Transaction: ${name}`;
+      document.getElementById('modal-date').value = new Date().toISOString().split('T')[0];
+      document.getElementById('modal-qty').max = maxQty;
+      document.getElementById('sell-modal').classList.add('active');
+    }
+
+    function closeSellModal() {
+      document.getElementById('sell-modal').classList.remove('active');
+      document.getElementById('sell-form').reset();
+    }
+
+    document.getElementById('sell-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const id = parseInt(document.getElementById('modal-item-id').value);
+      const maxQty = parseInt(document.getElementById('modal-item-max-qty').value);
+      const saleType = document.getElementById('modal-sale-type').value;
+      const org = document.getElementById('modal-org').value;
+      const date = document.getElementById('modal-date').value;
+      const soldQty = parseInt(document.getElementById('modal-qty').value);
+
+      if (soldQty > maxQty) {
+        alert(`Cannot complete transaction. Only ${maxQty} units available.`);
+        return;
+      }
+
+      const item = allItems.find(i => i.id === id);
+      const newQty = maxQty - soldQty;
+
+      // 1. Update stock
+      const { error: stockErr } = await db.from('items').update({ quantity: newQty }).eq('id', id);
+      if (stockErr) { alert("Error updating stock: " + stockErr.message); return; }
+
+      // 2. Log Transaction
+      const { error: saleErr } = await db.from('sales').insert([{
+        item_id: id,
+        item_name: item ? item.item_name : "Item",
+        quantity: soldQty,
+        sale_type: saleType,
+        organization: org,
+        sale_date: date
+      }]);
+
+      if (saleErr) alert("Stock updated, but transaction log failed: " + saleErr.message);
+
+      closeSellModal();
+      loadInventory();
+      loadSalesHistory();
+    });
+
+    // 6. ADD STOCK / RESTOCK
     async function addStock(id, currentQty, name) {
-      const addQtyInput = prompt(`How many units of "${name}" are you adding to stock?`, "1");
-      if (addQtyInput === null) return; // User cancelled
+      const addQtyInput = prompt(`How many units of "${name}" are you adding?`, "1");
+      if (addQtyInput === null) return;
 
       const addQty = parseInt(addQtyInput, 10);
       if (isNaN(addQty) || addQty <= 0) {
@@ -476,18 +795,70 @@
         return;
       }
 
-      const newQty = currentQty + addQty;
+      const { error } = await db.from('items').update({ quantity: currentQty + addQty }).eq('id', id);
+      if (error) alert("Could not update quantity: " + error.message);
+      else loadInventory();
+    }
 
-      const { error } = await db.from('items').update({ quantity: newQty }).eq('id', id);
-
-      if (error) {
-        alert("Could not update quantity: " + error.message);
-      } else {
-        loadInventory();
+    // 7. PAST TRANSACTIONS DRAWER & FILTERS
+    function toggleDrawer() {
+      document.getElementById('transactions-drawer').classList.toggle('open');
+      if (document.getElementById('transactions-drawer').classList.contains('open')) {
+        loadSalesHistory();
       }
     }
 
-    // 6. SEARCH / FILTER FUNCTION
+    async function loadSalesHistory() {
+      const { data, error } = await db.from('sales').select('*').order('sale_date', { ascending: false });
+      if (error) {
+        console.error(error);
+        document.getElementById('sales-history-rows').innerHTML = `<tr><td colspan="4">No sales records found.</td></tr>`;
+        return;
+      }
+      allSales = data;
+      renderSalesHistory();
+    }
+
+    function setSalesFilter(period) {
+      currentFilter = period;
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`btn-filter-${period}`).classList.add('active');
+      renderSalesHistory();
+    }
+
+    function renderSalesHistory() {
+      const tbody = document.getElementById('sales-history-rows');
+      const now = new Date();
+
+      const filtered = allSales.filter(s => {
+        const saleDate = new Date(s.sale_date);
+        if (currentFilter === 'week') {
+          const diffDays = (now - saleDate) / (1000 * 3600 * 24);
+          return diffDays <= 7;
+        } else if (currentFilter === 'month') {
+          return saleDate.getMonth() === now.getMonth() && saleDate.getFullYear() === now.getFullYear();
+        } else if (currentFilter === 'year') {
+          return saleDate.getFullYear() === now.getFullYear();
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No records for this period.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(s => `
+        <tr>
+          <td><strong>${s.item_name}</strong><br><small style="color:#94a3b8;">${s.organization || ''}</small></td>
+          <td><span style="font-size:12px; border:1px solid rgba(255,255,255,0.3); padding:2px 6px; border-radius:10px;">${s.sale_type}</span></td>
+          <td>${s.quantity}</td>
+          <td><small>${s.sale_date}</small></td>
+        </tr>
+      `).join('');
+    }
+
+    // 8. SEARCH / FILTER FUNCTION
     function filterItems() {
       const query = document.getElementById('search').value.toLowerCase();
       const filtered = allItems.filter(i => 
@@ -498,7 +869,19 @@
       renderTable(filtered);
     }
 
-    // 7. ADD ITEM & UPLOAD PDF
+    // 9. INITIAL GUIDED TOUR MODAL
+    function checkTour() {
+      if (!localStorage.getItem('labaid_tour_seen')) {
+        document.getElementById('tour-modal').classList.add('active');
+      }
+    }
+
+    function closeTourModal() {
+      localStorage.setItem('labaid_tour_seen', 'true');
+      document.getElementById('tour-modal').classList.remove('active');
+    }
+
+    // 10. ADD ITEM FORM SUBMISSION
     document.getElementById('add-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -559,8 +942,9 @@
       }
     });
 
-    // Initial load
+    // Initial load calls
     loadInventory();
+    checkTour();
   </script>
 </body>
 </html>
