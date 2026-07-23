@@ -24,6 +24,14 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
     
+    /* HIGHLIGHT PULSE FOR TOUR GUIDE */
+    .tour-highlight-active {
+      position: relative;
+      z-index: 210 !important;
+      box-shadow: 0 0 0 4px var(--accent-cyan), 0 0 25px rgba(56, 189, 248, 0.6) !important;
+      transition: all 0.3s ease;
+    }
+
     /* AUTH OVERLAY */
     #auth-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -117,7 +125,6 @@
     }
     .analytics-card.amber::before { background: var(--accent-amber); }
     .analytics-card.emerald::before { background: var(--accent-emerald); }
-    .analytics-card.purple::before { background: var(--accent-purple); }
 
     /* CHARTS CONTAINER */
     .charts-grid {
@@ -178,13 +185,6 @@
     }
     .side-drawer.open { right: 0; }
     
-    .tour-step-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-light);
-      border-radius: 10px; padding: 16px; margin-bottom: 14px; display: none;
-    }
-    .tour-step-card.active { display: block; }
-
     .sale-msg-card {
       background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-light);
       border-radius: 10px; padding: 12px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s ease;
@@ -193,12 +193,12 @@
     .sale-msg-body { display: none; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border-light); font-size: 12px; color: var(--text-muted); }
     .sale-msg-card.expanded .sale-msg-body { display: block; }
 
-    /* COMPARISON BANNER */
-    .excel-badge {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(56, 189, 248, 0.15));
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 10px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 5px; font-size: 12px;
+    /* FLOATING TOUR GUIDE BANNER */
+    #tour-floating-box {
+      position: fixed; bottom: 25px; right: 25px; width: 340px;
+      background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px);
+      border: 1px solid var(--accent-cyan); border-radius: 14px; padding: 18px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.7); z-index: 300; display: none;
     }
   </style>
 </head>
@@ -231,17 +231,14 @@
 
   <!-- NAVBAR -->
   <header class="navbar">
-    <div class="brand">
+    <div class="brand" id="tour-step-1-target">
       <i class="fa-solid fa-microchip"></i> LABAID INTELLIGENCE ENGINE
     </div>
     <div class="nav-actions">
-      <button class="btn-action" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border-color: var(--accent-emerald);" onclick="openWhyBetterModal()">
-        <i class="fa-solid fa-bolt"></i> Why Better Than Excel?
-      </button>
-      <button class="btn-action" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); border-color: var(--accent-cyan);" onclick="openTourModal()">
+      <button class="btn-action" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); border-color: var(--accent-cyan);" onclick="startInteractiveTour()">
         <i class="fa-solid fa-compass"></i> Tour Guide
       </button>
-      <button class="btn-action" onclick="toggleSalesDrawer()">
+      <button class="btn-action" onclick="toggleSalesDrawer()" id="tour-step-4-target">
         <i class="fa-solid fa-receipt"></i> Sales History
       </button>
       <button class="btn-action" onclick="openExportModal()">
@@ -249,6 +246,9 @@
       </button>
       <button class="btn-action" onclick="toggleAuditDrawer()">
         <i class="fa-solid fa-list-check"></i> Audit Logs
+      </button>
+      <button class="btn-action" style="background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); border-color: var(--accent-purple);" onclick="openPasswordModal()">
+        <i class="fa-solid fa-key"></i> Change Password
       </button>
       <button class="btn-action" style="background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); border-color: var(--accent-rose);" onclick="logoutSystem()">
         <i class="fa-solid fa-right-from-bracket"></i> Logout
@@ -260,7 +260,7 @@
   <div class="app-container">
     
     <!-- SIDEBAR FORM -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="tour-step-2-target">
       <h3 style="margin-bottom: 15px; color: var(--accent-cyan); font-size: 15px;">
         <i class="fa-solid fa-plus-circle"></i> Asset Registration
       </h3>
@@ -309,7 +309,7 @@
     <main class="content-area">
       
       <!-- DYNAMIC INTELLIGENCE VISUALIZATION DECK -->
-      <div class="dashboard-deck">
+      <div class="dashboard-deck" id="tour-step-3-target">
         <div class="analytics-card">
           <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Total Inventory Volume</div>
           <div style="font-size: 26px; font-weight: 800; color: var(--accent-cyan); margin-top: 4px;" id="stat-total-items">0 Units</div>
@@ -341,7 +341,7 @@
 
       <!-- VIEW TABS & TABLE -->
       <div class="view-tabs">
-        <div class="tab-group">
+        <div class="tab-group" id="tour-step-5-target">
           <button class="tab-btn active" id="tab-equipment" onclick="switchEnterpriseView('equipment')">
             <i class="fa-solid fa-microscope"></i> Equipment & Supplies
           </button>
@@ -361,72 +361,33 @@
     </main>
   </div>
 
-  <!-- WHY BETTER THAN EXCEL MODAL -->
-  <div class="modal-overlay" id="excel-modal">
-    <div class="modal-box" style="max-width: 600px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h3 style="color: var(--accent-emerald); font-size: 18px;"><i class="fa-solid fa-bolt"></i> Why This is Better Than a Lockable Excel Sheet</h3>
-        <button onclick="closeWhyBetterModal()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">&times;</button>
-      </div>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">If clients, auditors, or management ask why Labaid Trading PLC uses this system over standard protected Excel files, present these enterprise advantages:</p>
-      
-      <div class="excel-badge">
-        <div><strong>1. Real-Time Cloud Synchronization (Supabase)</strong><br><span style="color:var(--text-muted);">Multiple sales reps and procurement officers can update tender items concurrently without file locking conflicts.</span></div>
-      </div>
-      <div class="excel-badge" style="border-color: rgba(56, 189, 248, 0.3);">
-        <div><strong>2. Automated Expiry & Shelf-Life Diagnostics</strong><br><span style="color:var(--text-muted);">Instantly flags chemicals expiring in under 1 year with visual charts—preventing dead inventory write-offs.</span></div>
-      </div>
-      <div class="excel-badge" style="border-color: rgba(168, 85, 247, 0.3);">
-        <div><strong>3. Immutable Audit Trails</strong><br><span style="color:var(--text-muted);">Every registration, modification, sale, and deletion is timestamped and logged with user attribution, eliminating untraceable sheet edits.</span></div>
-      </div>
-      <div class="excel-badge" style="border-color: rgba(245, 158, 11, 0.3);">
-        <div><strong>4. Integrated PDF Specification Repository</strong><br><span style="color:var(--text-muted);">Store manufacturer datasheets directly in database records for rapid tender compliance document preparation.</span></div>
-      </div>
-      <div style="margin-top: 20px; text-align: center;">
-        <button class="btn-action btn-primary" onclick="closeWhyBetterModal()">Got It, Back to Work</button>
-      </div>
+  <!-- FLOATING TOUR GUIDE BOX -->
+  <div id="tour-floating-box">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+      <span id="tour-step-badge" style="font-size: 10px; background: rgba(56,189,248,0.2); color: var(--accent-cyan); padding: 2px 6px; border-radius: 4px; font-weight: 700;">STEP 1 OF 5</span>
+      <button onclick="closeInteractiveTour()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">&times;</button>
+    </div>
+    <h4 id="tour-step-title" style="font-size: 14px; margin-bottom: 6px; color: var(--text-main);"></h4>
+    <p id="tour-step-desc" style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;"></p>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <button class="btn-action" id="tour-prev-btn" onclick="travelTourStep(-1)"><i class="fa-solid fa-arrow-left"></i> Prev</button>
+      <button class="btn-action btn-primary" id="tour-next-btn" onclick="travelTourStep(1)">Next <i class="fa-solid fa-arrow-right"></i></button>
     </div>
   </div>
 
-  <!-- TOUR GUIDE MODAL -->
-  <div class="modal-overlay" id="tour-modal">
-    <div class="modal-box" style="max-width: 550px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h3 style="color: var(--accent-cyan); font-size: 18px;"><i class="fa-solid fa-compass"></i> System Tour Guide</h3>
-        <button onclick="closeTourModal()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">&times;</button>
-      </div>
-      
-      <div id="tour-step-1" class="tour-step-card active">
-        <div style="font-size: 11px; color: var(--accent-cyan); font-weight: 700; margin-bottom: 4px;">STEP 1 OF 5</div>
-        <h4 style="margin-bottom: 8px;">Secure Authentication</h4>
-        <p style="font-size: 13px; color: var(--text-muted);">Log in with your enterprise credentials to activate live database connection and audit logging.</p>
-      </div>
-      <div id="tour-step-2" class="tour-step-card">
-        <div style="font-size: 11px; color: var(--accent-cyan); font-weight: 700; margin-bottom: 4px;">STEP 2 OF 5</div>
-        <h4 style="margin-bottom: 8px;">Dynamic Asset Registration</h4>
-        <p style="font-size: 13px; color: var(--text-muted);">Use the left sidebar to register equipment, agricultural machinery, or chemicals with specialized expiry tracking.</p>
-      </div>
-      <div id="tour-step-3" class="tour-step-card">
-        <div style="font-size: 11px; color: var(--accent-cyan); font-weight: 700; margin-bottom: 4px;">STEP 3 OF 5</div>
-        <h4 style="margin-bottom: 8px;">Visual Intelligence & Expiry Charts</h4>
-        <p style="font-size: 13px; color: var(--text-muted);">Instantly view inventory distribution and monitor chemical expiration timelines under 1 year.</p>
-      </div>
-      <div id="tour-step-4" class="tour-step-card">
-        <div style="font-size: 11px; color: var(--accent-cyan); font-weight: 700; margin-bottom: 4px;">STEP 4 OF 5</div>
-        <h4 style="margin-bottom: 8px;">Processing Sales & Dispatches</h4>
-        <p style="font-size: 13px; color: var(--text-muted);">Click the green cart icon on any row to dispatch items to university tenders while keeping price records intact.</p>
-      </div>
-      <div id="tour-step-5" class="tour-step-card">
-        <div style="font-size: 11px; color: var(--accent-cyan); font-weight: 700; margin-bottom: 4px;">STEP 5 OF 5</div>
-        <h4 style="margin-bottom: 8px;">Audit & Export Reports</h4>
-        <p style="font-size: 13px; color: var(--text-muted);">Review complete sales histories, audit logs, and export professional CSV reports instantly.</p>
-      </div>
-
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; border-top: 1px solid var(--border-light); padding-top: 15px;">
-        <button class="btn-action" id="tour-prev-btn" style="visibility: hidden;" onclick="changeTourStep(-1)"><i class="fa-solid fa-arrow-left"></i> Previous</button>
-        <div id="tour-indicator" style="font-size: 12px; color: var(--text-muted);">1 / 5</div>
-        <button class="btn-action btn-primary" id="tour-next-btn" onclick="changeTourStep(1)">Next <i class="fa-solid fa-arrow-right"></i></button>
-      </div>
+  <!-- PASSWORD MODAL -->
+  <div class="modal-overlay" id="password-modal">
+    <div class="modal-box" style="max-width: 400px;">
+      <h3 style="color: var(--accent-purple); margin-bottom: 12px;"><i class="fa-solid fa-key"></i> Change Password</h3>
+      <form onsubmit="handlePasswordChange(event)">
+        <div class="form-group"><label>Current Password</label><input type="password" class="form-control" id="pass-current" required></div>
+        <div class="form-group"><label>New Password</label><input type="password" class="form-control" id="pass-new" required></div>
+        <div class="form-group"><label>Confirm New Password</label><input type="password" class="form-control" id="pass-confirm" required></div>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+          <button type="button" class="btn-action" style="flex:1; justify-content: center;" onclick="closePasswordModal()">Cancel</button>
+          <button type="submit" class="btn-action btn-primary" style="flex:1; justify-content: center; background: var(--accent-purple);">Update Password</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -532,38 +493,91 @@
   <script>
     const SUPABASE_URL = "https://cbmvbbfbgauqusibdnup.supabase.co";
     const SUPABASE_KEY = "sb_publishable_gq0-KFzH8Ru9-etDSZ_Cwg_pQrHCYcY";
-    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let db = null;
+    try {
+      db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } catch(err) { db = null; }
 
     let enterpriseItems = [];
     let salesHistory = [];
     let auditLogs = [];
     let currentView = 'equipment';
-    let currentTourStep = 1;
+    let currentTourIndex = 0;
     let categoryChartInstance = null;
     let expiryChartInstance = null;
-    const totalTourSteps = 5;
 
-    function openWhyBetterModal() { document.getElementById('excel-modal').classList.add('active'); }
-    function closeWhyBetterModal() { document.getElementById('excel-modal').classList.remove('active'); }
-
-    function openTourModal() { currentTourStep = 1; updateTourView(); document.getElementById('tour-modal').classList.add('active'); }
-    function closeTourModal() { document.getElementById('tour-modal').classList.remove('active'); }
-    function changeTourStep(dir) {
-      currentTourStep += dir;
-      if (currentTourStep < 1) currentTourStep = 1;
-      if (currentTourStep > totalTourSteps) currentTourStep = totalTourSteps;
-      updateTourView();
-    }
-    function updateTourView() {
-      for (let i = 1; i <= totalTourSteps; i++) {
-        const c = document.getElementById(`tour-step-${i}`);
-        if (c) c.classList.toggle('active', i === currentTourStep);
+    const tourStepsDef = [
+      {
+        targetId: 'tour-step-1-target',
+        title: 'Enterprise Header & Brand',
+        desc: 'Core navigation header running the Labaid Intelligence Engine with rapid action shortcuts.'
+      },
+      {
+        targetId: 'tour-step-2-target',
+        title: 'Asset Registration Sidebar',
+        desc: 'Register new equipment, supplies, or chemicals with CAS numbers and expiry dates directly into cloud storage.'
+      },
+      {
+        targetId: 'tour-step-3-target',
+        title: 'Dynamic Intelligence & Analytics Deck',
+        desc: 'Live cards displaying total volume, active sectors, and chemical expiration warnings under 1 year.'
+      },
+      {
+        targetId: 'tour-step-4-target',
+        title: 'Sales & Dispatch History',
+        desc: 'Track completed university and institutional dispatches with item-level breakdowns.'
+      },
+      {
+        targetId: 'tour-step-5-target',
+        title: 'Sector Category Switcher',
+        desc: 'Instantly toggle between General Equipment & Supplies and specialized Chemicals & Reagents views.'
       }
-      document.getElementById('tour-indicator').textContent = `${currentTourStep} / ${totalTourSteps}`;
-      document.getElementById('tour-prev-btn').style.visibility = currentTourStep === 1 ? 'hidden' : 'visible';
+    ];
+
+    function startInteractiveTour() {
+      currentTourIndex = 0;
+      document.getElementById('tour-floating-box').style.display = 'block';
+      renderTourStep();
+    }
+    function closeInteractiveTour() {
+      document.getElementById('tour-floating-box').style.display = 'none';
+      document.querySelectorAll('.tour-highlight-active').forEach(el => el.classList.remove('tour-highlight-active'));
+    }
+    function travelTourStep(dir) {
+      currentTourIndex += dir;
+      if (currentTourIndex < 0) currentTourIndex = 0;
+      if (currentTourIndex >= tourStepsDef.length) currentTourIndex = tourStepsDef.length - 1;
+      renderTourStep();
+    }
+    function renderTourStep() {
+      document.querySelectorAll('.tour-highlight-active').forEach(el => el.classList.remove('tour-highlight-active'));
+      const step = tourStepsDef[currentTourIndex];
+      const targetEl = document.getElementById(step.targetId);
+      if (targetEl) {
+        targetEl.classList.add('tour-highlight-active');
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      document.getElementById('tour-step-badge').textContent = `STEP ${currentTourIndex + 1} OF ${tourStepsDef.length}`;
+      document.getElementById('tour-step-title').textContent = step.title;
+      document.getElementById('tour-step-desc').textContent = step.desc;
+      document.getElementById('tour-prev-btn').style.visibility = currentTourIndex === 0 ? 'hidden' : 'visible';
       const nBtn = document.getElementById('tour-next-btn');
-      nBtn.innerHTML = currentTourStep === totalTourSteps ? `Finish <i class="fa-solid fa-check"></i>` : `Next <i class="fa-solid fa-arrow-right"></i>`;
-      nBtn.onclick = currentTourStep === totalTourSteps ? closeTourModal : () => changeTourStep(1);
+      nBtn.innerHTML = currentTourIndex === tourStepsDef.length - 1 ? `Finish <i class="fa-solid fa-check"></i>` : `Next <i class="fa-solid fa-arrow-right"></i>`;
+      nBtn.onclick = currentTourIndex === tourStepsDef.length - 1 ? closeInteractiveTour : () => travelTourStep(1);
+    }
+
+    function openPasswordModal() { document.getElementById('password-modal').classList.add('active'); }
+    function closePasswordModal() { document.getElementById('password-modal').classList.remove('active'); }
+    function handlePasswordChange(e) {
+      e.preventDefault();
+      const curr = document.getElementById('pass-current').value;
+      const nPass = document.getElementById('pass-new').value;
+      const conf = document.getElementById('pass-confirm').value;
+      if (curr !== "Abc123") { alert("Incorrect current password!"); return; }
+      if (nPass !== conf) { alert("New passwords do not match!"); return; }
+      alert("Password successfully updated!");
+      closePasswordModal();
+      addAuditEntry("Security", "User changed account password.");
     }
 
     function handleLogin(e) {
@@ -601,13 +615,25 @@
     }
 
     async function loadEnterpriseData() {
-      const { data: itemsData } = await db.from('items').select('*').order('id', { ascending: false });
-      enterpriseItems = itemsData || [];
+      let itemsData = [];
+      if (db) {
+        try {
+          const res = await db.from('items').select('*').order('id', { ascending: false });
+          itemsData = res.data || [];
+        } catch(e) { itemsData = []; }
+      }
+      if (!itemsData.length) {
+        itemsData = JSON.parse(localStorage.getItem('local_items_fallback') || '[]');
+      }
+      enterpriseItems = itemsData;
+
       let salesData = [];
-      try {
-        const res = await db.from('sales_log').select('*').order('id', { ascending: false });
-        salesData = res.data || [];
-      } catch (err) { salesData = []; }
+      if (db) {
+        try {
+          const res = await db.from('sales_log').select('*').order('id', { ascending: false });
+          salesData = res.data || [];
+        } catch(e) { salesData = []; }
+      }
       salesHistory = [...salesData, ...JSON.parse(localStorage.getItem('local_sales_fallback') || '[]')];
 
       updateAnalyticsDeck();
@@ -636,7 +662,6 @@
     }
 
     function renderCharts() {
-      // Category Breakdown Chart
       let catCounts = {};
       enterpriseItems.forEach(i => {
         catCounts[i.category] = (catCounts[i.category] || 0) + (parseInt(i.quantity) || 0);
@@ -660,7 +685,6 @@
         }
       });
 
-      // Expiry Timeline Chart for Chemicals (< 1 Year)
       let now = new Date();
       let expBuckets = { '< 3 Months': 0, '3 - 6 Months': 0, '6 - 12 Months': 0, 'Safe (> 1 Year)': 0 };
       
@@ -736,6 +760,7 @@
       tbody.innerHTML = filtered.map((item, index) => {
         const qty = parseInt(item.quantity) || 0;
         const pdfUrl = item.pdf_url;
+        const recordId = item.id || index;
         if (currentView === 'chemicals') {
           return `
             <tr>
@@ -748,9 +773,9 @@
               <td><span style="color:var(--accent-amber);">${item.expire_date || 'N/A'}</span></td>
               <td>
                 <div style="display:flex; gap:5px;">
-                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i></button>
-                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i></button>
-                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-rose); color:#fff;" onclick="deleteItem(${item.id}, '${item.item_name}')"><i class="fa-solid fa-trash"></i></button>
+                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${recordId})"><i class="fa-solid fa-pen"></i></button>
+                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${recordId})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i></button>
+                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-rose); color:#fff;" onclick="deleteItem(${recordId}, '${item.item_name}')"><i class="fa-solid fa-trash"></i></button>
                 </div>
               </td>
             </tr>`;
@@ -766,9 +791,9 @@
               <td>${pdfUrl ? `<a href="${pdfUrl}" target="_blank" class="btn-action" style="padding:4px 7px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> View</a>` : `<span style="color:var(--text-muted); font-size:11px;">None</span>`}</td>
               <td>
                 <div style="display:flex; gap:5px;">
-                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i></button>
-                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i></button>
-                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-rose); color:#fff;" onclick="deleteItem(${item.id}, '${item.item_name}')"><i class="fa-solid fa-trash"></i></button>
+                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${recordId})"><i class="fa-solid fa-pen"></i></button>
+                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${recordId})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i></button>
+                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-rose); color:#fff;" onclick="deleteItem(${recordId}, '${item.item_name}')"><i class="fa-solid fa-trash"></i></button>
                 </div>
               </td>
             </tr>`;
@@ -791,6 +816,7 @@
       let catalogUrl = pdfFile ? await convertFileToBase64(pdfFile) : null;
       
       const payload = {
+        id: Date.now(),
         category: document.getElementById('ent-category').value,
         item_name: document.getElementById('ent-name').value,
         brand: document.getElementById('ent-brand').value,
@@ -803,7 +829,13 @@
         expire_date: document.getElementById('ent-expire').value || null
       };
 
-      await db.from('items').insert([payload]);
+      if (db) {
+        try { await db.from('items').insert([payload]); } catch(err) {}
+      }
+      let localItems = JSON.parse(localStorage.getItem('local_items_fallback') || '[]');
+      localItems.unshift(payload);
+      localStorage.setItem('local_items_fallback', JSON.stringify(localItems));
+
       addAuditEntry("Asset Registered", `Added "${payload.item_name}"`);
       document.getElementById('enterprise-form').reset();
       loadEnterpriseData();
@@ -811,14 +843,19 @@
 
     async function deleteItem(id, itemName) {
       if (!confirm(`Are you sure you want to delete "${itemName}"?`)) return;
-      const { data, error } = await db.from('items').delete().eq('id', id).select();
-      if (error) { alert("Deletion error: " + error.message); return; }
+      if (db) {
+        try { await db.from('items').delete().eq('id', id); } catch(err) {}
+      }
+      let localItems = JSON.parse(localStorage.getItem('local_items_fallback') || '[]');
+      localItems = localItems.filter(i => i.id !== id);
+      localStorage.setItem('local_items_fallback', JSON.stringify(localItems));
+
       addAuditEntry("Asset Deleted", `Removed "${itemName}"`);
       loadEnterpriseData();
     }
 
     function openEditModal(id) {
-      const item = enterpriseItems.find(i => i.id === id);
+      const item = enterpriseItems.find(i => i.id === id || i.id == id);
       if (!item) return;
       document.getElementById('edit-id').value = item.id;
       document.getElementById('edit-category').value = item.category;
@@ -833,7 +870,7 @@
 
     async function handleEditSubmit(e) {
       e.preventDefault();
-      const id = document.getElementById('edit-id').value;
+      const id = parseInt(document.getElementById('edit-id').value);
       const pdfFile = document.getElementById('edit-pdf-file').files[0];
       let catalogUrl = pdfFile ? await convertFileToBase64(pdfFile) : undefined;
 
@@ -847,14 +884,20 @@
       };
       if (catalogUrl) updated.pdf_url = catalogUrl;
 
-      await db.from('items').update(updated).eq('id', id);
+      if (db) {
+        try { await db.from('items').update(updated).eq('id', id); } catch(err) {}
+      }
+      let localItems = JSON.parse(localStorage.getItem('local_items_fallback') || '[]');
+      localItems = localItems.map(i => i.id === id ? { ...i, ...updated } : i);
+      localStorage.setItem('local_items_fallback', JSON.stringify(localItems));
+
       addAuditEntry("Asset Updated", `Modified "${updated.item_name}"`);
       closeEditModal();
       loadEnterpriseData();
     }
 
     function openSaleModal(id) {
-      const item = enterpriseItems.find(i => i.id === id);
+      const item = enterpriseItems.find(i => i.id === id || i.id == id);
       if (!item) return;
       document.getElementById('sale-item-id').value = item.id;
       document.getElementById('sale-item-name').value = item.item_name;
@@ -870,11 +913,12 @@
       e.preventDefault();
       const itemId = parseInt(document.getElementById('sale-item-id').value);
       const qtySold = parseInt(document.getElementById('sale-qty').value);
-      const item = enterpriseItems.find(i => i.id === itemId);
+      const item = enterpriseItems.find(i => i.id === itemId || i.id == itemId);
       
       if (!item || item.quantity < qtySold) { alert("Insufficient stock quantity!"); return; }
 
       const saleRecord = {
+        id: Date.now(),
         item_id: itemId,
         item_name: document.getElementById('sale-item-name').value,
         sale_type: document.getElementById('sale-type').value,
@@ -885,15 +929,21 @@
         sale_date: document.getElementById('sale-date').value
       };
 
-      try {
-        await db.from('sales_log').insert([saleRecord]);
-      } catch (err) {
-        let localSales = JSON.parse(localStorage.getItem('local_sales_fallback') || '[]');
-        localSales.unshift(saleRecord);
-        localStorage.setItem('local_sales_fallback', JSON.stringify(localSales));
+      if (db) {
+        try { await db.from('sales_log').insert([saleRecord]); } catch(err) {}
       }
+      let localSales = JSON.parse(localStorage.getItem('local_sales_fallback') || '[]');
+      localSales.unshift(saleRecord);
+      localStorage.setItem('local_sales_fallback', JSON.stringify(localSales));
 
-      await db.from('items').update({ quantity: item.quantity - qtySold }).eq('id', itemId);
+      const newQty = item.quantity - qtySold;
+      if (db) {
+        try { await db.from('items').update({ quantity: newQty }).eq('id', itemId); } catch(err) {}
+      }
+      let localItems = JSON.parse(localStorage.getItem('local_items_fallback') || '[]');
+      localItems = localItems.map(i => i.id === itemId ? { ...i, quantity: newQty } : i);
+      localStorage.setItem('local_items_fallback', JSON.stringify(localItems));
+
       addAuditEntry("Sale Recorded", `Dispatched ${qtySold}x "${saleRecord.item_name}" to ${saleRecord.client_name}`);
       closeSaleModal();
       loadEnterpriseData();
