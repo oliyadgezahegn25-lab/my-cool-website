@@ -76,7 +76,7 @@
     }
     .form-control:focus { outline: none; border-color: var(--accent-cyan); }
 
-    /* TABS & METRICS */
+    /* TABS */
     .view-tabs { display: flex; gap: 10px; border-bottom: 1px solid var(--border-light); padding-bottom: 10px; }
     .tab-btn { background: none; border: none; color: var(--text-muted); padding: 8px 16px; font-size: 14px; font-weight: 700; cursor: pointer; border-radius: 6px; }
     .tab-btn.active { background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); }
@@ -103,6 +103,20 @@
     }
     .side-drawer.open { right: 0; }
 
+    /* MESSAGE STYLE SALES CARD */
+    .sale-msg-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .sale-msg-card:hover { background: rgba(255, 255, 255, 0.07); border-color: var(--accent-emerald); }
+    .sale-msg-body { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-light); font-size: 12px; color: var(--text-muted); }
+    .sale-msg-card.expanded .sale-msg-body { display: block; }
+
     /* TOUR HIGHLIGHT */
     .tour-highlight {
       position: relative !important;
@@ -111,15 +125,8 @@
       border-radius: 8px;
     }
     #tour-popover {
-      position: fixed;
-      z-index: 1001;
-      background: var(--panel-bg);
-      border: 2px solid var(--accent-cyan);
-      border-radius: 12px;
-      padding: 18px;
-      width: 320px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.8);
-      display: none;
+      position: fixed; z-index: 1001; background: var(--panel-bg); border: 2px solid var(--accent-cyan);
+      border-radius: 12px; padding: 18px; width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.8); display: none;
     }
   </style>
 </head>
@@ -151,7 +158,7 @@
     
     <!-- LEFT SIDEBAR: REGISTRATION FORM -->
     <aside class="sidebar" id="tour-reg-form">
-      <h3 style="margin-bottom: 15px; color: var(--accent-cyan);" id="panel-form-title">
+      <h3 style="margin-bottom: 15px; color: var(--accent-cyan);">
         <i class="fa-solid fa-plus-circle"></i> Item Registration
       </h3>
       
@@ -184,13 +191,11 @@
           </div>
         </div>
 
-        <!-- CATALOGUE ATTACHMENT OPTIONS -->
         <div id="standard-spec-fields">
           <div class="form-group">
             <label>Upload Catalogue Spec PDF File</label>
             <input type="file" class="form-control" id="ent-pdf-file" accept=".pdf">
           </div>
-
           <div class="form-group">
             <label>OR Catalogue Spec URL</label>
             <input type="url" class="form-control" id="ent-catalog-url" placeholder="https://...">
@@ -233,8 +238,6 @@
 
     <!-- RIGHT CONTENT AREA -->
     <main class="content-area">
-      
-      <!-- TABS -->
       <div class="view-tabs" id="tour-view-tabs">
         <button class="tab-btn active" id="tab-equipment" onclick="switchEnterpriseView('equipment')">
           <i class="fa-solid fa-microscope"></i> Equipment & Supplies
@@ -244,14 +247,12 @@
         </button>
       </div>
 
-      <!-- DIRECTORY TABLE -->
       <div class="table-container" id="tour-table">
         <table>
           <thead id="ent-table-head"></thead>
           <tbody id="ent-table-body"></tbody>
         </table>
       </div>
-
     </main>
   </div>
 
@@ -259,10 +260,8 @@
   <div class="modal-overlay" id="edit-modal">
     <div class="modal-box">
       <h3 style="color: var(--accent-amber); margin-bottom: 15px;"><i class="fa-solid fa-pen-to-square"></i> Edit Inventory Item</h3>
-      
       <form id="edit-form" onsubmit="handleEditSubmit(event)">
         <input type="hidden" id="edit-id">
-        
         <div class="form-group">
           <label>Category</label>
           <select class="form-control" id="edit-category">
@@ -274,44 +273,20 @@
             <option value="Chemicals & Reagents">Chemicals & Reagents</option>
           </select>
         </div>
-
         <div class="form-group">
           <label>Item Name / Description</label>
           <input type="text" class="form-control" id="edit-name" required>
         </div>
-
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <div class="form-group">
-            <label>Brand</label>
-            <input type="text" class="form-control" id="edit-brand">
-          </div>
-          <div class="form-group">
-            <label>Model</label>
-            <input type="text" class="form-control" id="edit-model">
-          </div>
+          <div class="form-group"><label>Brand</label><input type="text" class="form-control" id="edit-brand"></div>
+          <div class="form-group"><label>Model</label><input type="text" class="form-control" id="edit-model"></div>
         </div>
-
-        <div class="form-group">
-          <label>Update Spec PDF File</label>
-          <input type="file" class="form-control" id="edit-pdf-file" accept=".pdf">
-        </div>
-
-        <div class="form-group">
-          <label>OR Spec URL</label>
-          <input type="url" class="form-control" id="edit-catalog" placeholder="https://...">
-        </div>
-
+        <div class="form-group"><label>Update Spec PDF File</label><input type="file" class="form-control" id="edit-pdf-file" accept=".pdf"></div>
+        <div class="form-group"><label>OR Spec URL</label><input type="url" class="form-control" id="edit-catalog"></div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <div class="form-group">
-            <label>Stock Quantity</label>
-            <input type="number" class="form-control" id="edit-qty" required>
-          </div>
-          <div class="form-group">
-            <label>Unit Selling Price (ETB)</label>
-            <input type="number" step="0.01" class="form-control" id="edit-price" required>
-          </div>
+          <div class="form-group"><label>Stock Quantity</label><input type="number" class="form-control" id="edit-qty" required></div>
+          <div class="form-group"><label>Unit Selling Price (ETB)</label><input type="number" step="0.01" class="form-control" id="edit-price" required></div>
         </div>
-
         <div style="display: flex; gap: 10px; margin-top: 20px;">
           <button type="button" class="btn-action" style="flex:1; justify-content: center;" onclick="closeEditModal()">Cancel</button>
           <button type="submit" class="btn-action" style="flex:1; justify-content: center; background: var(--accent-amber); color: #020617;">Save Changes</button>
@@ -329,7 +304,6 @@
       <form id="sale-form" onsubmit="handleSaleSubmit(event)">
         <input type="hidden" id="sale-item-id">
         <input type="hidden" id="sale-item-name">
-        
         <div class="form-group">
           <label>Sale Type / Agreement</label>
           <select class="form-control" id="sale-type" onchange="toggleSaleTypeMode()">
@@ -338,33 +312,19 @@
             <option value="Credit">Credit Sale (Pending Payment)</option>
           </select>
         </div>
-
         <div class="form-group">
           <label>Where Sold / Client & Destination Name</label>
-          <input type="text" class="form-control" id="sale-client" placeholder="e.g. Bule Hora University / Hawassa Lab" required>
+          <input type="text" class="form-control" id="sale-client" placeholder="e.g. Bule Hora University" required>
         </div>
-
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <div class="form-group">
-            <label>Quantity Sold</label>
-            <input type="number" class="form-control" id="sale-qty" min="1" required oninput="calculateSaleTotal()">
-          </div>
-          <div class="form-group">
-            <label>Selling Price / Unit (ETB)</label>
-            <input type="number" step="0.01" class="form-control" id="sale-unit-price" required oninput="calculateSaleTotal()">
-          </div>
+          <div class="form-group"><label>Quantity Sold</label><input type="number" class="form-control" id="sale-qty" min="1" required oninput="calculateSaleTotal()"></div>
+          <div class="form-group"><label>Selling Price / Unit (ETB)</label><input type="number" step="0.01" class="form-control" id="sale-unit-price" required oninput="calculateSaleTotal()"></div>
         </div>
-
-        <div class="form-group">
-          <label>Transaction Date</label>
-          <input type="date" class="form-control" id="sale-date" required>
-        </div>
-
+        <div class="form-group"><label>Transaction Date</label><input type="date" class="form-control" id="sale-date" required></div>
         <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--accent-emerald); border-radius: 10px; padding: 12px; text-align: center; margin-bottom: 15px;">
           <div style="font-size: 11px; color: var(--text-muted);">TOTAL TRANSACTION VALUE</div>
           <div style="font-size: 20px; font-weight: 800; color: var(--accent-emerald);" id="sale-total-display">0.00 ETB</div>
         </div>
-
         <div style="display: flex; gap: 10px;">
           <button type="button" class="btn-action" style="flex:1; justify-content: center;" onclick="closeSaleModal()">Cancel</button>
           <button type="submit" class="btn-action" style="flex:1; justify-content: center; background: var(--accent-emerald); color: #020617;">Confirm Transaction</button>
@@ -378,7 +338,6 @@
     <div class="modal-box">
       <h3 style="color: var(--accent-cyan); margin-bottom: 10px;"><i class="fa-solid fa-file-csv"></i> Export Data Center</h3>
       <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Download custom CSV spreadsheets for inventory or past sales records.</p>
-      
       <div class="form-group">
         <label>Export Target Dataset</label>
         <select class="form-control" id="export-target">
@@ -386,7 +345,6 @@
           <option value="sales">Past Sales History</option>
         </select>
       </div>
-
       <div style="display: flex; gap: 10px; margin-top: 20px;">
         <button class="btn-action" style="flex:1; justify-content: center;" onclick="closeExportModal()">Cancel</button>
         <button class="btn-action" style="flex:1; justify-content: center; background: var(--accent-cyan); color: #020617;" onclick="processExportRequest()">Download CSV Report</button>
@@ -418,10 +376,19 @@
 
   <!-- SALES HISTORY DRAWER -->
   <div id="sales-drawer" class="side-drawer">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-light); padding-bottom: 15px;">
-      <h3 style="margin: 0; color: var(--accent-emerald); font-size: 18px;"><i class="fa-solid fa-receipt"></i> Sales History Menu</h3>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
+      <h3 style="margin: 0; color: var(--accent-emerald); font-size: 18px;"><i class="fa-solid fa-receipt"></i> Sales History</h3>
       <button onclick="toggleSalesDrawer()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">&times;</button>
     </div>
+    
+    <!-- TIME FILTER BUTTONS -->
+    <div style="display: flex; gap: 6px; margin-bottom: 15px;">
+      <button class="btn-action" id="filter-week" style="flex:1; justify-content:center; padding:6px; font-size:11px;" onclick="setSalesFilter('week')">This Week</button>
+      <button class="btn-action" id="filter-month" style="flex:1; justify-content:center; padding:6px; font-size:11px;" onclick="setSalesFilter('month')">This Month</button>
+      <button class="btn-action" id="filter-year" style="flex:1; justify-content:center; padding:6px; font-size:11px;" onclick="setSalesFilter('year')">This Year</button>
+      <button class="btn-action active-filter" id="filter-all" style="flex:1; justify-content:center; padding:6px; font-size:11px; background:rgba(56,189,248,0.2); color:var(--accent-cyan);" onclick="setSalesFilter('all')">All Time</button>
+    </div>
+
     <div id="sales-history-container"></div>
   </div>
 
@@ -435,6 +402,7 @@
     let salesHistory = [];
     let auditLogs = [];
     let currentView = 'equipment';
+    let currentSalesFilter = 'all';
 
     window.addEventListener('DOMContentLoaded', () => {
       addAuditEntry("System Session", "Dashboard loaded.");
@@ -502,31 +470,9 @@
       });
 
       if (currentView === 'chemicals') {
-        thead.innerHTML = `
-          <tr>
-            <th>#</th>
-            <th>Item / Chemical Name</th>
-            <th>Category</th>
-            <th>CAS Number</th>
-            <th>Stock Qty</th>
-            <th>Unit Price</th>
-            <th>Expiry Date</th>
-            <th>Actions</th>
-          </tr>
-        `;
+        thead.innerHTML = `<tr><th>#</th><th>Chemical Name</th><th>Category</th><th>CAS Number</th><th>Stock Qty</th><th>Unit Price</th><th>Expiry</th><th>Actions</th></tr>`;
       } else {
-        thead.innerHTML = `
-          <tr>
-            <th>#</th>
-            <th>Item / Specification</th>
-            <th>Category</th>
-            <th>Brand & Model</th>
-            <th>Stock Qty</th>
-            <th>Unit Price</th>
-            <th>Catalogue Spec</th>
-            <th>Actions</th>
-          </tr>
-        `;
+        thead.innerHTML = `<tr><th>#</th><th>Item / Specification</th><th>Category</th><th>Brand & Model</th><th>Stock Qty</th><th>Unit Price</th><th>Catalogue Spec</th><th>Actions</th></tr>`;
       }
 
       if (!filtered.length) {
@@ -551,12 +497,11 @@
               <td><span style="font-size:12px; color:var(--accent-amber);">${item.expire_date || 'N/A'}</span></td>
               <td>
                 <div style="display:flex; gap:6px;">
-                  <button class="btn-action edit-action-btn" style="padding:4px 8px; font-size:11px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i> Edit</button>
-                  <button class="btn-action sell-action-btn" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i></button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i></button>
                 </div>
               </td>
-            </tr>
-          `;
+            </tr>`;
         } else {
           return `
             <tr>
@@ -566,19 +511,14 @@
               <td><div style="font-size:12px;">${item.brand || '-'} / ${item.model || '-'}</div></td>
               <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
               <td><strong style="color:var(--accent-cyan);">${formatCurrency(item.price)}</strong></td>
-              <td>
-                ${pdfUrl 
-                  ? `<a href="${pdfUrl}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> View PDF</a>` 
-                  : `<span style="font-size:11px; color:var(--text-muted);">None</span>`}
-              </td>
+              <td>${pdfUrl ? `<a href="${pdfUrl}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> PDF</a>` : `<span style="font-size:11px; color:var(--text-muted);">None</span>`}</td>
               <td>
                 <div style="display:flex; gap:6px;">
-                  <button class="btn-action edit-action-btn" style="padding:4px 8px; font-size:11px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i> Edit</button>
-                  <button class="btn-action sell-action-btn" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i></button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i></button>
                 </div>
               </td>
-            </tr>
-          `;
+            </tr>`;
         }
       }).join('');
     }
@@ -592,13 +532,10 @@
       });
     }
 
-    /* ITEM SUBMISSION WITH AUTO-FALLBACK */
     async function handleItemSubmit(e) {
       e.preventDefault();
-      
       const pdfFileInput = document.getElementById('ent-pdf-file');
       let catalogUrl = document.getElementById('ent-catalog-url').value;
-
       if (pdfFileInput && pdfFileInput.files.length > 0) {
         catalogUrl = await convertFileToBase64(pdfFileInput.files[0]);
       }
@@ -628,7 +565,7 @@
       if (error) {
         alert("Error saving item: " + error.message);
       } else {
-        addAuditEntry("Item Registered", `Added "${basePayload.item_name}" (${basePayload.quantity} ${basePayload.unit_of_measure})`);
+        addAuditEntry("Item Registered", `Added "${basePayload.item_name}"`);
         document.getElementById('enterprise-form').reset();
         loadEnterpriseData();
       }
@@ -637,7 +574,6 @@
     function openEditModal(id) {
       const item = enterpriseItems.find(i => i.id === id);
       if (!item) return;
-
       document.getElementById('edit-id').value = item.id;
       document.getElementById('edit-category').value = item.category;
       document.getElementById('edit-name').value = item.item_name;
@@ -646,24 +582,19 @@
       document.getElementById('edit-catalog').value = item.pdf_url || '';
       document.getElementById('edit-qty').value = item.quantity;
       document.getElementById('edit-price').value = item.price;
-
       document.getElementById('edit-modal').classList.add('active');
     }
 
-    function closeEditModal() {
-      document.getElementById('edit-modal').classList.remove('active');
-    }
+    function closeEditModal() { document.getElementById('edit-modal').classList.remove('active'); }
 
     async function handleEditSubmit(e) {
       e.preventDefault();
       const id = document.getElementById('edit-id').value;
       const pdfFileInput = document.getElementById('edit-pdf-file');
       let catalogUrl = document.getElementById('edit-catalog').value;
-
       if (pdfFileInput && pdfFileInput.files.length > 0) {
         catalogUrl = await convertFileToBase64(pdfFileInput.files[0]);
       }
-
       const updated = {
         category: document.getElementById('edit-category').value,
         item_name: document.getElementById('edit-name').value,
@@ -673,52 +604,34 @@
         quantity: parseInt(document.getElementById('edit-qty').value) || 0,
         price: parseFloat(document.getElementById('edit-price').value) || 0
       };
-
       const { error } = await db.from('items').update(updated).eq('id', id);
-      if (error) {
-        alert("Error updating item: " + error.message);
-      } else {
-        addAuditEntry("Item Modified", `Updated details for "${updated.item_name}"`);
-        closeEditModal();
-        loadEnterpriseData();
-      }
+      if (error) alert("Error updating item: " + error.message);
+      else { closeEditModal(); loadEnterpriseData(); }
     }
 
     function openSaleModal(id) {
       const item = enterpriseItems.find(i => i.id === id);
       if (!item) return;
-
       document.getElementById('sale-item-id').value = item.id;
       document.getElementById('sale-item-name').value = item.item_name;
-      document.getElementById('sale-item-summary').innerHTML = `
-        <strong>${item.item_name}</strong> | Available Stock: <span style="color:var(--accent-cyan); font-weight:700;">${item.quantity} ${item.unit_of_measure || ''}</span>
-      `;
+      document.getElementById('sale-item-summary').innerHTML = `<strong>${item.item_name}</strong> | Available Stock: <span style="color:var(--accent-cyan);">${item.quantity} ${item.unit_of_measure || ''}</span>`;
       document.getElementById('sale-unit-price').value = item.price;
       document.getElementById('sale-qty').value = 1;
       document.getElementById('sale-date').value = new Date().toISOString().split('T')[0];
       document.getElementById('sale-type').value = "Cash / Paid";
-      
       calculateSaleTotal();
       document.getElementById('sale-modal').classList.add('active');
     }
 
-    function closeSaleModal() {
-      document.getElementById('sale-modal').classList.remove('active');
-    }
-
+    function closeSaleModal() { document.getElementById('sale-modal').classList.remove('active'); }
     function toggleSaleTypeMode() {
-      const type = document.getElementById('sale-type').value;
-      if (type === 'Sample') {
-        document.getElementById('sale-unit-price').value = 0;
-      }
+      if (document.getElementById('sale-type').value === 'Sample') document.getElementById('sale-unit-price').value = 0;
       calculateSaleTotal();
     }
-
     function calculateSaleTotal() {
       const qty = parseFloat(document.getElementById('sale-qty').value) || 0;
       const unitPrice = parseFloat(document.getElementById('sale-unit-price').value) || 0;
-      const total = qty * unitPrice;
-      document.getElementById('sale-total-display').innerText = formatCurrency(total);
+      document.getElementById('sale-total-display').innerText = formatCurrency(qty * unitPrice);
     }
 
     /* BULLETPROOF TRANSACTION PROCESSOR */
@@ -739,39 +652,21 @@
         return;
       }
 
-      // Tier 1: Try inserting everything
+      // Step-by-step resilient payload adjustments to completely dodge schema cache lag
       let saleErr = null;
       let res = await db.from('sales_log').insert([{
-        item_id: itemId,
-        item_name: itemName,
-        sale_type: saleType,
-        destination: client,
-        quantity_sold: qtySold,
-        unit_price: unitPrice,
-        total_price: totalVal,
-        sale_date: saleDate
+        item_id: itemId, item_name: itemName, sale_type: saleType, destination: client,
+        quantity_sold: qtySold, unit_price: unitPrice, total_price: totalVal, sale_date: saleDate
       }]);
       saleErr = res.error;
 
-      // Tier 2: If schema cache fails on sale_type/destination/sale_date, try base fields
       if (saleErr && saleErr.message.toLowerCase().includes("schema cache")) {
-        res = await db.from('sales_log').insert([{
-          item_id: itemId,
-          item_name: itemName,
-          quantity_sold: qtySold,
-          unit_price: unitPrice,
-          total_price: totalVal
-        }]);
+        res = await db.from('sales_log').insert([{ item_name: itemName, quantity_sold: qtySold, total_price: totalVal }]);
         saleErr = res.error;
       }
 
-      // Tier 3: Minimal fallback to legacy schema
       if (saleErr && saleErr.message.toLowerCase().includes("schema cache")) {
-        res = await db.from('sales_log').insert([{
-          item_name: itemName,
-          quantity_sold: qtySold,
-          total_price: totalVal
-        }]);
+        res = await db.from('sales_log').insert([{ item_name: itemName, quantity_sold: qtySold }]);
         saleErr = res.error;
       }
 
@@ -780,7 +675,6 @@
         return;
       }
 
-      // Deduct sold stock balance from inventory
       const newQty = item.quantity - qtySold;
       await db.from('items').update({ quantity: newQty }).eq('id', itemId);
 
@@ -789,44 +683,71 @@
       loadEnterpriseData();
     }
 
-    function toggleSalesDrawer() {
-      document.getElementById('sales-drawer').classList.toggle('open');
-    }
+    function toggleSalesDrawer() { document.getElementById('sales-drawer').classList.toggle('open'); }
+    function toggleAuditDrawer() { document.getElementById('audit-drawer').classList.toggle('open'); }
 
-    function toggleAuditDrawer() {
-      document.getElementById('audit-drawer').classList.toggle('open');
+    function setSalesFilter(filter) {
+      currentSalesFilter = filter;
+      ['week', 'month', 'year', 'all'].forEach(f => {
+        const btn = document.getElementById(`filter-${f}`);
+        if (f === filter) {
+          btn.style.background = 'rgba(56,189,248,0.2)';
+          btn.style.color = 'var(--accent-cyan)';
+        } else {
+          btn.style.background = 'rgba(255,255,255,0.05)';
+          btn.style.color = 'var(--text-main)';
+        }
+      });
+      renderSalesHistoryDrawer();
     }
 
     function renderSalesHistoryDrawer() {
       const container = document.getElementById('sales-history-container');
-      if (!salesHistory.length) {
-        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13px;">No past sales recorded.</div>`;
+      const now = new Date();
+
+      const filteredSales = salesHistory.filter(sale => {
+        const sDate = new Date(sale.sale_date || sale.created_at || now);
+        if (currentSalesFilter === 'week') {
+          const oneWeekAgo = new Date();
+          oneWeekAgo.setDate(now.getDate() - 7);
+          return sDate >= oneWeekAgo;
+        } else if (currentSalesFilter === 'month') {
+          return sDate.getMonth() === now.getMonth() && sDate.getFullYear() === now.getFullYear();
+        } else if (currentSalesFilter === 'year') {
+          return sDate.getFullYear() === now.getFullYear();
+        }
+        return true;
+      });
+
+      if (!filteredSales.length) {
+        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13px; padding:20px;">No sales records found for this timeframe.</div>`;
         return;
       }
 
-      container.innerHTML = salesHistory.map(sale => `
-        <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); border-radius: 10px; padding: 12px; margin-bottom: 12px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
-            <strong style="color:var(--text-main); font-size:13px;">${sale.item_name}</strong>
-            <span style="font-size:11px; padding:2px 6px; background:rgba(255,255,255,0.1); border-radius:4px;">${sale.sale_type || 'Paid'}</span>
+      container.innerHTML = filteredSales.map((sale, idx) => `
+        <div class="sale-msg-card" onclick="this.classList.toggle('expanded')">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="color:var(--text-main); font-size:13px;"><i class="fa-solid fa-comment-dots" style="color:var(--accent-emerald); margin-right:5px;"></i> ${sale.item_name || 'Item Sale'}</strong>
+            <span style="font-size:11px; padding:2px 6px; background:rgba(16,185,129,0.15); color:var(--accent-emerald); border-radius:4px;">${sale.sale_type || 'Paid'}</span>
           </div>
-          <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">Client: <span style="color:white;">${sale.destination || 'N/A'}</span></div>
-          <div style="font-size:12px; color:var(--text-muted); margin-bottom:6px;">Qty: ${sale.quantity_sold} | Unit: ${formatCurrency(sale.unit_price)}</div>
-          <div style="display:flex; justify-content:space-between; font-size:11px; border-top: 1px dashed var(--border-light); padding-top:6px; color:var(--text-muted);">
-            <span>${sale.sale_date || (sale.created_at ? sale.created_at.split('T')[0] : '')}</span>
-            <strong style="color:var(--accent-emerald);">${formatCurrency(sale.total_price)}</strong>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">Client: <span style="color:white;">${sale.destination || 'N/A'}</span></div>
+          <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:11px; color:var(--text-muted);">
+            <span>${sale.sale_date || 'Recent'}</span>
+            <strong style="color:var(--accent-cyan);">${formatCurrency(sale.total_price)}</strong>
+          </div>
+          <div class="sale-msg-body">
+            <div><strong>Detailed Retail Breakdown:</strong></div>
+            <div>Quantity Sold: ${sale.quantity_sold || 1} Pcs</div>
+            <div>Unit Price: ${formatCurrency(sale.unit_price)}</div>
+            <div>Destination / Client: ${sale.destination || 'Direct Client'}</div>
+            <div style="color: var(--accent-cyan); margin-top: 4px; font-style: italic;">Tap card to collapse message view</div>
           </div>
         </div>
       `).join('');
     }
 
-    function openExportModal() {
-      document.getElementById('export-modal').classList.add('active');
-    }
-
-    function closeExportModal() {
-      document.getElementById('export-modal').classList.remove('active');
-    }
+    function openExportModal() { document.getElementById('export-modal').classList.add('active'); }
+    function closeExportModal() { document.getElementById('export-modal').classList.remove('active'); }
 
     function processExportRequest() {
       const target = document.getElementById('export-target').value;
@@ -839,10 +760,7 @@
     }
 
     function exportCSV(data, filename) {
-      if (!data || !data.length) {
-        alert("No data available to export!");
-        return;
-      }
+      if (!data || !data.length) { alert("No data available to export!"); return; }
       const keys = Object.keys(data[0]);
       const csvContent = [
         keys.join(','),
@@ -856,86 +774,33 @@
       link.click();
     }
 
-    /* STEP-BY-STEP GUIDED TOUR */
     let tourStep = 0;
     const tourSteps = [
-      {
-        elementId: 'tour-reg-form',
-        title: '1. Register Inventory & Chemicals',
-        desc: 'Use this form to enter details for new inventory. Switch categories to display dynamic inputs for chemical safety (CAS Number, Expiry Date).'
-      },
-      {
-        elementId: 'tour-view-tabs',
-        title: '2. Directory Category Switcher',
-        desc: 'Filter between Equipment/Supplies and Chemicals & Reagents to view specific specialized inventory lists.'
-      },
-      {
-        elementId: 'tour-table',
-        title: '3. Inventory Directory Table',
-        desc: 'Browse items with clean row numbering (#), real-time stock balances, pricing, and attached PDF specification links.'
-      },
-      {
-        elementId: 'tour-sales-btn',
-        title: '4. Sales History Menu',
-        desc: 'Click here to slide open the transaction logs drawer and audit past sales, demo sample issues, and pending credit deals.'
-      },
-      {
-        elementId: 'tour-export-btn',
-        title: '5. Export Data Center',
-        desc: 'Download CSV reports for your entire inventory database or complete sales history records at any time.'
-      }
+      { elementId: 'tour-reg-form', title: '1. Register Inventory & Chemicals', desc: 'Enter product parameters and toggle category forms.' },
+      { elementId: 'tour-view-tabs', title: '2. Directory Category Switcher', desc: 'Filter between standard equipment and chemical supplies.' },
+      { elementId: 'tour-table', title: '3. Inventory Directory Table', desc: 'Manage stock levels, pricing, and PDF specifications.' },
+      { elementId: 'tour-sales-btn', title: '4. Sales History Menu', desc: 'Filter past sales by week/month/year and click message cards for details.' },
+      { elementId: 'tour-export-btn', title: '5. Export Data Center', desc: 'Download CSV spreadsheets for inventories or historical sales.' }
     ];
 
-    function startTourGuide() {
-      tourStep = 0;
-      renderTourStep();
-    }
-
+    function startTourGuide() { tourStep = 0; renderTourStep(); }
     function renderTourStep() {
       document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
-      
-      if (tourStep >= tourSteps.length) {
-        endTour();
-        return;
-      }
-
+      if (tourStep >= tourSteps.length) { endTour(); return; }
       const step = tourSteps[tourStep];
       const targetEl = document.getElementById(step.elementId) || document.querySelector(step.elementId);
-
-      if (!targetEl) {
-        nextTourStep();
-        return;
-      }
-
+      if (!targetEl) { nextTourStep(); return; }
       targetEl.classList.add('tour-highlight');
       const rect = targetEl.getBoundingClientRect();
       const popover = document.getElementById('tour-popover');
-
       document.getElementById('tour-title').innerText = step.title;
       document.getElementById('tour-desc').innerText = step.desc;
       document.getElementById('tour-progress').innerText = `Step ${tourStep + 1} of ${tourSteps.length}`;
-
       popover.style.display = 'block';
-
-      let top = rect.bottom + 10;
-      let left = rect.left;
-
-      if (top + 200 > window.innerHeight) {
-        top = rect.top - 190;
-      }
-      if (left + 320 > window.innerWidth) {
-        left = window.innerWidth - 340;
-      }
-
-      popover.style.top = `${Math.max(10, top)}px`;
-      popover.style.left = `${Math.max(10, left)}px`;
+      popover.style.top = `${Math.max(10, rect.bottom + 10)}px`;
+      popover.style.left = `${Math.max(10, rect.left)}px`;
     }
-
-    function nextTourStep() {
-      tourStep++;
-      renderTourStep();
-    }
-
+    function nextTourStep() { tourStep++; renderTourStep(); }
     function endTour() {
       document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
       document.getElementById('tour-popover').style.display = 'none';
