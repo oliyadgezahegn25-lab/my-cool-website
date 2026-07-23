@@ -3,567 +3,246 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Labaid Trading PLC - Management System</title>
-
-  <!-- Google Fonts & FontAwesome -->
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <title>Labaid Trading PLC - Inventory & Sales System</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
     :root {
-      --bg-main: #0b0f19;
-      --bg-card: #111827;
-      --bg-input: #1f2937;
-      --border-light: rgba(255, 255, 255, 0.08);
-      --border-focus: #06b6d4;
-      --accent-cyan: #06b6d4;
+      --bg-dark: #0f172a;
+      --panel-bg: #1e293b;
+      --border-light: rgba(255, 255, 255, 0.1);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-cyan: #38bdf8;
       --accent-emerald: #10b981;
       --accent-amber: #f59e0b;
+      --accent-purple: #a855f7;
       --accent-rose: #f43f5e;
-      --accent-purple: #8b5cf6;
-      --text-main: #f9fafb;
-      --text-muted: #9ca3af;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
 
-    body {
-      background-color: var(--bg-main);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* DROPDOWN CONTRAST FIX */
-    select.form-control option,
-    select option {
-      background-color: #111827 !important;
-      color: #f9fafb !important;
-      padding: 10px;
-    }
-
-    /* TOP HEADER BAR */
-    .top-header {
-      background: var(--bg-card);
+    /* NAVBAR */
+    .navbar {
+      background: var(--panel-bg);
       border-bottom: 1px solid var(--border-light);
-      padding: 16px 30px;
+      padding: 15px 30px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      sticky: top;
+      position: sticky;
+      top: 0;
       z-index: 100;
     }
+    .brand { font-size: 20px; font-weight: 800; color: var(--accent-cyan); display: flex; align-items: center; gap: 10px; }
+    .nav-actions { display: flex; gap: 10px; align-items: center; }
 
-    .brand-section {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .brand-icon {
-      width: 44px;
-      height: 44px;
-      background: linear-gradient(135deg, var(--accent-cyan), #3b82f6);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      color: #020617;
-      box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
-    }
-
-    .brand-title {
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      background: linear-gradient(to right, #ffffff, var(--text-muted));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .brand-sub {
-      font-size: 12px;
-      color: var(--accent-cyan);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
+    /* BUTTONS */
     .btn-action {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-light);
       color: var(--text-main);
-      padding: 9px 16px;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s ease;
-    }
-
-    .btn-action:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: var(--accent-cyan);
-      transform: translateY(-1px);
-    }
-
-    /* MAIN CONTAINER */
-    .app-container {
-      padding: 25px 30px;
-      display: flex;
-      flex-direction: column;
-      gap: 25px;
-      max-width: 1600px;
-      margin: 0 auto;
-      width: 100%;
-    }
-
-    /* KPI METRICS */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 15px;
-    }
-
-    .kpi-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-light);
-      border-radius: 14px;
-      padding: 18px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .kpi-value {
-      font-size: 26px;
-      font-weight: 800;
-      margin-top: 4px;
-    }
-
-    .kpi-label {
-      font-size: 12px;
-      color: var(--text-muted);
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-
-    .kpi-icon {
-      width: 46px;
-      height: 46px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-    }
-
-    /* CONTENT LAYOUT GRID */
-    .content-grid {
-      display: grid;
-      grid-template-columns: 360px 1fr;
-      gap: 25px;
-    }
-
-    @media (max-width: 1100px) {
-      .content-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* SIDEBAR FORM */
-    .panel-box {
-      background: var(--bg-card);
-      border: 1px solid var(--border-light);
-      border-radius: 16px;
-      padding: 22px;
-      height: fit-content;
-    }
-
-    .panel-title {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 18px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--accent-cyan);
-    }
-
-    .form-group {
-      margin-bottom: 14px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-    }
-
-    .form-control {
-      width: 100%;
-      background: var(--bg-input);
-      border: 1px solid var(--border-light);
-      color: var(--text-main);
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-size: 13px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .form-control:focus {
-      border-color: var(--accent-cyan);
-    }
-
-    .btn-submit {
-      width: 100%;
-      background: var(--accent-cyan);
-      color: #020617;
-      border: none;
-      padding: 12px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: opacity 0.2s;
-    }
-
-    .btn-submit:hover {
-      opacity: 0.9;
-    }
-
-    /* DIRECTORY TABLE PANEL */
-    .view-tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 18px;
-      border-bottom: 1px solid var(--border-light);
-      padding-bottom: 12px;
-    }
-
-    .tab-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 14px;
-      font-weight: 700;
-      padding: 8px 16px;
+      padding: 8px 14px;
       border-radius: 8px;
       cursor: pointer;
-      display: flex;
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
       align-items: center;
-      gap: 8px;
-      transition: all 0.2s;
+      gap: 6px;
+      transition: all 0.2s ease;
     }
+    .btn-action:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-1px); }
+    .btn-primary { background: var(--accent-cyan); color: #020617; border: none; }
+    .btn-primary:hover { background: #0284c7; color: #fff; }
 
-    .tab-btn.active {
-      background: rgba(6, 182, 212, 0.15);
-      color: var(--accent-cyan);
-    }
+    /* MAIN LAYOUT */
+    .app-container { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 65px); }
+    .sidebar { width: 360px; background: var(--panel-bg); border-right: 1px solid var(--border-light); padding: 20px; overflow-y: auto; }
+    .content-area { flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
 
-    .table-controls {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 16px;
-      justify-content: space-between;
-    }
-
-    .search-input {
-      flex: 1;
-      max-width: 400px;
-    }
-
-    .data-table-wrapper {
-      overflow-x: auto;
-      border-radius: 12px;
-      border: 1px solid var(--border-light);
-    }
-
-    table {
+    /* FORM STYLES */
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; }
+    .form-control {
       width: 100%;
-      border-collapse: collapse;
-      text-align: left;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      padding: 9px 12px;
+      color: white;
       font-size: 13px;
     }
+    .form-control:focus { outline: none; border-color: var(--accent-cyan); }
 
-    th {
-      background: rgba(255, 255, 255, 0.03);
-      padding: 14px 16px;
-      color: var(--text-muted);
-      font-weight: 700;
-      border-bottom: 1px solid var(--border-light);
-      white-space: nowrap;
-    }
+    /* TABS & METRICS */
+    .view-tabs { display: flex; gap: 10px; border-bottom: 1px solid var(--border-light); padding-bottom: 10px; }
+    .tab-btn { background: none; border: none; color: var(--text-muted); padding: 8px 16px; font-size: 14px; font-weight: 700; cursor: pointer; border-radius: 6px; }
+    .tab-btn.active { background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); }
 
-    td {
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border-light);
-      vertical-align: middle;
-    }
+    /* TABLE */
+    .table-container { background: var(--panel-bg); border: 1px solid var(--border-light); border-radius: 10px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+    th { background: rgba(0, 0, 0, 0.3); padding: 12px 16px; color: var(--text-muted); font-weight: 600; }
+    td { padding: 12px 16px; border-bottom: 1px solid var(--border-light); }
+    tr:hover { background: rgba(255, 255, 255, 0.02); }
 
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    tr:hover td {
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    /* MODAL OVERLAYS */
+    /* MODAL & DRAWERS */
     .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(2, 6, 23, 0.8);
-      backdrop-filter: blur(6px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s ease;
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center; z-index: 200;
     }
+    .modal-overlay.active { display: flex; }
+    .modal-box { background: var(--panel-bg); border: 1px solid var(--border-light); border-radius: 12px; width: 100%; max-width: 500px; padding: 24px; max-height: 90vh; overflow-y: auto; }
 
-    .modal-overlay.active {
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    .modal-box {
-      background: var(--bg-card);
-      border: 1px solid var(--border-light);
-      border-radius: 18px;
-      width: 100%;
-      max-width: 520px;
-      padding: 25px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    }
-
-    /* SIDE DRAWERS */
     .side-drawer {
-      position: fixed;
-      top: 0;
-      right: -420px;
-      width: 400px;
-      height: 100vh;
-      background: var(--bg-card);
-      border-left: 1px solid var(--border-light);
-      box-shadow: -10px 0 30px rgba(0,0,0,0.5);
-      z-index: 900;
-      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      padding: 25px;
-      overflow-y: auto;
+      position: fixed; top: 0; right: -420px; width: 400px; height: 100vh;
+      background: var(--panel-bg); border-left: 1px solid var(--border-light);
+      box-shadow: -5px 0 25px rgba(0,0,0,0.5); transition: right 0.3s ease; z-index: 150; padding: 20px; overflow-y: auto;
     }
+    .side-drawer.open { right: 0; }
 
-    .side-drawer.open {
-      right: 0;
-    }
+    /* BADGES */
+    .badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .badge-cash { background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald); }
+    .badge-sample { background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); }
+    .badge-credit { background: rgba(244, 63, 94, 0.2); color: var(--accent-rose); }
   </style>
 </head>
 <body>
 
-  <!-- TOP HEADER -->
-  <header class="top-header">
-    <div class="brand-section">
-      <div class="brand-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
-      <div>
-        <div class="brand-title">LABAID TRADING PLC</div>
-        <div class="brand-sub">Inventory & Sales Management System</div>
-      </div>
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="brand">
+      <i class="fa-solid fa-boxes-stacked"></i> LABAID TRADING PLC
     </div>
-
-    <div class="header-actions">
-      <button class="btn-action" onclick="startTourGuide()"><i class="fa-solid fa-compass" style="color:var(--accent-amber);"></i> Tour Guide</button>
-      <button class="btn-action" onclick="openExportModal()"><i class="fa-solid fa-file-export" style="color:var(--accent-cyan);"></i> Export CSV</button>
-      <button class="btn-action" onclick="toggleAuditDrawer()"><i class="fa-solid fa-shield-halved" style="color:var(--accent-purple);"></i> Audit Trail</button>
-      <button class="btn-action" style="background: var(--accent-emerald); color: #020617; font-weight: 800;" onclick="toggleSalesDrawer()">
-        <i class="fa-solid fa-bars"></i> Sales Log Menu
+    <div class="nav-actions">
+      <button class="btn-action" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border-color: var(--accent-amber);" onclick="startTourGuide()">
+        <i class="fa-solid fa-compass"></i> Beginner Tour
+      </button>
+      <button class="btn-action" onclick="toggleSalesDrawer()">
+        <i class="fa-solid fa-receipt"></i> Sales History Menu
+      </button>
+      <button class="btn-action" onclick="openExportModal()">
+        <i class="fa-solid fa-file-csv"></i> Export Data
+      </button>
+      <button class="btn-action" onclick="toggleAuditDrawer()">
+        <i class="fa-solid fa-list-check"></i> Audit Logs
       </button>
     </div>
   </header>
 
-  <!-- MAIN APP CONTENT -->
+  <!-- MAIN CONTAINER -->
   <div class="app-container">
-
-    <!-- KPI COUNT METRICS -->
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div>
-          <div class="kpi-label">Registered SKUs</div>
-          <div class="kpi-value" id="kpi-total-skus" style="color: var(--accent-cyan);">0</div>
-        </div>
-        <div class="kpi-icon" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);">
-          <i class="fa-solid fa-layer-group"></i>
-        </div>
-      </div>
-
-      <div class="kpi-card">
-        <div>
-          <div class="kpi-label">Chemicals & Reagents</div>
-          <div class="kpi-value" id="kpi-chemicals-count" style="color: var(--accent-purple);">0</div>
-        </div>
-        <div class="kpi-icon" style="background: rgba(139, 92, 246, 0.15); color: var(--accent-purple);">
-          <i class="fa-solid fa-flask"></i>
-        </div>
-      </div>
-
-      <div class="kpi-card">
-        <div>
-          <div class="kpi-label">Items Sold Record</div>
-          <div class="kpi-value" id="kpi-sales-count" style="color: var(--accent-emerald);">0</div>
-        </div>
-        <div class="kpi-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">
-          <i class="fa-solid fa-cart-check"></i>
-        </div>
-      </div>
-    </div>
-
-    <!-- MAIN GRID SECTION -->
-    <div class="content-grid">
-
-      <!-- LEFT SIDEBAR: REGISTRATION FORM -->
-      <div class="panel-box">
-        <div class="panel-title" id="panel-form-title">
-          <i class="fa-solid fa-plus-circle"></i> Register New Item
-        </div>
-
-        <form id="enterprise-form" onsubmit="handleItemSubmit(event)">
-          <div class="form-group">
-            <label>Item Category</label>
-            <select class="form-control" id="ent-category" required>
-              <option value="Laboratory Equipment">Laboratory Equipment</option>
-              <option value="Educational & Lab Supplies">Educational & Lab Supplies</option>
-              <option value="Electrical & Power Supplies">Electrical & Power Supplies</option>
-              <option value="Agricultural Equipment">Agricultural Equipment</option>
-              <option value="Industrial Machinery">Industrial Machinery</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Item Name / Specification</label>
-            <input type="text" class="form-control" id="ent-name" placeholder="e.g. Water Distillation Unit 10L/h" required>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div class="form-group">
-              <label>Brand</label>
-              <input type="text" class="form-control" id="ent-brand" placeholder="e.g. Scitech">
-            </div>
-            <div class="form-group">
-              <label>Model</label>
-              <input type="text" class="form-control" id="ent-model" placeholder="e.g. WD-10">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Catalogue / Spec Link URL</label>
-            <input type="url" class="form-control" id="ent-catalog" placeholder="https://drive.google.com/spec.pdf">
-          </div>
-
-          <!-- CHEMICAL SPECIFIC FIELDS -->
-          <div id="chem-special-fields" style="display: none; border-top: 1px dashed var(--border-light); padding-top: 12px; margin-top: 8px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-              <div class="form-group">
-                <label>CAS Number</label>
-                <input type="text" class="form-control" id="ent-cas" placeholder="7647-01-0">
-              </div>
-              <div class="form-group">
-                <label>Purity Grade</label>
-                <input type="text" class="form-control" id="ent-purity" placeholder="AR Grade 98%">
-              </div>
-            </div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div class="form-group">
-              <label>Unit of Measure</label>
-              <input type="text" class="form-control" id="ent-unit" placeholder="Pcs / Bottle / Set" required>
-            </div>
-            <div class="form-group">
-              <label>Initial Stock Qty</label>
-              <input type="number" class="form-control" id="ent-qty" min="0" required>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Unit Selling Price (ETB)</label>
-            <input type="number" step="0.01" class="form-control" id="ent-price" placeholder="0.00" required>
-          </div>
-
-          <button type="submit" class="btn-submit"><i class="fa-solid fa-cloud-arrow-up"></i> Save Item to Directory</button>
-        </form>
-      </div>
-
-      <!-- RIGHT PANEL: DIRECTORY TABLES -->
-      <div class="panel-box">
-        <div class="view-tabs">
-          <button class="tab-btn active" id="tab-equipment" onclick="switchEnterpriseView('equipment')">
-            <i class="fa-solid fa-microscope"></i> Equipment & Supplies
-          </button>
-          <button class="tab-btn" id="tab-chemicals" onclick="switchEnterpriseView('chemicals')">
-            <i class="fa-solid fa-flask"></i> Chemicals & Reagents
-          </button>
-        </div>
-
-        <div class="table-controls">
-          <input type="text" class="form-control search-input" id="global-search" placeholder="Search by name, brand, model..." onkeyup="filterEnterpriseTable()">
-          <select class="form-control" id="stock-filter" style="width: 180px;" onchange="filterEnterpriseTable()">
-            <option value="all">All Stock Status</option>
-            <option value="instock">In Stock Only</option>
-            <option value="low">Low Stock (&le; 5)</option>
-            <option value="outofstock">Out of Stock (0)</option>
+    
+    <!-- LEFT SIDEBAR: REGISTRATION FORM -->
+    <aside class="sidebar">
+      <h3 style="margin-bottom: 15px; color: var(--accent-cyan);" id="panel-form-title">
+        <i class="fa-solid fa-plus-circle"></i> Item Registration
+      </h3>
+      
+      <form id="enterprise-form" onsubmit="handleItemSubmit(event)">
+        <div class="form-group">
+          <label>Category</label>
+          <select class="form-control" id="ent-category" required>
+            <option value="Laboratory Equipment">Laboratory Equipment</option>
+            <option value="Educational & Lab Supplies">Educational & Lab Supplies</option>
+            <option value="Electrical & Power Supplies">Electrical & Power Supplies</option>
+            <option value="Agricultural Equipment">Agricultural Equipment</option>
+            <option value="Industrial Machinery">Industrial Machinery</option>
           </select>
         </div>
 
-        <div class="data-table-wrapper">
-          <table>
-            <thead id="ent-table-head">
-              <!-- Rendered via JS -->
-            </thead>
-            <tbody id="ent-table-body">
-              <!-- Rendered via JS -->
-            </tbody>
-          </table>
+        <div class="form-group">
+          <label>Item Description / Name</label>
+          <input type="text" class="form-control" id="ent-name" required placeholder="e.g. Digital Spectrophotometer">
         </div>
 
-        <div style="margin-top: 12px; font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between;">
-          <span id="row-count">Showing 0 entries</span>
-          <span>Labaid Trading PLC Live Sync</span>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Brand</label>
+            <input type="text" class="form-control" id="ent-brand" placeholder="e.g. Biobase">
+          </div>
+          <div class="form-group">
+            <label>Model</label>
+            <input type="text" class="form-control" id="ent-model" placeholder="e.g. BK-V1100">
+          </div>
         </div>
+
+        <!-- CATALOGUE ATTACHMENT OPTIONS -->
+        <div class="form-group">
+          <label>Upload Catalogue Spec PDF File</label>
+          <input type="file" class="form-control" id="ent-pdf-file" accept=".pdf">
+        </div>
+
+        <div class="form-group">
+          <label>OR Catalogue Spec URL</label>
+          <input type="url" class="form-control" id="ent-catalog-url" placeholder="https://...">
+        </div>
+
+        <div id="chem-special-fields" style="display: none;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+              <label>CAS Number</label>
+              <input type="text" class="form-control" id="ent-cas" placeholder="7647-14-5">
+            </div>
+            <div class="form-group">
+              <label>Purity Grade</label>
+              <input type="text" class="form-control" id="ent-purity" placeholder="99.5% AR Grade">
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+          <div class="form-group">
+            <label>Unit</label>
+            <input type="text" class="form-control" id="ent-unit" placeholder="Pcs / Pack" required>
+          </div>
+          <div class="form-group">
+            <label>Stock Qty</label>
+            <input type="number" class="form-control" id="ent-qty" required min="0">
+          </div>
+          <div class="form-group">
+            <label>Price (ETB)</label>
+            <input type="number" step="0.01" class="form-control" id="ent-price" required min="0">
+          </div>
+        </div>
+
+        <button type="submit" class="btn-action btn-primary" style="width: 100%; justify-content: center; margin-top: 10px; padding: 12px;">
+          <i class="fa-solid fa-save"></i> Save Item to Inventory
+        </button>
+      </form>
+    </aside>
+
+    <!-- RIGHT CONTENT AREA -->
+    <main class="content-area">
+      
+      <!-- TABS -->
+      <div class="view-tabs">
+        <button class="tab-btn active" id="tab-equipment" onclick="switchEnterpriseView('equipment')">
+          <i class="fa-solid fa-microscope"></i> Equipment & Supplies
+        </button>
+        <button class="tab-btn" id="tab-chemicals" onclick="switchEnterpriseView('chemicals')">
+          <i class="fa-solid fa-flask"></i> Chemicals & Reagents
+        </button>
       </div>
 
-    </div>
+      <!-- DIRECTORY TABLE -->
+      <div class="table-container">
+        <table>
+          <thead id="ent-table-head"></thead>
+          <tbody id="ent-table-body"></tbody>
+        </table>
+      </div>
+
+    </main>
   </div>
+
   <!-- EDIT ITEM MODAL -->
   <div class="modal-overlay" id="edit-modal">
     <div class="modal-box">
-      <h3 style="color: var(--accent-cyan); margin-bottom: 15px;"><i class="fa-solid fa-pen-to-square"></i> Edit Inventory Item</h3>
+      <h3 style="color: var(--accent-amber); margin-bottom: 15px;"><i class="fa-solid fa-pen-to-square"></i> Edit Inventory Item</h3>
       
       <form id="edit-form" onsubmit="handleEditSubmit(event)">
         <input type="hidden" id="edit-id">
@@ -597,7 +276,12 @@
         </div>
 
         <div class="form-group">
-          <label>Catalogue / Spec Link URL</label>
+          <label>Update Catalogue Spec PDF File</label>
+          <input type="file" class="form-control" id="edit-pdf-file" accept=".pdf">
+        </div>
+
+        <div class="form-group">
+          <label>OR Catalogue Spec URL</label>
           <input type="url" class="form-control" id="edit-catalog" placeholder="https://...">
         </div>
 
@@ -614,7 +298,7 @@
 
         <div style="display: flex; gap: 10px; margin-top: 20px;">
           <button type="button" class="btn-action" style="flex:1; justify-content: center;" onclick="closeEditModal()">Cancel</button>
-          <button type="submit" class="btn-action" style="flex:1; justify-content: center; background: var(--accent-cyan); color: #020617;">Save Changes</button>
+          <button type="submit" class="btn-action" style="flex:1; justify-content: center; background: var(--accent-amber); color: #020617;">Save Changes</button>
         </div>
       </form>
     </div>
@@ -623,7 +307,7 @@
   <!-- RECORD SALE MODAL -->
   <div class="modal-overlay" id="sale-modal">
     <div class="modal-box">
-      <h3 style="color: var(--accent-emerald); margin-bottom: 15px;"><i class="fa-solid fa-cart-shopping"></i> Record Item Sale</h3>
+      <h3 style="color: var(--accent-emerald); margin-bottom: 15px;"><i class="fa-solid fa-cart-shopping"></i> Process Item Sale / Transfer</h3>
       <div id="sale-item-summary" style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;"></div>
 
       <form id="sale-form" onsubmit="handleSaleSubmit(event)">
@@ -631,8 +315,17 @@
         <input type="hidden" id="sale-item-name">
         
         <div class="form-group">
-          <label>Buyer / Client Name</label>
-          <input type="text" class="form-control" id="sale-client" placeholder="e.g. Bule Hora University / Walk-in Client" required>
+          <label>Sale Type / Agreement</label>
+          <select class="form-control" id="sale-type" onchange="toggleSaleTypeMode()">
+            <option value="Cash / Paid">Standard / Cash Sale</option>
+            <option value="Sample">Sample Item (Free/Demo)</option>
+            <option value="Credit">Credit Sale (Pending Payment)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Where Sold / Client & Destination Name</label>
+          <input type="text" class="form-control" id="sale-client" placeholder="e.g. Bule Hora University / Hawassa Lab" required>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -647,7 +340,7 @@
         </div>
 
         <div class="form-group">
-          <label>Sale Date</label>
+          <label>Transaction Date</label>
           <input type="date" class="form-control" id="sale-date" required>
         </div>
 
@@ -658,47 +351,24 @@
 
         <div style="display: flex; gap: 10px;">
           <button type="button" class="btn-action" style="flex:1; justify-content: center;" onclick="closeSaleModal()">Cancel</button>
-          <button type="submit" class="btn-action" style="flex:1; justify-content: center; background: var(--accent-emerald); color: #020617;">Confirm Sale</button>
+          <button type="submit" class="btn-action" style="flex:1; justify-content: center; background: var(--accent-emerald); color: #020617;">Confirm Transaction</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- EXPORT SELECTION MODAL -->
+  <!-- EXPORT MODAL -->
   <div class="modal-overlay" id="export-modal">
     <div class="modal-box">
       <h3 style="color: var(--accent-cyan); margin-bottom: 10px;"><i class="fa-solid fa-file-csv"></i> Export Data Center</h3>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Generate custom CSV reports for inventory or sales records.</p>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Download custom CSV spreadsheets for inventory or past sales records.</p>
       
       <div class="form-group">
         <label>Export Target Dataset</label>
-        <select class="form-control" id="export-target" onchange="toggleExportTimelineOptions()">
+        <select class="form-control" id="export-target">
           <option value="inventory">Entire Inventory Directory</option>
-          <option value="sales">Sold Items History</option>
+          <option value="sales">Past Sales History</option>
         </select>
-      </div>
-
-      <div id="timeline-group" class="form-group" style="display: none;">
-        <label>Sales Timeline Filter</label>
-        <select class="form-control" id="export-timeline" onchange="toggleCustomDateGroup()">
-          <option value="all">All Time History</option>
-          <option value="today">Today</option>
-          <option value="7days">Past 7 Days (Week)</option>
-          <option value="30days">Past Month (30 Days)</option>
-          <option value="1year">Past Year (365 Days)</option>
-          <option value="custom">Custom Date Range</option>
-        </select>
-      </div>
-
-      <div id="custom-date-group" style="display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
-        <div class="form-group">
-          <label>Start Date</label>
-          <input type="date" class="form-control" id="export-start-date">
-        </div>
-        <div class="form-group">
-          <label>End Date</label>
-          <input type="date" class="form-control" id="export-end-date">
-        </div>
       </div>
 
       <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -708,181 +378,106 @@
     </div>
   </div>
 
-  <!-- TOUR GUIDE MODAL -->
+  <!-- BEGINNER TOUR MODAL -->
   <div class="modal-overlay" id="tour-modal">
-    <div class="modal-box" style="max-width: 600px;">
-      <h3 style="color: var(--accent-amber); margin-bottom: 10px;"><i class="fa-solid fa-compass"></i> System Interactive Guide</h3>
-      <div style="font-size: 13px; color: var(--text-main); line-height: 1.6; max-height: 380px; overflow-y: auto; padding-right: 10px;">
-        <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-          <strong style="color:var(--accent-cyan);">1. Registration Panel (Left Sidebar)</strong><br>
-          Fill in item attributes including name, category, brand, model, units, price, initial stock, and spec catalog link. Submit to save directly to the Supabase database.
+    <div class="modal-box" style="max-width: 550px;">
+      <h3 style="color: var(--accent-amber); margin-bottom: 12px;"><i class="fa-solid fa-compass"></i> System Quick Start Guide</h3>
+      <div style="font-size: 13px; color: var(--text-main); line-height: 1.6; display: flex; flex-direction: column; gap: 10px;">
+        <div style="padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+          <strong style="color:var(--accent-cyan);">1. Add Item & PDF Catalog</strong><br>
+          Use the left sidebar form to enter inventory item details and attach catalogue PDFs directly or paste spec links.
         </div>
-        <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-          <strong style="color:var(--accent-purple);">2. Switch Views (Equipment vs. Chemicals)</strong><br>
-          Use the top tabs above the directory table to toggle between standard equipment/supplies and chemical reagents (which include CAS & Purity specs).
+        <div style="padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+          <strong style="color:var(--accent-amber);">2. Edit Details Anytime</strong><br>
+          Click the <span style="color:var(--accent-amber); font-weight:700;">Edit</span> button on any row to adjust item names, stock quantity, unit prices, or catalog links.
         </div>
-        <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-          <strong style="color:var(--accent-amber);">3. Item Actions (Edit & Sell)</strong><br>
-          Each table row features an <strong>Edit</strong> button (to modify item attributes or catalogue links) and a <strong>Sell</strong> button (to deduct stock and log transactions).
+        <div style="padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+          <strong style="color:var(--accent-emerald);">3. Record Sales & Sample Releases</strong><br>
+          Click <span style="color:var(--accent-emerald); font-weight:700;">Sell</span> to log items sold or issued as samples/credit, specify the destination client, quantity, and date.
         </div>
-        <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-          <strong style="color:var(--accent-emerald);">4. Sales Log Menu & Audit Trail</strong><br>
-          Click <strong>Sales Log Menu</strong> at the top right to review client sales records. Click <strong>Audit Trail</strong> to review real-time activity logs.
+        <div style="padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+          <strong style="color:var(--accent-purple);">4. Sales History Menu</strong><br>
+          Click <strong style="color:white;">Sales History Menu</strong> at the top navigation bar to view past sales logs as interactive summary cards. Click any entry to inspect its detailed record.
         </div>
       </div>
-      <div style="margin-top: 20px; text-align: right;">
-        <button class="btn-action" style="background: var(--accent-amber); color: #020617; font-weight:700; width: 100%; justify-content: center;" onclick="closeTourGuide()">Got It!</button>
-      </div>
+      <button class="btn-action" style="background: var(--accent-amber); color: #020617; font-weight:700; width: 100%; justify-content: center; margin-top: 15px;" onclick="closeTourGuide()">Got It, Let's Start!</button>
     </div>
   </div>
 
   <!-- AUDIT LOG DRAWER -->
   <div id="audit-drawer" class="side-drawer">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-light); padding-bottom: 15px;">
-      <h3 style="margin: 0; color: var(--accent-purple); font-size: 18px;"><i class="fa-solid fa-list-check"></i> System Audit Trail</h3>
+      <h3 style="margin: 0; color: var(--accent-purple); font-size: 18px;"><i class="fa-solid fa-list-check"></i> Audit Logs</h3>
       <button onclick="toggleAuditDrawer()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">&times;</button>
     </div>
     <div id="audit-log-container"></div>
   </div>
 
-  <!-- SALES LOG DRAWER -->
+  <!-- SALES HISTORY DRAWER -->
   <div id="sales-drawer" class="side-drawer">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-light); padding-bottom: 15px;">
-      <h3 style="margin: 0; color: var(--accent-emerald); font-size: 18px;"><i class="fa-solid fa-clock-rotate-left"></i> Past Sold Items Log</h3>
+      <h3 style="margin: 0; color: var(--accent-emerald); font-size: 18px;"><i class="fa-solid fa-receipt"></i> Sales History Menu</h3>
       <button onclick="toggleSalesDrawer()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">&times;</button>
     </div>
-    <div id="sales-history-container">
-      <div style="text-align: center; color: var(--text-muted); font-size: 13px;">Loading sales records...</div>
-    </div>
+    <div id="sales-history-container"></div>
   </div>
 
-  <!-- JAVASCRIPT ENGINE -->
+  <!-- JAVASCRIPT LOGIC ENGINE -->
   <script>
-    // SUPABASE DATABASE SETUP
+    // SUPABASE SETUP
     const SUPABASE_URL = "https://cbmvbbfbgauqusibdnup.supabase.co";
     const SUPABASE_KEY = "sb_publishable_gq0-KFzH8Ru9-etDSZ_Cwg_pQrHCYcY";
-
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    
-    // GLOBAL STATE
+
     let enterpriseItems = [];
     let salesHistory = [];
     let auditLogs = [];
     let currentView = 'equipment';
 
-    // INITIALIZATION
     window.addEventListener('DOMContentLoaded', () => {
-      addAuditEntry("System Init", "Labaid Trading PLC database session started.");
+      addAuditEntry("System Session", "Dashboard loaded.");
       loadEnterpriseData();
     });
 
-    // AUDIT TRAIL ENGINE
     function addAuditEntry(action, details) {
-      const entry = {
-        time: new Date().toLocaleTimeString(),
-        action: action,
-        details: details
-      };
-      auditLogs.unshift(entry);
+      auditLogs.unshift({ time: new Date().toLocaleTimeString(), action, details });
       renderAuditLogs();
     }
 
     function renderAuditLogs() {
       const container = document.getElementById('audit-log-container');
-      if (auditLogs.length === 0) {
-        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13px;">No actions logged yet.</div>`;
+      if (!auditLogs.length) {
+        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13px;">No actions logged.</div>`;
         return;
       }
       container.innerHTML = auditLogs.map(log => `
-        <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); border-radius: 12px; padding: 12px; margin-bottom: 10px;">
+        <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); border-radius: 10px; padding: 10px; margin-bottom: 10px;">
           <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom: 4px;">
             <span style="color:var(--accent-purple); font-weight:700;">${log.action}</span>
             <span>${log.time}</span>
           </div>
-          <div style="font-size:13px; color:var(--text-main);">${log.details}</div>
+          <div style="font-size:12px; color:var(--text-main);">${log.details}</div>
         </div>
       `).join('');
     }
 
-    // DATA LOADING
     async function loadEnterpriseData() {
-      const { data: itemsData, error: itemsErr } = await db.from('items').select('*').order('id', { ascending: false });
-      if (itemsErr) {
-        console.error("Error loading items:", itemsErr);
-        document.getElementById('ent-table-body').innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--accent-rose);"><i class="fa-solid fa-triangle-exclamation"></i> Database connection error. Check Supabase credentials or RLS policies.</td></tr>`;
-        return;
-      }
-
+      const { data: itemsData } = await db.from('items').select('*').order('id', { ascending: false });
       enterpriseItems = itemsData || [];
-      
+
       const { data: salesData } = await db.from('sales_log').select('*').order('created_at', { ascending: false });
       salesHistory = salesData || [];
 
-      updateMetrics();
       renderEnterpriseTable(enterpriseItems);
       renderSalesHistoryDrawer();
     }
 
-    function updateMetrics() {
-      const chems = enterpriseItems.filter(i => i.category === "Chemicals & Reagents").length;
-      document.getElementById('kpi-total-skus').innerText = enterpriseItems.length;
-      document.getElementById('kpi-chemicals-count').innerText = chems;
-      document.getElementById('kpi-sales-count').innerText = salesHistory.length;
-    }
-
-    function switchEnterpriseView(viewMode) {
-      currentView = viewMode;
-      
-      document.getElementById('tab-equipment').classList.remove('active');
-      document.getElementById('tab-chemicals').classList.remove('active');
-
-      const chemFields = document.getElementById('chem-special-fields');
-      const catSelect = document.getElementById('ent-category');
-
-      if (viewMode === 'equipment') {
-        document.getElementById('tab-equipment').classList.add('active');
-        document.getElementById('panel-form-title').innerHTML = `<i class="fa-solid fa-plus-circle"></i> Register Equipment / Supply`;
-        chemFields.style.display = 'none';
-
-        catSelect.innerHTML = `
-          <option value="Laboratory Equipment">Laboratory Equipment</option>
-          <option value="Educational & Lab Supplies">Educational & Lab Supplies</option>
-          <option value="Electrical & Power Supplies">Electrical & Power Supplies</option>
-          <option value="Agricultural Equipment">Agricultural Equipment</option>
-          <option value="Industrial Machinery">Industrial Machinery</option>
-        `;
-      } else if (viewMode === 'chemicals') {
-        document.getElementById('tab-chemicals').classList.add('active');
-        document.getElementById('panel-form-title').innerHTML = `<i class="fa-solid fa-flask"></i> Register Chemical / Reagent`;
-        chemFields.style.display = 'block';
-
-        catSelect.innerHTML = `<option value="Chemicals & Reagents">Chemicals & Reagents</option>`;
-      }
-
+    function switchEnterpriseView(mode) {
+      currentView = mode;
+      document.getElementById('tab-equipment').classList.toggle('active', mode === 'equipment');
+      document.getElementById('tab-chemicals').classList.toggle('active', mode === 'chemicals');
+      document.getElementById('chem-special-fields').style.display = mode === 'chemicals' ? 'block' : 'none';
       renderEnterpriseTable(enterpriseItems);
-    }
-
-    function filterEnterpriseTable() {
-      const search = document.getElementById('global-search').value.toLowerCase();
-      const stockFilter = document.getElementById('stock-filter').value;
-
-      const filtered = enterpriseItems.filter(item => {
-        const matchesSearch = (item.item_name || '').toLowerCase().includes(search) ||
-                              (item.brand || '').toLowerCase().includes(search) ||
-                              (item.model || '').toLowerCase().includes(search) ||
-                              (item.cas_number || '').toLowerCase().includes(search);
-        
-        const qty = parseInt(item.quantity) || 0;
-        let matchesStock = true;
-
-        if (stockFilter === 'instock') matchesStock = qty > 0;
-        else if (stockFilter === 'low') matchesStock = qty > 0 && qty <= 5;
-        else if (stockFilter === 'outofstock') matchesStock = qty === 0;
-
-        return matchesSearch && matchesStock;
-      });
-
-      renderEnterpriseTable(filtered);
     }
 
     function renderEnterpriseTable(items) {
@@ -894,107 +489,66 @@
         return currentView === 'chemicals' ? isChem : !isChem;
       });
 
-      document.getElementById('row-count').innerText = `Showing ${filtered.length} entries`;
+      thead.innerHTML = `
+        <tr>
+          <th>Item / Specification</th>
+          <th>Category</th>
+          <th>Brand & Model</th>
+          <th>Stock Qty</th>
+          <th>Unit Price</th>
+          <th>Catalogue Spec</th>
+          <th>Actions</th>
+        </tr>
+      `;
 
-      if (currentView === 'chemicals') {
-        thead.innerHTML = `
-          <tr>
-            <th>Chemical Description</th>
-            <th>CAS Number</th>
-            <th>Purity Grade</th>
-            <th>Stock Level</th>
-            <th>Unit Price</th>
-            <th>Catalogue</th>
-            <th>Actions</th>
-          </tr>
-        `;
-
-        if (filtered.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">No chemical records found.</td></tr>`;
-          return;
-        }
-
-        tbody.innerHTML = filtered.map(item => {
-          const qty = parseInt(item.quantity) || 0;
-          const catUrl = item.catalog_url || item.pdf_url;
-          return `
-            <tr>
-              <td>
-                <strong>${item.item_name}</strong>
-                <div style="font-size:11px; color:var(--text-muted);">${item.brand || 'No Brand'}</div>
-              </td>
-              <td><code style="color:var(--accent-cyan);">${item.cas_number || 'N/A'}</code></td>
-              <td><span style="color:var(--accent-purple); font-weight:600;">${item.purity || 'N/A'}</span></td>
-              <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
-              <td><strong style="color:var(--accent-cyan);">${formatCurrency(item.price)}</strong></td>
-              <td>
-                ${catUrl 
-                  ? `<a href="${catUrl}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> Spec</a>` 
-                  : `<span style="font-size:11px; color:var(--text-muted);">None</span>`}
-              </td>
-              <td>
-                <div style="display:flex; gap:6px;">
-                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i> Edit</button>
-                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
-                </div>
-              </td>
-            </tr>
-          `;
-        }).join('');
-      } else {
-        thead.innerHTML = `
-          <tr>
-            <th>Item / Specification</th>
-            <th>Category</th>
-            <th>Brand & Model</th>
-            <th>Stock Level</th>
-            <th>Unit Price</th>
-            <th>Catalogue</th>
-            <th>Actions</th>
-          </tr>
-        `;
-
-        if (filtered.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">No equipment/supply records found.</td></tr>`;
-          return;
-        }
-
-        tbody.innerHTML = filtered.map(item => {
-          const qty = parseInt(item.quantity) || 0;
-          const catUrl = item.catalog_url || item.pdf_url;
-          return `
-            <tr>
-              <td><strong>${item.item_name}</strong></td>
-              <td><span style="font-size:11px; padding:3px 8px; background:rgba(255,255,255,0.06); border-radius:6px;">${item.category}</span></td>
-              <td><div style="font-size:12px;">${item.brand || '-'} / ${item.model || '-'}</div></td>
-              <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
-              <td><strong style="color:var(--accent-cyan);">${formatCurrency(item.price)}</strong></td>
-              <td>
-                ${catUrl 
-                  ? `<a href="${catUrl}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-link"></i> Link</a>` 
-                  : `<span style="font-size:11px; color:var(--text-muted);">None</span>`}
-              </td>
-              <td>
-                <div style="display:flex; gap:6px;">
-                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i> Edit</button>
-                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
-                </div>
-              </td>
-            </tr>
-          `;
-        }).join('');
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">No records found.</td></tr>`;
+        return;
       }
+
+      tbody.innerHTML = filtered.map(item => {
+        const qty = parseInt(item.quantity) || 0;
+        const catUrl = item.catalog_url || item.pdf_url;
+        return `
+          <tr>
+            <td><strong>${item.item_name}</strong></td>
+            <td><span style="font-size:11px; padding:3px 8px; background:rgba(255,255,255,0.06); border-radius:6px;">${item.category}</span></td>
+            <td><div style="font-size:12px;">${item.brand || '-'} / ${item.model || '-'}</div></td>
+            <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
+            <td><strong style="color:var(--accent-cyan);">${formatCurrency(item.price)}</strong></td>
+            <td>
+              ${catUrl 
+                ? `<a href="${catUrl}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> View PDF</a>` 
+                : `<span style="font-size:11px; color:var(--text-muted);">None</span>`}
+            </td>
+            <td>
+              <div style="display:flex; gap:6px;">
+                <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i> Edit</button>
+                <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
-    /* CRUD ACTIONS */
+    /* ITEM CREATION & PDF CONVERSION */
     async function handleItemSubmit(e) {
       e.preventDefault();
+      
+      const pdfFileInput = document.getElementById('ent-pdf-file');
+      let catalogUrl = document.getElementById('ent-catalog-url').value;
+
+      if (pdfFileInput.files.length > 0) {
+        catalogUrl = await convertFileToBase64(pdfFileInput.files[0]);
+      }
+
       const newItem = {
         category: document.getElementById('ent-category').value,
         item_name: document.getElementById('ent-name').value,
         brand: document.getElementById('ent-brand').value,
         model: document.getElementById('ent-model').value,
-        catalog_url: document.getElementById('ent-catalog').value,
+        catalog_url: catalogUrl,
         cas_number: document.getElementById('ent-cas').value,
         purity: document.getElementById('ent-purity').value,
         unit_of_measure: document.getElementById('ent-unit').value,
@@ -1002,16 +556,17 @@
         price: parseFloat(document.getElementById('ent-price').value) || 0
       };
 
-      const { data, error } = await db.from('items').insert([newItem]).select();
+      const { error } = await db.from('items').insert([newItem]);
       if (error) {
-        alert("Error creating item: " + error.message);
+        alert("Error saving item: " + error.message);
       } else {
-        addAuditEntry("Item Added", `Registered "${newItem.item_name}" (${newItem.quantity} ${newItem.unit_of_measure})`);
+        addAuditEntry("Item Registered", `Added "${newItem.item_name}" (${newItem.quantity} ${newItem.unit_of_measure})`);
         document.getElementById('enterprise-form').reset();
         loadEnterpriseData();
       }
     }
 
+    /* EDIT MODAL LOGIC */
     function openEditModal(id) {
       const item = enterpriseItems.find(i => i.id === id);
       if (!item) return;
@@ -1021,7 +576,7 @@
       document.getElementById('edit-name').value = item.item_name;
       document.getElementById('edit-brand').value = item.brand || '';
       document.getElementById('edit-model').value = item.model || '';
-      document.getElementById('edit-catalog').value = item.catalog_url || item.pdf_url || '';
+      document.getElementById('edit-catalog').value = item.catalog_url || '';
       document.getElementById('edit-qty').value = item.quantity;
       document.getElementById('edit-price').value = item.price;
 
@@ -1035,12 +590,19 @@
     async function handleEditSubmit(e) {
       e.preventDefault();
       const id = document.getElementById('edit-id').value;
+      const pdfFileInput = document.getElementById('edit-pdf-file');
+      let catalogUrl = document.getElementById('edit-catalog').value;
+
+      if (pdfFileInput.files.length > 0) {
+        catalogUrl = await convertFileToBase64(pdfFileInput.files[0]);
+      }
+
       const updated = {
         category: document.getElementById('edit-category').value,
         item_name: document.getElementById('edit-name').value,
         brand: document.getElementById('edit-brand').value,
         model: document.getElementById('edit-model').value,
-        catalog_url: document.getElementById('edit-catalog').value,
+        catalog_url: catalogUrl,
         quantity: parseInt(document.getElementById('edit-qty').value) || 0,
         price: parseFloat(document.getElementById('edit-price').value) || 0
       };
@@ -1049,13 +611,13 @@
       if (error) {
         alert("Error updating item: " + error.message);
       } else {
-        addAuditEntry("Item Updated", `Updated specifications for "${updated.item_name}"`);
+        addAuditEntry("Item Modified", `Updated details for "${updated.item_name}"`);
         closeEditModal();
         loadEnterpriseData();
       }
     }
 
-    /* SALES SYSTEM */
+    /* SALES SYSTEM LOGIC */
     function openSaleModal(id) {
       const item = enterpriseItems.find(i => i.id === id);
       if (!item) return;
@@ -1063,11 +625,12 @@
       document.getElementById('sale-item-id').value = item.id;
       document.getElementById('sale-item-name').value = item.item_name;
       document.getElementById('sale-item-summary').innerHTML = `
-        <strong>${item.item_name}</strong> | Stock: <span style="color:var(--accent-cyan); font-weight:700;">${item.quantity} ${item.unit_of_measure || ''}</span>
+        <strong>${item.item_name}</strong> | Available Stock: <span style="color:var(--accent-cyan); font-weight:700;">${item.quantity} ${item.unit_of_measure || ''}</span>
       `;
       document.getElementById('sale-unit-price').value = item.price;
       document.getElementById('sale-qty').value = 1;
       document.getElementById('sale-date').value = new Date().toISOString().split('T')[0];
+      document.getElementById('sale-type').value = "Cash / Paid";
       
       calculateSaleTotal();
       document.getElementById('sale-modal').classList.add('active');
@@ -1075,6 +638,14 @@
 
     function closeSaleModal() {
       document.getElementById('sale-modal').classList.remove('active');
+    }
+
+    function toggleSaleTypeMode() {
+      const type = document.getElementById('sale-type').value;
+      if (type === 'Sample') {
+        document.getElementById('sale-unit-price').value = 0;
+      }
+      calculateSaleTotal();
     }
 
     function calculateSaleTotal() {
@@ -1089,6 +660,7 @@
       const itemId = document.getElementById('sale-item-id').value;
       const itemName = document.getElementById('sale-item-name').value;
       const client = document.getElementById('sale-client').value;
+      const saleType = document.getElementById('sale-type').value;
       const qtySold = parseInt(document.getElementById('sale-qty').value) || 0;
       const unitPrice = parseFloat(document.getElementById('sale-unit-price').value) || 0;
       const saleDate = document.getElementById('sale-date').value;
@@ -1096,15 +668,15 @@
 
       const item = enterpriseItems.find(i => i.id == itemId);
       if (item && item.quantity < qtySold) {
-        alert("Cannot sell more than available stock!");
+        alert("Insufficient stock available!");
         return;
       }
 
-      // Record Sale
       const { error: saleErr } = await db.from('sales_log').insert([{
         item_id: itemId,
         item_name: itemName,
         client_name: client,
+        sale_type: saleType,
         quantity_sold: qtySold,
         unit_price: unitPrice,
         total_price: totalVal,
@@ -1112,143 +684,105 @@
       }]);
 
       if (saleErr) {
-        alert("Error logging sale: " + saleErr.message);
+        alert("Error recording transaction: " + saleErr.message);
         return;
       }
 
-      // Deduct Inventory Stock
-      const newQty = item.quantity - qtySold;
-      await db.from('items').update({ quantity: newQty }).eq('id', itemId);
+      // Deduct Stock
+      await db.from('items').update({ quantity: item.quantity - qtySold }).eq('id', itemId);
 
-      addAuditEntry("Sale Executed", `Sold ${qtySold}x "${itemName}" to ${client} for ${formatCurrency(totalVal)}`);
+      addAuditEntry("Sale Record", `[${saleType}] ${qtySold}x "${itemName}" to ${client}`);
       closeSaleModal();
       document.getElementById('sale-form').reset();
       loadEnterpriseData();
     }
 
+    /* SALES HISTORY MENU & DETAIL TOGGLE */
     function renderSalesHistoryDrawer() {
       const container = document.getElementById('sales-history-container');
-      if (salesHistory.length === 0) {
-        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 13px;">No past sales recorded yet.</div>`;
+      if (!salesHistory.length) {
+        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 13px;">No past sales recorded.</div>`;
         return;
       }
 
-      container.innerHTML = salesHistory.map(sale => `
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-light); border-radius: 12px; padding: 14px; margin-bottom: 10px;">
-          <div style="display:flex; justify-content:space-between; font-weight:700; color:var(--accent-emerald);">
-            <span>${sale.item_name}</span>
-            <span>${formatCurrency(sale.total_price)}</span>
+      container.innerHTML = salesHistory.map((sale, idx) => {
+        let badgeClass = 'badge-cash';
+        if (sale.sale_type === 'Sample') badgeClass = 'badge-sample';
+        if (sale.sale_type === 'Credit') badgeClass = 'badge-credit';
+
+        return `
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-light); border-radius: 10px; padding: 12px; margin-bottom: 10px; cursor: pointer;" onclick="toggleSaleDetail(${idx})">
+            <div style="display:flex; justify-content:space-between; align-items: center;">
+              <strong style="color:var(--accent-cyan); font-size:14px;">${sale.item_name}</strong>
+              <span class="badge ${badgeClass}">${sale.sale_type || 'Cash'}</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">
+              Destination: <strong style="color:var(--text-main);">${sale.client_name}</strong>
+            </div>
+            
+            <!-- EXPANDABLE DETAILED VIEW -->
+            <div id="sale-detail-${idx}" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-light); font-size: 12px;">
+              <div><strong>Quantity Sold:</strong> ${sale.quantity_sold}</div>
+              <div><strong>Unit Price:</strong> ${formatCurrency(sale.unit_price)}</div>
+              <div><strong>Total Amount:</strong> <span style="color:var(--accent-emerald); font-weight:700;">${formatCurrency(sale.total_price)}</span></div>
+              <div><strong>Transaction Date:</strong> ${sale.sale_date || sale.created_at?.split('T')[0]}</div>
+            </div>
           </div>
-          <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
-            <div>Client: <strong style="color:var(--text-main);">${sale.client_name}</strong></div>
-            <div>Qty Sold: <strong>${sale.quantity_sold}</strong> | Unit Price: ${formatCurrency(sale.unit_price)}</div>
-            <div>Date: ${sale.sale_date || sale.created_at?.split('T')[0]}</div>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
-    /* EXPORT CENTER */
-    function openExportModal() {
-      document.getElementById('export-modal').classList.add('active');
+    function toggleSaleDetail(idx) {
+      const el = document.getElementById(`sale-detail-${idx}`);
+      if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
     }
 
-    function closeExportModal() {
-      document.getElementById('export-modal').classList.remove('active');
-    }
-
-    function toggleExportTimelineOptions() {
-      const target = document.getElementById('export-target').value;
-      const timelineGroup = document.getElementById('timeline-group');
-      timelineGroup.style.display = target === 'sales' ? 'block' : 'none';
-      toggleCustomDateGroup();
-    }
-
-    function toggleCustomDateGroup() {
-      const timeline = document.getElementById('export-timeline').value;
-      const customGroup = document.getElementById('custom-date-group');
-      customGroup.style.display = (document.getElementById('export-target').value === 'sales' && timeline === 'custom') ? 'grid' : 'none';
-    }
+    /* EXPORT FUNCTIONALITY */
+    function openExportModal() { document.getElementById('export-modal').classList.add('active'); }
+    function closeExportModal() { document.getElementById('export-modal').classList.remove('active'); }
 
     function processExportRequest() {
       const target = document.getElementById('export-target').value;
-
       if (target === 'inventory') {
         exportCSV(enterpriseItems, 'Labaid_Inventory_Report.csv');
       } else {
-        const timeline = document.getElementById('export-timeline').value;
-        let filteredSales = [...salesHistory];
-        const now = new Date();
-
-        if (timeline === 'today') {
-          const todayStr = now.toISOString().split('T')[0];
-          filteredSales = filteredSales.filter(s => (s.sale_date || s.created_at)?.startsWith(todayStr));
-        } else if (timeline === '7days') {
-          const past = new Date(); past.setDate(now.getDate() - 7);
-          filteredSales = filteredSales.filter(s => new Date(s.sale_date || s.created_at) >= past);
-        } else if (timeline === '30days') {
-          const past = new Date(); past.setDate(now.getDate() - 30);
-          filteredSales = filteredSales.filter(s => new Date(s.sale_date || s.created_at) >= past);
-        } else if (timeline === '1year') {
-          const past = new Date(); past.setDate(now.getDate() - 365);
-          filteredSales = filteredSales.filter(s => new Date(s.sale_date || s.created_at) >= past);
-        } else if (timeline === 'custom') {
-          const start = new Date(document.getElementById('export-start-date').value);
-          const end = new Date(document.getElementById('export-end-date').value);
-          filteredSales = filteredSales.filter(s => {
-            const d = new Date(s.sale_date || s.created_at);
-            return d >= start && d <= end;
-          });
-        }
-
-        exportCSV(filteredSales, `Labaid_Sales_Report_${timeline}.csv`);
+        exportCSV(salesHistory, 'Labaid_Sales_Report.csv');
       }
       closeExportModal();
     }
 
     function exportCSV(arrData, filename) {
-      if (!arrData || !arrData.length) {
-        alert("No data available to export!");
-        return;
-      }
+      if (!arrData || !arrData.length) { alert("No data available to export!"); return; }
       const keys = Object.keys(arrData[0]);
-      let csvContent = "data:text/csv;charset=utf-8," + keys.join(",") + "\n";
-
+      let csv = "data:text/csv;charset=utf-8," + keys.join(",") + "\n";
       arrData.forEach(row => {
-        let rowArr = keys.map(k => `"${(row[k] || '').toString().replace(/"/g, '""')}"`);
-        csvContent += rowArr.join(",") + "\n";
+        csv += keys.map(k => `"${(row[k] || '').toString().replace(/"/g, '""')}"`).join(",") + "\n";
       });
-
-      const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
+      link.setAttribute("href", encodeURI(csv));
       link.setAttribute("download", filename);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     }
 
-    /* DRAWER CONTROLS */
-    function toggleAuditDrawer() {
-      document.getElementById('audit-drawer').classList.toggle('open');
-    }
+    /* UTILITIES & DRAWER CONTROLS */
+    function toggleAuditDrawer() { document.getElementById('audit-drawer').classList.toggle('open'); }
+    function toggleSalesDrawer() { document.getElementById('sales-drawer').classList.toggle('open'); }
+    function startTourGuide() { document.getElementById('tour-modal').classList.add('active'); }
+    function closeTourGuide() { document.getElementById('tour-modal').classList.remove('active'); }
 
-    function toggleSalesDrawer() {
-      document.getElementById('sales-drawer').classList.toggle('open');
-    }
-
-    /* TOUR GUIDE CONTROLS */
-    function startTourGuide() {
-      document.getElementById('tour-modal').classList.add('active');
-    }
-
-    function closeTourGuide() {
-      document.getElementById('tour-modal').classList.remove('active');
-    }
-
-    /* UTILITY HELPERS */
     function formatCurrency(val) {
       return (parseFloat(val) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ETB';
+    }
+
+    function convertFileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
     }
   </script>
 </body>
