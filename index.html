@@ -19,9 +19,21 @@
       --accent-purple: #a855f7;
       --accent-rose: #f43f5e;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+    
+    /* AUTH LOGIN SCREEN OVERLAY */
+    #auth-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(15, 23, 42, 0.95); display: flex; justify-content: center; align-items: center; z-index: 9999;
+    }
+    .auth-box {
+      background: var(--panel-bg); border: 1px solid var(--border-light); border-radius: 16px;
+      width: 100%; max-width: 420px; padding: 35px; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      text-align: center;
+    }
+    .auth-box h2 { color: var(--accent-cyan); font-size: 20px; margin-bottom: 8px; font-weight: 800; }
+    .auth-box p { color: var(--text-muted); font-size: 13px; margin-bottom: 25px; }
 
     /* NAVBAR */
     .navbar {
@@ -37,7 +49,7 @@
     }
     .brand { font-size: 20px; font-weight: 800; color: var(--accent-cyan); display: flex; align-items: center; gap: 10px; }
     .nav-actions { display: flex; gap: 10px; align-items: center; }
-
+    
     /* BUTTONS */
     .btn-action {
       background: rgba(255, 255, 255, 0.05);
@@ -56,14 +68,14 @@
     .btn-action:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-1px); }
     .btn-primary { background: var(--accent-cyan); color: #020617; border: none; }
     .btn-primary:hover { background: #0284c7; color: #fff; }
-
+    
     /* MAIN LAYOUT */
     .app-container { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 65px); }
     .sidebar { width: 360px; background: var(--panel-bg); border-right: 1px solid var(--border-light); padding: 20px; overflow-y: auto; }
     .content-area { flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
-
+    
     /* FORM STYLES */
-    .form-group { margin-bottom: 14px; }
+    .form-group { margin-bottom: 14px; text-align: left; }
     .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; }
     .form-control {
       width: 100%;
@@ -75,19 +87,19 @@
       font-size: 13px;
     }
     .form-control:focus { outline: none; border-color: var(--accent-cyan); }
-
+    
     /* TABS */
     .view-tabs { display: flex; gap: 10px; border-bottom: 1px solid var(--border-light); padding-bottom: 10px; }
     .tab-btn { background: none; border: none; color: var(--text-muted); padding: 8px 16px; font-size: 14px; font-weight: 700; cursor: pointer; border-radius: 6px; }
     .tab-btn.active { background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); }
-
+    
     /* TABLE */
     .table-container { background: var(--panel-bg); border: 1px solid var(--border-light); border-radius: 10px; overflow: hidden; }
     table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
     th { background: rgba(0, 0, 0, 0.3); padding: 12px 16px; color: var(--text-muted); font-weight: 600; }
     td { padding: 12px 16px; border-bottom: 1px solid var(--border-light); }
     tr:hover { background: rgba(255, 255, 255, 0.02); }
-
+    
     /* MODAL & DRAWERS */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -95,15 +107,14 @@
     }
     .modal-overlay.active { display: flex; }
     .modal-box { background: var(--panel-bg); border: 1px solid var(--border-light); border-radius: 12px; width: 100%; max-width: 500px; padding: 24px; max-height: 90vh; overflow-y: auto; }
-
     .side-drawer {
       position: fixed; top: 0; right: -420px; width: 400px; height: 100vh;
       background: var(--panel-bg); border-left: 1px solid var(--border-light);
       box-shadow: -5px 0 25px rgba(0,0,0,0.5); transition: right 0.3s ease; z-index: 150; padding: 20px; overflow-y: auto;
     }
     .side-drawer.open { right: 0; }
-
-    /* MESSAGE STYLE SALES CARD */
+    
+    /* SALES CARD */
     .sale-msg-card {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border-light);
@@ -116,21 +127,33 @@
     .sale-msg-card:hover { background: rgba(255, 255, 255, 0.07); border-color: var(--accent-emerald); }
     .sale-msg-body { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-light); font-size: 12px; color: var(--text-muted); }
     .sale-msg-card.expanded .sale-msg-body { display: block; }
-
-    /* TOUR HIGHLIGHT */
-    .tour-highlight {
-      position: relative !important;
-      z-index: 1000 !important;
-      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75), 0 0 15px var(--accent-cyan) !important;
-      border-radius: 8px;
-    }
-    #tour-popover {
-      position: fixed; z-index: 1001; background: var(--panel-bg); border: 2px solid var(--accent-cyan);
-      border-radius: 12px; padding: 18px; width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.8); display: none;
-    }
   </style>
 </head>
 <body>
+
+  <!-- PASSWORD AUTHENTICATION SCREEN -->
+  <div id="auth-overlay">
+    <div class="auth-box">
+      <div style="font-size: 32px; color: var(--accent-cyan); margin-bottom: 12px;"><i class="fa-solid fa-boxes-stacked"></i></div>
+      <h2>Welcome to Labaid Trading PLC Inventory System</h2>
+      <p>Please enter your credentials to log in.</p>
+      
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" class="form-control" id="login-user" required placeholder="Enter username (e.g. Labaid)">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" class="form-control" id="login-pass" required placeholder="Enter password (e.g. Abc123)">
+        </div>
+        <div id="login-error" style="color: var(--accent-rose); font-size: 12px; margin-bottom: 12px; display: none;">Invalid username or password.</div>
+        <button type="submit" class="btn-action btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 14px;">
+          <i class="fa-solid fa-lock-open"></i> Login to System
+        </button>
+      </form>
+    </div>
+  </div>
 
   <!-- NAVBAR -->
   <header class="navbar">
@@ -138,17 +161,20 @@
       <i class="fa-solid fa-boxes-stacked"></i> LABAID TRADING PLC
     </div>
     <div class="nav-actions">
-      <button class="btn-action" id="tour-step-btn" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border-color: var(--accent-amber);" onclick="startTourGuide()">
-        <i class="fa-solid fa-compass"></i> Beginner Tour
+      <button class="btn-action" style="background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); border-color: var(--accent-purple);" onclick="openPasswordModal()">
+        <i class="fa-solid fa-key"></i> Change Password
       </button>
       <button class="btn-action" id="tour-sales-btn" onclick="toggleSalesDrawer()">
-        <i class="fa-solid fa-receipt"></i> Sales History Menu
+        <i class="fa-solid fa-receipt"></i> Sales History
       </button>
       <button class="btn-action" id="tour-export-btn" onclick="openExportModal()">
         <i class="fa-solid fa-file-csv"></i> Export Data
       </button>
       <button class="btn-action" onclick="toggleAuditDrawer()">
         <i class="fa-solid fa-list-check"></i> Audit Logs
+      </button>
+      <button class="btn-action" style="background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); border-color: var(--accent-rose);" onclick="logoutSystem()">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
       </button>
     </div>
   </header>
@@ -174,12 +200,10 @@
             <option value="Chemicals & Reagents">Chemicals & Reagents</option>
           </select>
         </div>
-
         <div class="form-group">
           <label>Item Description / Name</label>
           <input type="text" class="form-control" id="ent-name" required placeholder="e.g. Digital Spectrophotometer">
         </div>
-
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
           <div class="form-group">
             <label>Brand</label>
@@ -190,7 +214,6 @@
             <input type="text" class="form-control" id="ent-model" placeholder="e.g. BK-V1100">
           </div>
         </div>
-
         <div id="standard-spec-fields">
           <div class="form-group">
             <label>Upload Catalogue Spec PDF File</label>
@@ -201,7 +224,6 @@
             <input type="url" class="form-control" id="ent-catalog-url" placeholder="https://...">
           </div>
         </div>
-
         <div id="chem-special-fields" style="display: none;">
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <div class="form-group">
@@ -214,7 +236,6 @@
             </div>
           </div>
         </div>
-
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
           <div class="form-group">
             <label>Unit</label>
@@ -229,7 +250,6 @@
             <input type="number" step="0.01" class="form-control" id="ent-price" required min="0">
           </div>
         </div>
-
         <button type="submit" class="btn-action btn-primary" style="width: 100%; justify-content: center; margin-top: 10px; padding: 12px;">
           <i class="fa-solid fa-save"></i> Save Item to Inventory
         </button>
@@ -246,7 +266,6 @@
           <i class="fa-solid fa-flask"></i> Chemicals & Reagents
         </button>
       </div>
-
       <div class="table-container" id="tour-table">
         <table>
           <thead id="ent-table-head"></thead>
@@ -254,6 +273,32 @@
         </table>
       </div>
     </main>
+  </div>
+
+  <!-- CHANGE PASSWORD MODAL -->
+  <div class="modal-overlay" id="password-modal">
+    <div class="modal-box">
+      <h3 style="color: var(--accent-purple); margin-bottom: 15px;"><i class="fa-solid fa-key"></i> Change Password</h3>
+      <form onsubmit="handlePasswordChange(event)">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" class="form-control" id="pw-user" required placeholder="Enter current username">
+        </div>
+        <div class="form-group">
+          <label>Old Password</label>
+          <input type="password" class="form-control" id="pw-old" required placeholder="Enter old password">
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" class="form-control" id="pw-new" required placeholder="Enter new password">
+        </div>
+        <div id="pw-msg" style="font-size: 12px; margin-bottom: 12px; display: none;"></div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button type="button" class="btn-action" style="flex:1; justify-content: center;" onclick="closePasswordModal()">Cancel</button>
+          <button type="submit" class="btn-action btn-primary" style="flex:1; justify-content: center; background: var(--accent-purple); color: #fff;">Update Password</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- EDIT ITEM MODAL -->
@@ -300,20 +345,19 @@
     <div class="modal-box">
       <h3 style="color: var(--accent-emerald); margin-bottom: 15px;"><i class="fa-solid fa-cart-shopping"></i> Process Item Sale / Transfer</h3>
       <div id="sale-item-summary" style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;"></div>
-
       <form id="sale-form" onsubmit="handleSaleSubmit(event)">
         <input type="hidden" id="sale-item-id">
         <input type="hidden" id="sale-item-name">
         <div class="form-group">
           <label>Sale Type / Agreement</label>
-          <select class="form-control" id="sale-type" onchange="toggleSaleTypeMode()">
+          <select class="form-control" id="sale-type">
             <option value="Cash / Paid">Standard / Cash Sale</option>
             <option value="Sample">Sample Item (Free/Demo)</option>
             <option value="Credit">Credit Sale (Pending Payment)</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Where Sold / Client & Destination Name</label>
+          <label>Client & Destination Name</label>
           <input type="text" class="form-control" id="sale-client" placeholder="e.g. Bule Hora University" required>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -346,7 +390,6 @@
           <option value="sales">Past Sales History</option>
         </select>
       </div>
-
       <div class="form-group" id="export-time-group" style="display: none;">
         <label>Time Period Filter</label>
         <select class="form-control" id="export-time-range">
@@ -356,23 +399,9 @@
           <option value="year">This Year</option>
         </select>
       </div>
-
       <div style="display: flex; gap: 10px; margin-top: 20px;">
         <button class="btn-action" style="flex:1; justify-content: center;" onclick="closeExportModal()">Cancel</button>
         <button class="btn-action" style="flex:1; justify-content: center; background: var(--accent-cyan); color: #020617;" onclick="processExportRequest()">Download CSV Report</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TOUR POPOVER CARD -->
-  <div id="tour-popover">
-    <h4 id="tour-title" style="color:var(--accent-cyan); margin-bottom:8px; font-size: 15px;">Step Title</h4>
-    <p id="tour-desc" style="font-size:12px; color:var(--text-main); margin-bottom:15px; line-height: 1.4;">Step description goes here.</p>
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <span id="tour-progress" style="font-size:11px; color:var(--text-muted);">Step 1 of 5</span>
-      <div style="display:flex; gap:6px;">
-        <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="endTour()">End Tour</button>
-        <button class="btn-action btn-primary" id="tour-next-btn" style="padding:4px 10px; font-size:11px;" onclick="nextTourStep()">Next</button>
       </div>
     </div>
   </div>
@@ -393,14 +422,12 @@
       <button onclick="toggleSalesDrawer()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">&times;</button>
     </div>
     
-    <!-- TIME FILTER BUTTONS -->
     <div style="display: flex; gap: 6px; margin-bottom: 15px;">
       <button class="btn-action" id="filter-week" style="flex:1; justify-content:center; padding:6px; font-size:11px;" onclick="setSalesFilter('week')">This Week</button>
       <button class="btn-action" id="filter-month" style="flex:1; justify-content:center; padding:6px; font-size:11px;" onclick="setSalesFilter('month')">This Month</button>
       <button class="btn-action" id="filter-year" style="flex:1; justify-content:center; padding:6px; font-size:11px;" onclick="setSalesFilter('year')">This Year</button>
-      <button class="btn-action active-filter" id="filter-all" style="flex:1; justify-content:center; padding:6px; font-size:11px; background:rgba(56,189,248,0.2); color:var(--accent-cyan);" onclick="setSalesFilter('all')">All Time</button>
+      <button class="btn-action" id="filter-all" style="flex:1; justify-content:center; padding:6px; font-size:11px; background:rgba(56,189,248,0.2); color:var(--accent-cyan);" onclick="setSalesFilter('all')">All Time</button>
     </div>
-
     <div id="sales-history-container"></div>
   </div>
 
@@ -416,20 +443,73 @@
     let currentView = 'equipment';
     let currentSalesFilter = 'all';
 
-    // Tour state variables
-    let currentTourStep = 0;
-    const tourSteps = [
-      { elementId: 'tour-reg-form', title: 'Item Registration Form', desc: 'Use this sidebar panel to add new equipment, supplies, or chemical inventory items with specs and pricing.' },
-      { elementId: 'tour-view-tabs', title: 'Category Views', desc: 'Switch instantly between standard laboratory equipment/supplies and specialized chemicals & reagents directories.' },
-      { elementId: 'tour-table', title: 'Inventory Data Table', desc: 'View complete stock statuses, units, prices, catalogue files, and perform quick edits or sales transactions here.' },
-      { elementId: 'tour-sales-btn', title: 'Sales History Menu', desc: 'Open this drawer to review historical records, client details, and filter transaction lists by date ranges.' },
-      { elementId: 'tour-export-btn', title: 'Data Export Center', desc: 'Download custom spreadsheet reports of your inventory directory or past sales segmented by time periods.' }
-    ];
+    // Retrieve custom credentials from LocalStorage or fallback to default
+    function getStoredCredentials() {
+      return {
+        user: localStorage.getItem('labaid_username') || "Labaid",
+        pass: localStorage.getItem('labaid_password') || "Abc123"
+      };
+    }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      addAuditEntry("System Session", "Dashboard loaded.");
-      loadEnterpriseData();
-    });
+    // Login Authentication Function
+    function handleLogin(e) {
+      e.preventDefault();
+      const user = document.getElementById('login-user').value.trim();
+      const pass = document.getElementById('login-pass').value.trim();
+      const creds = getStoredCredentials();
+      
+      if (user === creds.user && pass === creds.pass) {
+        document.getElementById('auth-overlay').style.display = 'none';
+        addAuditEntry("System Session", "User logged in successfully.");
+        loadEnterpriseData();
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    }
+
+    function logoutSystem() {
+      document.getElementById('login-user').value = '';
+      document.getElementById('login-pass').value = '';
+      document.getElementById('login-error').style.display = 'none';
+      document.getElementById('auth-overlay').style.display = 'flex';
+      addAuditEntry("System Session", "User logged out.");
+    }
+
+    // Change Password Functions
+    function openPasswordModal() {
+      document.getElementById('pw-user').value = '';
+      document.getElementById('pw-old').value = '';
+      document.getElementById('pw-new').value = '';
+      document.getElementById('pw-msg').style.display = 'none';
+      document.getElementById('password-modal').classList.add('active');
+    }
+
+    function closePasswordModal() {
+      document.getElementById('password-modal').classList.remove('active');
+    }
+
+    function handlePasswordChange(e) {
+      e.preventDefault();
+      const uInput = document.getElementById('pw-user').value.trim();
+      const pOld = document.getElementById('pw-old').value.trim();
+      const pNew = document.getElementById('pw-new').value.trim();
+      const creds = getStoredCredentials();
+      const msgEl = document.getElementById('pw-msg');
+
+      if (uInput === creds.user && pOld === creds.pass) {
+        localStorage.setItem('labaid_username', uInput);
+        localStorage.setItem('labaid_password', pNew);
+        msgEl.style.display = 'block';
+        msgEl.style.color = 'var(--accent-emerald)';
+        msgEl.textContent = "Password changed successfully! Use your new password next time.";
+        addAuditEntry("Password Changed", "User updated account credentials.");
+        setTimeout(() => { closePasswordModal(); }, 1500);
+      } else {
+        msgEl.style.display = 'block';
+        msgEl.style.color = 'var(--accent-rose)';
+        msgEl.textContent = "Incorrect username or old password.";
+      }
+    }
 
     function formatCurrency(val) {
       return (parseFloat(val) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ETB";
@@ -460,7 +540,6 @@
     async function loadEnterpriseData() {
       const { data: itemsData } = await db.from('items').select('*').order('id', { ascending: false });
       enterpriseItems = itemsData || [];
-
       let salesData = [];
       try {
         const res = await db.from('sales_log').select('*').order('id', { ascending: false });
@@ -468,10 +547,8 @@
       } catch (err) {
         salesData = [];
       }
-
       const localSales = JSON.parse(localStorage.getItem('local_sales_fallback') || '[]');
       salesHistory = [...localSales, ...salesData];
-
       renderEnterpriseTable(enterpriseItems);
       renderSalesHistoryDrawer();
     }
@@ -493,7 +570,6 @@
     function renderEnterpriseTable(items) {
       const thead = document.getElementById('ent-table-head');
       const tbody = document.getElementById('ent-table-body');
-
       const filtered = items.filter(item => {
         const isChem = item.category === "Chemicals & Reagents";
         return currentView === 'chemicals' ? isChem : !isChem;
@@ -527,8 +603,9 @@
               <td><span style="font-size:12px; color:var(--accent-amber);">${item.expire_date || 'N/A'}</span></td>
               <td>
                 <div style="display:flex; gap:6px;">
-                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i></button>
-                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i></button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${item.id})" title="Edit Item"><i class="fa-solid fa-pen"></i></button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''} title="Sell Item"><i class="fa-solid fa-cart-shopping"></i></button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-rose); color:#fff;" onclick="deleteItem(${item.id}, '${item.item_name}')" title="Delete Item & PDF"><i class="fa-solid fa-trash"></i></button>
                 </div>
               </td>
             </tr>`;
@@ -541,11 +618,12 @@
               <td><div style="font-size:12px;">${item.brand || '-'} / ${item.model || '-'}</div></td>
               <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
               <td><strong style="color:var(--accent-cyan);">${formatCurrency(item.price)}</strong></td>
-              <td>${pdfUrl ? `<a href="${pdfUrl}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> PDF</a>` : `<span style="font-size:11px; color:var(--text-muted);">None</span>`}</td>
+              <td>${pdfUrl ? `<div style="display:flex; gap:6px; align-items:center;"><a href="${pdfUrl}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> View</a><button class="btn-action" style="padding:4px 6px; font-size:10px; background:rgba(244,63,94,0.1); color:var(--accent-rose); border-color:var(--accent-rose);" onclick="removePdf(${item.id})" title="Remove PDF"><i class="fa-solid fa-xmark"></i></button></div>` : `<span style="font-size:11px; color:var(--text-muted);">None</span>`}</td>
               <td>
                 <div style="display:flex; gap:6px;">
-                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i></button>
-                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i></button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${item.id})" title="Edit Item"><i class="fa-solid fa-pen"></i></button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''} title="Sell Item"><i class="fa-solid fa-cart-shopping"></i></button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-rose); color:#fff;" onclick="deleteItem(${item.id}, '${item.item_name}')" title="Delete Item & PDF"><i class="fa-solid fa-trash"></i></button>
                 </div>
               </td>
             </tr>`;
@@ -569,7 +647,6 @@
       if (pdfFileInput && pdfFileInput.files.length > 0) {
         catalogUrl = await convertFileToBase64(pdfFileInput.files[0]);
       }
-
       const basePayload = {
         category: document.getElementById('ent-category').value,
         item_name: document.getElementById('ent-name').value,
@@ -580,19 +657,38 @@
         quantity: parseInt(document.getElementById('ent-qty').value) || 0,
         price: parseFloat(document.getElementById('ent-price').value) || 0
       };
-
       let { error } = await db.from('items').insert([{
         ...basePayload,
         cas_number: document.getElementById('ent-cas').value || null,
         expire_date: document.getElementById('ent-expire').value || null
       }]);
-
       if (error) {
         await db.from('items').insert([basePayload]);
       }
-
       addAuditEntry("Item Registered", `Added "${basePayload.item_name}"`);
       document.getElementById('enterprise-form').reset();
+      loadEnterpriseData();
+    }
+
+    // Remove just the attached PDF file from an item
+    async function removePdf(id) {
+      if (!confirm("Are you sure you want to remove the attached PDF catalog for this item?")) return;
+      await db.from('items').update({ pdf_url: null }).eq('id', id);
+      addAuditEntry("PDF Removed", `Cleared PDF catalog for item ID ${id}`);
+      loadEnterpriseData();
+    }
+
+    // Delete a specific item completely from the inventory list & database
+    async function deleteItem(id, itemName) {
+      if (!confirm(`Are you sure you want to completely delete "${itemName}" from the inventory? This will also remove any attached PDF files.`)) return;
+      
+      const { error } = await db.from('items').delete().eq('id', id);
+      if (error) {
+        alert("Error deleting item: " + error.message);
+        return;
+      }
+
+      addAuditEntry("Item Deleted", `Removed "${itemName}" from inventory`);
       loadEnterpriseData();
     }
 
@@ -630,6 +726,7 @@
         price: parseFloat(document.getElementById('edit-price').value) || 0
       };
       await db.from('items').update(updated).eq('id', id);
+      addAuditEntry("Item Updated", `Modified details for "${updated.item_name}"`);
       closeEditModal(); 
       loadEnterpriseData();
     }
@@ -662,12 +759,10 @@
       const itemId = parseInt(document.getElementById('sale-item-id').value);
       const qtySold = parseInt(document.getElementById('sale-qty').value);
       const item = enterpriseItems.find(i => i.id === itemId);
-
       if (!item || item.quantity < qtySold) {
         alert("Insufficient stock quantity!");
         return;
       }
-
       const saleRecord = {
         item_id: itemId,
         item_name: document.getElementById('sale-item-name').value,
@@ -678,7 +773,6 @@
         total_price: qtySold * parseFloat(document.getElementById('sale-unit-price').value),
         sale_date: document.getElementById('sale-date').value
       };
-
       try {
         await db.from('sales_log').insert([saleRecord]);
       } catch (err) {
@@ -686,10 +780,8 @@
         localSales.unshift(saleRecord);
         localStorage.setItem('local_sales_fallback', JSON.stringify(localSales));
       }
-
       const newQty = item.quantity - qtySold;
       await db.from('items').update({ quantity: newQty }).eq('id', itemId);
-
       addAuditEntry("Sale Recorded", `Sold ${qtySold}x "${saleRecord.item_name}" to ${saleRecord.client_name}`);
       closeSaleModal();
       loadEnterpriseData();
@@ -719,7 +811,6 @@
     function renderSalesHistoryDrawer() {
       const container = document.getElementById('sales-history-container');
       const now = new Date();
-
       const filtered = salesHistory.filter(sale => {
         if (!sale.sale_date) return currentSalesFilter === 'all';
         const saleDate = new Date(sale.sale_date);
@@ -740,7 +831,6 @@
         container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13px; padding:20px;">No sales history found for this period.</div>`;
         return;
       }
-
       container.innerHTML = filtered.map(sale => `
         <div class="sale-msg-card" onclick="this.classList.toggle('expanded')">
           <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -770,7 +860,6 @@
     function toggleExportTimeFilter() {
       const target = document.getElementById('export-target').value;
       const timeGroup = document.getElementById('export-time-group');
-      // Only show time-period filter options if exporting sales data
       timeGroup.style.display = target === 'sales' ? 'block' : 'none';
     }
 
@@ -780,7 +869,6 @@
       
       let csvContent = "data:text/csv;charset=utf-8,";
       let filename = "";
-
       if (target === 'inventory') {
         filename = "inventory_export.csv";
         csvContent += "ID,Category,Item Name,Brand,Model,Quantity,Price (ETB),Unit\r\n";
@@ -806,12 +894,10 @@
           }
           return true;
         });
-
         filteredSales.forEach(s => {
           csvContent += `"${s.item_name}","${s.sale_type || ''}","${s.client_name || ''}",${s.quantity},${s.unit_price},${s.total_price},"${s.sale_date || ''}"\r\n`;
         });
       }
-
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
@@ -820,58 +906,6 @@
       link.click();
       document.body.removeChild(link);
       closeExportModal();
-    }
-
-    // TOUR GUIDE LOGIC ENGINE
-    function startTourGuide() {
-      currentTourStep = 0;
-      document.getElementById('tour-popover').style.display = 'block';
-      showTourStep();
-    }
-
-    function showTourStep() {
-      // Remove highlight from previous steps
-      document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
-
-      if (currentTourStep >= tourSteps.length) {
-        endTour();
-        return;
-      }
-
-      const step = tourSteps[currentTourStep];
-      const targetEl = document.getElementById(step.elementId);
-      
-      if (!targetEl) {
-        nextTourStep();
-        return;
-      }
-
-      targetEl.classList.add('tour-highlight');
-      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-      document.getElementById('tour-title').textContent = step.title;
-      document.getElementById('tour-desc').textContent = step.desc;
-      document.getElementById('tour-progress').textContent = `Step ${currentTourStep + 1} of ${tourSteps.length}`;
-      
-      const nextBtn = document.getElementById('tour-next-btn');
-      nextBtn.textContent = currentTourStep === tourSteps.length - 1 ? 'Finish' : 'Next';
-
-      // Position popover near highlighted element
-      const popover = document.getElementById('tour-popover');
-      const rect = targetEl.getBoundingClientRect();
-      popover.style.top = `${Math.min(window.innerHeight - 250, Math.max(20, rect.top))}px`;
-      popover.style.left = `${Math.min(window.innerWidth - 350, rect.right + 20)}px`;
-    }
-
-    function nextTourStep() {
-      currentTourStep++;
-      showTourStep();
-    }
-
-    function endTour() {
-      document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
-      document.getElementById('tour-popover').style.display = 'none';
-      currentTourStep = 0;
     }
   </script>
 </body>
