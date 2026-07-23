@@ -103,11 +103,24 @@
     }
     .side-drawer.open { right: 0; }
 
-    /* BADGES */
-    .badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; display: inline-block; }
-    .badge-cash { background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald); }
-    .badge-sample { background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); }
-    .badge-credit { background: rgba(244, 63, 94, 0.2); color: var(--accent-rose); }
+    /* STEP-BY-STEP INTERACTIVE TOUR */
+    .tour-highlight {
+      position: relative !important;
+      z-index: 1000 !important;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75), 0 0 15px var(--accent-cyan) !important;
+      border-radius: 8px;
+    }
+    #tour-popover {
+      position: fixed;
+      z-index: 1001;
+      background: var(--panel-bg);
+      border: 2px solid var(--accent-cyan);
+      border-radius: 12px;
+      padding: 18px;
+      width: 320px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -118,13 +131,13 @@
       <i class="fa-solid fa-boxes-stacked"></i> LABAID TRADING PLC
     </div>
     <div class="nav-actions">
-      <button class="btn-action" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border-color: var(--accent-amber);" onclick="startTourGuide()">
+      <button class="btn-action" id="tour-step-btn" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border-color: var(--accent-amber);" onclick="startTourGuide()">
         <i class="fa-solid fa-compass"></i> Beginner Tour
       </button>
-      <button class="btn-action" onclick="toggleSalesDrawer()">
+      <button class="btn-action" id="tour-sales-btn" onclick="toggleSalesDrawer()">
         <i class="fa-solid fa-receipt"></i> Sales History Menu
       </button>
-      <button class="btn-action" onclick="openExportModal()">
+      <button class="btn-action" id="tour-export-btn" onclick="openExportModal()">
         <i class="fa-solid fa-file-csv"></i> Export Data
       </button>
       <button class="btn-action" onclick="toggleAuditDrawer()">
@@ -137,7 +150,7 @@
   <div class="app-container">
     
     <!-- LEFT SIDEBAR: REGISTRATION FORM -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="tour-reg-form">
       <h3 style="margin-bottom: 15px; color: var(--accent-cyan);" id="panel-form-title">
         <i class="fa-solid fa-plus-circle"></i> Item Registration
       </h3>
@@ -145,12 +158,13 @@
       <form id="enterprise-form" onsubmit="handleItemSubmit(event)">
         <div class="form-group">
           <label>Category</label>
-          <select class="form-control" id="ent-category" required>
+          <select class="form-control" id="ent-category" onchange="toggleCategoryFields()" required>
             <option value="Laboratory Equipment">Laboratory Equipment</option>
             <option value="Educational & Lab Supplies">Educational & Lab Supplies</option>
             <option value="Electrical & Power Supplies">Electrical & Power Supplies</option>
             <option value="Agricultural Equipment">Agricultural Equipment</option>
             <option value="Industrial Machinery">Industrial Machinery</option>
+            <option value="Chemicals & Reagents">Chemicals & Reagents</option>
           </select>
         </div>
 
@@ -171,14 +185,16 @@
         </div>
 
         <!-- CATALOGUE ATTACHMENT OPTIONS -->
-        <div class="form-group">
-          <label>Upload Catalogue Spec PDF File</label>
-          <input type="file" class="form-control" id="ent-pdf-file" accept=".pdf">
-        </div>
+        <div id="standard-spec-fields">
+          <div class="form-group">
+            <label>Upload Catalogue Spec PDF File</label>
+            <input type="file" class="form-control" id="ent-pdf-file" accept=".pdf">
+          </div>
 
-        <div class="form-group">
-          <label>OR Catalogue Spec URL</label>
-          <input type="url" class="form-control" id="ent-catalog-url" placeholder="https://...">
+          <div class="form-group">
+            <label>OR Catalogue Spec URL</label>
+            <input type="url" class="form-control" id="ent-catalog-url" placeholder="https://...">
+          </div>
         </div>
 
         <div id="chem-special-fields" style="display: none;">
@@ -188,8 +204,8 @@
               <input type="text" class="form-control" id="ent-cas" placeholder="7647-14-5">
             </div>
             <div class="form-group">
-              <label>Purity Grade</label>
-              <input type="text" class="form-control" id="ent-purity" placeholder="99.5% AR Grade">
+              <label>Expiry Date</label>
+              <input type="date" class="form-control" id="ent-expire">
             </div>
           </div>
         </div>
@@ -219,7 +235,7 @@
     <main class="content-area">
       
       <!-- TABS -->
-      <div class="view-tabs">
+      <div class="view-tabs" id="tour-view-tabs">
         <button class="tab-btn active" id="tab-equipment" onclick="switchEnterpriseView('equipment')">
           <i class="fa-solid fa-microscope"></i> Equipment & Supplies
         </button>
@@ -229,7 +245,7 @@
       </div>
 
       <!-- DIRECTORY TABLE -->
-      <div class="table-container">
+      <div class="table-container" id="tour-table">
         <table>
           <thead id="ent-table-head"></thead>
           <tbody id="ent-table-body"></tbody>
@@ -276,12 +292,12 @@
         </div>
 
         <div class="form-group">
-          <label>Update Catalogue Spec PDF File</label>
+          <label>Update Spec PDF File</label>
           <input type="file" class="form-control" id="edit-pdf-file" accept=".pdf">
         </div>
 
         <div class="form-group">
-          <label>OR Catalogue Spec URL</label>
+          <label>OR Spec URL</label>
           <input type="url" class="form-control" id="edit-catalog" placeholder="https://...">
         </div>
 
@@ -378,29 +394,16 @@
     </div>
   </div>
 
-  <!-- BEGINNER TOUR MODAL -->
-  <div class="modal-overlay" id="tour-modal">
-    <div class="modal-box" style="max-width: 550px;">
-      <h3 style="color: var(--accent-amber); margin-bottom: 12px;"><i class="fa-solid fa-compass"></i> System Quick Start Guide</h3>
-      <div style="font-size: 13px; color: var(--text-main); line-height: 1.6; display: flex; flex-direction: column; gap: 10px;">
-        <div style="padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-          <strong style="color:var(--accent-cyan);">1. Add Item & PDF Catalog</strong><br>
-          Use the left sidebar form to enter inventory item details and attach catalogue PDFs directly or paste spec links.
-        </div>
-        <div style="padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-          <strong style="color:var(--accent-amber);">2. Edit Details Anytime</strong><br>
-          Click the <span style="color:var(--accent-amber); font-weight:700;">Edit</span> button on any row to adjust item names, stock quantity, unit prices, or catalog links.
-        </div>
-        <div style="padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-          <strong style="color:var(--accent-emerald);">3. Record Sales & Sample Releases</strong><br>
-          Click <span style="color:var(--accent-emerald); font-weight:700;">Sell</span> to log items sold or issued as samples/credit, specify the destination client, quantity, and date.
-        </div>
-        <div style="padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-          <strong style="color:var(--accent-purple);">4. Sales History Menu</strong><br>
-          Click <strong style="color:white;">Sales History Menu</strong> at the top navigation bar to view past sales logs as interactive summary cards. Click any entry to inspect its detailed record.
-        </div>
+  <!-- TOUR POPOVER CARD -->
+  <div id="tour-popover">
+    <h4 id="tour-title" style="color:var(--accent-cyan); margin-bottom:8px; font-size: 15px;">Step Title</h4>
+    <p id="tour-desc" style="font-size:12px; color:var(--text-main); margin-bottom:15px; line-height: 1.4;">Step description goes here.</p>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <span id="tour-progress" style="font-size:11px; color:var(--text-muted);">Step 1 of 6</span>
+      <div style="display:flex; gap:6px;">
+        <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="endTour()">End Tour</button>
+        <button class="btn-action btn-primary" style="padding:4px 10px; font-size:11px;" onclick="nextTourStep()">Next</button>
       </div>
-      <button class="btn-action" style="background: var(--accent-amber); color: #020617; font-weight:700; width: 100%; justify-content: center; margin-top: 15px;" onclick="closeTourGuide()">Got It, Let's Start!</button>
     </div>
   </div>
 
@@ -424,7 +427,6 @@
 
   <!-- JAVASCRIPT LOGIC ENGINE -->
   <script>
-    // SUPABASE SETUP
     const SUPABASE_URL = "https://cbmvbbfbgauqusibdnup.supabase.co";
     const SUPABASE_KEY = "sb_publishable_gq0-KFzH8Ru9-etDSZ_Cwg_pQrHCYcY";
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -438,6 +440,10 @@
       addAuditEntry("System Session", "Dashboard loaded.");
       loadEnterpriseData();
     });
+
+    function formatCurrency(val) {
+      return (parseFloat(val) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ETB";
+    }
 
     function addAuditEntry(action, details) {
       auditLogs.unshift({ time: new Date().toLocaleTimeString(), action, details });
@@ -472,11 +478,17 @@
       renderSalesHistoryDrawer();
     }
 
+    function toggleCategoryFields() {
+      const cat = document.getElementById('ent-category').value;
+      const isChem = cat === "Chemicals & Reagents";
+      document.getElementById('chem-special-fields').style.display = isChem ? 'block' : 'none';
+      document.getElementById('standard-spec-fields').style.display = isChem ? 'none' : 'block';
+    }
+
     function switchEnterpriseView(mode) {
       currentView = mode;
       document.getElementById('tab-equipment').classList.toggle('active', mode === 'equipment');
       document.getElementById('tab-chemicals').classList.toggle('active', mode === 'chemicals');
-      document.getElementById('chem-special-fields').style.display = mode === 'chemicals' ? 'block' : 'none';
       renderEnterpriseTable(enterpriseItems);
     }
 
@@ -489,57 +501,104 @@
         return currentView === 'chemicals' ? isChem : !isChem;
       });
 
-      thead.innerHTML = `
-        <tr>
-          <th>Item / Specification</th>
-          <th>Category</th>
-          <th>Brand & Model</th>
-          <th>Stock Qty</th>
-          <th>Unit Price</th>
-          <th>Catalogue Spec</th>
-          <th>Actions</th>
-        </tr>
-      `;
+      if (currentView === 'chemicals') {
+        thead.innerHTML = `
+          <tr>
+            <th>#</th>
+            <th>Item / Chemical Name</th>
+            <th>Category</th>
+            <th>CAS Number</th>
+            <th>Stock Qty</th>
+            <th>Unit Price</th>
+            <th>Expiry Date</th>
+            <th>Actions</th>
+          </tr>
+        `;
+      } else {
+        thead.innerHTML = `
+          <tr>
+            <th>#</th>
+            <th>Item / Specification</th>
+            <th>Category</th>
+            <th>Brand & Model</th>
+            <th>Stock Qty</th>
+            <th>Unit Price</th>
+            <th>Catalogue Spec</th>
+            <th>Actions</th>
+          </tr>
+        `;
+      }
 
       if (!filtered.length) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">No records found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color: var(--text-muted);">No records found.</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = filtered.map(item => {
+      tbody.innerHTML = filtered.map((item, index) => {
         const qty = parseInt(item.quantity) || 0;
-        const catUrl = item.catalog_url || item.pdf_url;
-        return `
-          <tr>
-            <td><strong>${item.item_name}</strong></td>
-            <td><span style="font-size:11px; padding:3px 8px; background:rgba(255,255,255,0.06); border-radius:6px;">${item.category}</span></td>
-            <td><div style="font-size:12px;">${item.brand || '-'} / ${item.model || '-'}</div></td>
-            <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
-            <td><strong style="color:var(--accent-cyan);">${formatCurrency(item.price)}</strong></td>
-            <td>
-              ${catUrl 
-                ? `<a href="${catUrl}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> View PDF</a>` 
-                : `<span style="font-size:11px; color:var(--text-muted);">None</span>`}
-            </td>
-            <td>
-              <div style="display:flex; gap:6px;">
-                <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i> Edit</button>
-                <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
-              </div>
-            </td>
-          </tr>
-        `;
+        const pdfUrl = item.pdf_url;
+        const rowNum = index + 1;
+
+        if (currentView === 'chemicals') {
+          return `
+            <tr>
+              <td><strong>${rowNum}</strong></td>
+              <td><strong>${item.item_name}</strong></td>
+              <td><span style="font-size:11px; padding:3px 8px; background:rgba(255,255,255,0.06); border-radius:6px;">${item.category}</span></td>
+              <td><span style="font-size:12px; font-family:monospace; color:var(--accent-purple);">${item.cas_number || 'N/A'}</span></td>
+              <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
+              <td><strong style="color:var(--accent-cyan);">${formatCurrency(item.price)}</strong></td>
+              <td><span style="font-size:12px; color:var(--accent-amber);">${item.expire_date || 'N/A'}</span></td>
+              <td>
+                <div style="display:flex; gap:6px;">
+                  <button class="btn-action edit-action-btn" style="padding:4px 8px; font-size:11px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i> Edit</button>
+                  <button class="btn-action sell-action-btn" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        } else {
+          return `
+            <tr>
+              <td><strong>${rowNum}</strong></td>
+              <td><strong>${item.item_name}</strong></td>
+              <td><span style="font-size:11px; padding:3px 8px; background:rgba(255,255,255,0.06); border-radius:6px;">${item.category}</span></td>
+              <td><div style="font-size:12px;">${item.brand || '-'} / ${item.model || '-'}</div></td>
+              <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
+              <td><strong style="color:var(--accent-cyan);">${formatCurrency(item.price)}</strong></td>
+              <td>
+                ${pdfUrl 
+                  ? `<a href="${pdfUrl}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> View PDF</a>` 
+                  : `<span style="font-size:11px; color:var(--text-muted);">None</span>`}
+              </td>
+              <td>
+                <div style="display:flex; gap:6px;">
+                  <button class="btn-action edit-action-btn" style="padding:4px 8px; font-size:11px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i> Edit</button>
+                  <button class="btn-action sell-action-btn" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }
       }).join('');
     }
 
-    /* ITEM CREATION & PDF CONVERSION */
+    function convertFileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+    }
+
     async function handleItemSubmit(e) {
       e.preventDefault();
       
       const pdfFileInput = document.getElementById('ent-pdf-file');
       let catalogUrl = document.getElementById('ent-catalog-url').value;
 
-      if (pdfFileInput.files.length > 0) {
+      if (pdfFileInput && pdfFileInput.files.length > 0) {
         catalogUrl = await convertFileToBase64(pdfFileInput.files[0]);
       }
 
@@ -548,9 +607,9 @@
         item_name: document.getElementById('ent-name').value,
         brand: document.getElementById('ent-brand').value,
         model: document.getElementById('ent-model').value,
-        catalog_url: catalogUrl,
+        pdf_url: catalogUrl, // Fixed column name
         cas_number: document.getElementById('ent-cas').value,
-        purity: document.getElementById('ent-purity').value,
+        expire_date: document.getElementById('ent-expire').value,
         unit_of_measure: document.getElementById('ent-unit').value,
         quantity: parseInt(document.getElementById('ent-qty').value) || 0,
         price: parseFloat(document.getElementById('ent-price').value) || 0
@@ -566,7 +625,6 @@
       }
     }
 
-    /* EDIT MODAL LOGIC */
     function openEditModal(id) {
       const item = enterpriseItems.find(i => i.id === id);
       if (!item) return;
@@ -576,7 +634,7 @@
       document.getElementById('edit-name').value = item.item_name;
       document.getElementById('edit-brand').value = item.brand || '';
       document.getElementById('edit-model').value = item.model || '';
-      document.getElementById('edit-catalog').value = item.catalog_url || '';
+      document.getElementById('edit-catalog').value = item.pdf_url || '';
       document.getElementById('edit-qty').value = item.quantity;
       document.getElementById('edit-price').value = item.price;
 
@@ -593,7 +651,7 @@
       const pdfFileInput = document.getElementById('edit-pdf-file');
       let catalogUrl = document.getElementById('edit-catalog').value;
 
-      if (pdfFileInput.files.length > 0) {
+      if (pdfFileInput && pdfFileInput.files.length > 0) {
         catalogUrl = await convertFileToBase64(pdfFileInput.files[0]);
       }
 
@@ -602,7 +660,7 @@
         item_name: document.getElementById('edit-name').value,
         brand: document.getElementById('edit-brand').value,
         model: document.getElementById('edit-model').value,
-        catalog_url: catalogUrl,
+        pdf_url: catalogUrl, // Fixed column name
         quantity: parseInt(document.getElementById('edit-qty').value) || 0,
         price: parseFloat(document.getElementById('edit-price').value) || 0
       };
@@ -617,7 +675,6 @@
       }
     }
 
-    /* SALES SYSTEM LOGIC */
     function openSaleModal(id) {
       const item = enterpriseItems.find(i => i.id === id);
       if (!item) return;
@@ -672,10 +729,11 @@
         return;
       }
 
+      // Fixed schema field client_name -> destination
       const { error: saleErr } = await db.from('sales_log').insert([{
         item_id: itemId,
         item_name: itemName,
-        client_name: client,
+        destination: client, 
         sale_type: saleType,
         quantity_sold: qtySold,
         unit_price: unitPrice,
@@ -688,101 +746,165 @@
         return;
       }
 
-      // Deduct Stock
-      await db.from('items').update({ quantity: item.quantity - qtySold }).eq('id', itemId);
+      // Update remaining inventory stock
+      const newQty = item.quantity - qtySold;
+      await db.from('items').update({ quantity: newQty }).eq('id', itemId);
 
-      addAuditEntry("Sale Record", `[${saleType}] ${qtySold}x "${itemName}" to ${client}`);
+      addAuditEntry("Sale Processed", `Sold ${qtySold} x "${itemName}" to ${client}`);
       closeSaleModal();
-      document.getElementById('sale-form').reset();
       loadEnterpriseData();
     }
 
-    /* SALES HISTORY MENU & DETAIL TOGGLE */
+    function toggleSalesDrawer() {
+      document.getElementById('sales-drawer').classList.toggle('open');
+    }
+
+    function toggleAuditDrawer() {
+      document.getElementById('audit-drawer').classList.toggle('open');
+    }
+
     function renderSalesHistoryDrawer() {
       const container = document.getElementById('sales-history-container');
       if (!salesHistory.length) {
-        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 13px;">No past sales recorded.</div>`;
+        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13px;">No past sales recorded.</div>`;
         return;
       }
 
-      container.innerHTML = salesHistory.map((sale, idx) => {
-        let badgeClass = 'badge-cash';
-        if (sale.sale_type === 'Sample') badgeClass = 'badge-sample';
-        if (sale.sale_type === 'Credit') badgeClass = 'badge-credit';
-
-        return `
-          <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-light); border-radius: 10px; padding: 12px; margin-bottom: 10px; cursor: pointer;" onclick="toggleSaleDetail(${idx})">
-            <div style="display:flex; justify-content:space-between; align-items: center;">
-              <strong style="color:var(--accent-cyan); font-size:14px;">${sale.item_name}</strong>
-              <span class="badge ${badgeClass}">${sale.sale_type || 'Cash'}</span>
-            </div>
-            <div style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">
-              Destination: <strong style="color:var(--text-main);">${sale.client_name}</strong>
-            </div>
-            
-            <!-- EXPANDABLE DETAILED VIEW -->
-            <div id="sale-detail-${idx}" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-light); font-size: 12px;">
-              <div><strong>Quantity Sold:</strong> ${sale.quantity_sold}</div>
-              <div><strong>Unit Price:</strong> ${formatCurrency(sale.unit_price)}</div>
-              <div><strong>Total Amount:</strong> <span style="color:var(--accent-emerald); font-weight:700;">${formatCurrency(sale.total_price)}</span></div>
-              <div><strong>Transaction Date:</strong> ${sale.sale_date || sale.created_at?.split('T')[0]}</div>
-            </div>
+      container.innerHTML = salesHistory.map(sale => `
+        <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); border-radius: 10px; padding: 12px; margin-bottom: 12px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
+            <strong style="color:var(--text-main); font-size:13px;">${sale.item_name}</strong>
+            <span class="badge ${sale.sale_type === 'Sample' ? 'badge-sample' : (sale.sale_type === 'Credit' ? 'badge-credit' : 'badge-cash')}">${sale.sale_type}</span>
           </div>
-        `;
-      }).join('');
+          <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">Client: <span style="color:white;">${sale.destination || 'N/A'}</span></div>
+          <div style="font-size:12px; color:var(--text-muted); margin-bottom:6px;">Qty: ${sale.quantity_sold} | Unit: ${formatCurrency(sale.unit_price)}</div>
+          <div style="display:flex; justify-content:space-between; font-size:11px; border-top: 1px dashed var(--border-light); padding-top:6px; color:var(--text-muted);">
+            <span>${sale.sale_date}</span>
+            <strong style="color:var(--accent-emerald);">${formatCurrency(sale.total_price)}</strong>
+          </div>
+        </div>
+      `).join('');
     }
 
-    function toggleSaleDetail(idx) {
-      const el = document.getElementById(`sale-detail-${idx}`);
-      if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    function openExportModal() {
+      document.getElementById('export-modal').classList.add('active');
     }
 
-    /* EXPORT FUNCTIONALITY */
-    function openExportModal() { document.getElementById('export-modal').classList.add('active'); }
-    function closeExportModal() { document.getElementById('export-modal').classList.remove('active'); }
+    function closeExportModal() {
+      document.getElementById('export-modal').classList.remove('active');
+    }
 
     function processExportRequest() {
       const target = document.getElementById('export-target').value;
       if (target === 'inventory') {
-        exportCSV(enterpriseItems, 'Labaid_Inventory_Report.csv');
+        exportCSV(enterpriseItems, "Inventory_Report.csv");
       } else {
-        exportCSV(salesHistory, 'Labaid_Sales_Report.csv');
+        exportCSV(salesHistory, "Sales_History_Report.csv");
       }
       closeExportModal();
     }
 
-    function exportCSV(arrData, filename) {
-      if (!arrData || !arrData.length) { alert("No data available to export!"); return; }
-      const keys = Object.keys(arrData[0]);
-      let csv = "data:text/csv;charset=utf-8," + keys.join(",") + "\n";
-      arrData.forEach(row => {
-        csv += keys.map(k => `"${(row[k] || '').toString().replace(/"/g, '""')}"`).join(",") + "\n";
-      });
+    function exportCSV(data, filename) {
+      if (!data || !data.length) {
+        alert("No data available to export!");
+        return;
+      }
+      const keys = Object.keys(data[0]);
+      const csvContent = [
+        keys.join(','),
+        ...data.map(row => keys.map(k => `"${(row[k] || '').toString().replace(/"/g, '""')}"`).join(','))
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement("a");
-      link.setAttribute("href", encodeURI(csv));
-      link.setAttribute("download", filename);
-      document.body.appendChild(link);
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
       link.click();
-      document.body.removeChild(link);
     }
 
-    /* UTILITIES & DRAWER CONTROLS */
-    function toggleAuditDrawer() { document.getElementById('audit-drawer').classList.toggle('open'); }
-    function toggleSalesDrawer() { document.getElementById('sales-drawer').classList.toggle('open'); }
-    function startTourGuide() { document.getElementById('tour-modal').classList.add('active'); }
-    function closeTourGuide() { document.getElementById('tour-modal').classList.remove('active'); }
+    /* STEP-BY-STEP GUIDED TOUR CONTROLLER */
+    let tourStep = 0;
+    const tourSteps = [
+      {
+        elementId: 'tour-reg-form',
+        title: '1. Register Inventory & Chemicals',
+        desc: 'Use this form to enter details for new inventory. Switch categories to display dynamic inputs for chemical safety (CAS Number, Expiry Date).'
+      },
+      {
+        elementId: 'tour-view-tabs',
+        title: '2. Directory Category Switcher',
+        desc: 'Filter between Equipment/Supplies and Chemicals & Reagents to view specific specialized inventory lists.'
+      },
+      {
+        elementId: 'tour-table',
+        title: '3. Inventory Directory Table',
+        desc: 'Browse items with clean row numbering (#), real-time stock balances, pricing, and attached PDF specification links.'
+      },
+      {
+        elementId: 'tour-sales-btn',
+        title: '4. Sales History Menu',
+        desc: 'Click here to slide open the transaction logs drawer and audit past sales, demo sample issues, and pending credit deals.'
+      },
+      {
+        elementId: 'tour-export-btn',
+        title: '5. Export Data Center',
+        desc: 'Download CSV reports for your entire inventory database or complete sales history records at any time.'
+      }
+    ];
 
-    function formatCurrency(val) {
-      return (parseFloat(val) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ETB';
+    function startTourGuide() {
+      tourStep = 0;
+      renderTourStep();
     }
 
-    function convertFileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-      });
+    function renderTourStep() {
+      document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
+      
+      if (tourStep >= tourSteps.length) {
+        endTour();
+        return;
+      }
+
+      const step = tourSteps[tourStep];
+      const targetEl = document.getElementById(step.elementId) || document.querySelector(step.elementId);
+
+      if (!targetEl) {
+        nextTourStep();
+        return;
+      }
+
+      targetEl.classList.add('tour-highlight');
+      const rect = targetEl.getBoundingClientRect();
+      const popover = document.getElementById('tour-popover');
+
+      document.getElementById('tour-title').innerText = step.title;
+      document.getElementById('tour-desc').innerText = step.desc;
+      document.getElementById('tour-progress').innerText = `Step ${tourStep + 1} of ${tourSteps.length}`;
+
+      popover.style.display = 'block';
+
+      let top = rect.bottom + 10;
+      let left = rect.left;
+
+      if (top + 200 > window.innerHeight) {
+        top = rect.top - 190;
+      }
+      if (left + 320 > window.innerWidth) {
+        left = window.innerWidth - 340;
+      }
+
+      popover.style.top = `${Math.max(10, top)}px`;
+      popover.style.left = `${Math.max(10, left)}px`;
+    }
+
+    function nextTourStep() {
+      tourStep++;
+      renderTourStep();
+    }
+
+    function endTour() {
+      document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
+      document.getElementById('tour-popover').style.display = 'none';
     }
   </script>
 </body>
