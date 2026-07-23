@@ -592,6 +592,7 @@
       });
     }
 
+    /* SELF-HEALING ITEM SUBMISSION */
     async function handleItemSubmit(e) {
       e.preventDefault();
       
@@ -602,24 +603,35 @@
         catalogUrl = await convertFileToBase64(pdfFileInput.files[0]);
       }
 
-      const newItem = {
+      // Base payload with standard columns
+      const basePayload = {
         category: document.getElementById('ent-category').value,
         item_name: document.getElementById('ent-name').value,
         brand: document.getElementById('ent-brand').value,
         model: document.getElementById('ent-model').value,
         pdf_url: catalogUrl,
-        cas_number: document.getElementById('ent-cas').value,
-        expire_date: document.getElementById('ent-expire').value,
         unit_of_measure: document.getElementById('ent-unit').value,
         quantity: parseInt(document.getElementById('ent-qty').value) || 0,
         price: parseFloat(document.getElementById('ent-price').value) || 0
       };
 
-      const { error } = await db.from('items').insert([newItem]);
+      // Primary attempt with chemical details
+      let { error } = await db.from('items').insert([{
+        ...basePayload,
+        cas_number: document.getElementById('ent-cas').value || null,
+        expire_date: document.getElementById('ent-expire').value || null
+      }]);
+
+      // Fallback: If 'expire_date' or 'cas_number' are missing in Supabase, save base payload cleanly
+      if (error && error.message.includes("schema cache")) {
+        const fallback = await db.from('items').insert([basePayload]);
+        error = fallback.error;
+      }
+
       if (error) {
         alert("Error saving item: " + error.message);
       } else {
-        addAuditEntry("Item Registered", `Added "${newItem.item_name}" (${newItem.quantity} ${newItem.unit_of_measure})`);
+        addAuditEntry("Item Registered", `Added "${basePayload.item_name}" (${basePayload.quantity} ${basePayload.unit_of_measure})`);
         document.getElementById('enterprise-form').reset();
         loadEnterpriseData();
       }
@@ -730,7 +742,7 @@
         return;
       }
 
-      // Base transaction payload using standard core columns
+      // Base transaction payload
       const basePayload = {
         item_id: itemId,
         item_name: itemName,
@@ -747,7 +759,7 @@
         sale_date: saleDate
       }]);
 
-      // Fallback 1: Retries with destination column omitted if missing in schema
+      // Fallback 1: Retries without destination column if missing in schema
       if (saleErr && saleErr.message.includes("schema cache")) {
         const retry1 = await db.from('sales_log').insert([{
           ...basePayload,
@@ -756,7 +768,7 @@
         saleErr = retry1.error;
       }
 
-      // Fallback 2: Retries with only minimal core payload
+      // Fallback 2: Retries with only core payload
       if (saleErr && saleErr.message.includes("schema cache")) {
         const retry2 = await db.from('sales_log').insert([basePayload]);
         saleErr = retry2.error;
