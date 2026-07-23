@@ -103,7 +103,7 @@
     }
     .side-drawer.open { right: 0; }
 
-    /* STEP-BY-STEP INTERACTIVE TOUR */
+    /* TOUR HIGHLIGHT */
     .tour-highlight {
       position: relative !important;
       z-index: 1000 !important;
@@ -399,7 +399,7 @@
     <h4 id="tour-title" style="color:var(--accent-cyan); margin-bottom:8px; font-size: 15px;">Step Title</h4>
     <p id="tour-desc" style="font-size:12px; color:var(--text-main); margin-bottom:15px; line-height: 1.4;">Step description goes here.</p>
     <div style="display:flex; justify-content:space-between; align-items:center;">
-      <span id="tour-progress" style="font-size:11px; color:var(--text-muted);">Step 1 of 6</span>
+      <span id="tour-progress" style="font-size:11px; color:var(--text-muted);">Step 1 of 5</span>
       <div style="display:flex; gap:6px;">
         <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="endTour()">End Tour</button>
         <button class="btn-action btn-primary" style="padding:4px 10px; font-size:11px;" onclick="nextTourStep()">Next</button>
@@ -471,7 +471,7 @@
       const { data: itemsData } = await db.from('items').select('*').order('id', { ascending: false });
       enterpriseItems = itemsData || [];
 
-      const { data: salesData } = await db.from('sales_log').select('*').order('created_at', { ascending: false });
+      const { data: salesData } = await db.from('sales_log').select('*').order('id', { ascending: false });
       salesHistory = salesData || [];
 
       renderEnterpriseTable(enterpriseItems);
@@ -592,7 +592,7 @@
       });
     }
 
-    /* SELF-HEALING ITEM SUBMISSION */
+    /* ITEM SUBMISSION WITH AUTO-FALLBACK */
     async function handleItemSubmit(e) {
       e.preventDefault();
       
@@ -603,7 +603,6 @@
         catalogUrl = await convertFileToBase64(pdfFileInput.files[0]);
       }
 
-      // Base payload with standard columns
       const basePayload = {
         category: document.getElementById('ent-category').value,
         item_name: document.getElementById('ent-name').value,
@@ -615,15 +614,13 @@
         price: parseFloat(document.getElementById('ent-price').value) || 0
       };
 
-      // Primary attempt with chemical details
       let { error } = await db.from('items').insert([{
         ...basePayload,
         cas_number: document.getElementById('ent-cas').value || null,
         expire_date: document.getElementById('ent-expire').value || null
       }]);
 
-      // Fallback: If 'expire_date' or 'cas_number' are missing in Supabase, save base payload cleanly
-      if (error && error.message.includes("schema cache")) {
+      if (error && error.message.toLowerCase().includes("schema cache")) {
         const fallback = await db.from('items').insert([basePayload]);
         error = fallback.error;
       }
@@ -724,7 +721,7 @@
       document.getElementById('sale-total-display').innerText = formatCurrency(total);
     }
 
-    /* SELF-HEALING TRANSACTION PROCESSOR */
+    /* BULLETPROOF TRANSACTION PROCESSOR */
     async function handleSaleSubmit(e) {
       e.preventDefault();
       const itemId = document.getElementById('sale-item-id').value;
@@ -742,36 +739,40 @@
         return;
       }
 
-      // Base transaction payload
-      const basePayload = {
+      // Tier 1: Try inserting everything
+      let saleErr = null;
+      let res = await db.from('sales_log').insert([{
         item_id: itemId,
         item_name: itemName,
         sale_type: saleType,
+        destination: client,
         quantity_sold: qtySold,
         unit_price: unitPrice,
-        total_price: totalVal
-      };
-
-      // Primary insertion attempt with extended fields
-      let { error: saleErr } = await db.from('sales_log').insert([{
-        ...basePayload,
-        destination: client,
+        total_price: totalVal,
         sale_date: saleDate
       }]);
+      saleErr = res.error;
 
-      // Fallback 1: Retries without destination column if missing in schema
-      if (saleErr && saleErr.message.includes("schema cache")) {
-        const retry1 = await db.from('sales_log').insert([{
-          ...basePayload,
-          sale_date: saleDate
+      // Tier 2: If schema cache fails on sale_type/destination/sale_date, try base fields
+      if (saleErr && saleErr.message.toLowerCase().includes("schema cache")) {
+        res = await db.from('sales_log').insert([{
+          item_id: itemId,
+          item_name: itemName,
+          quantity_sold: qtySold,
+          unit_price: unitPrice,
+          total_price: totalVal
         }]);
-        saleErr = retry1.error;
+        saleErr = res.error;
       }
 
-      // Fallback 2: Retries with only core payload
-      if (saleErr && saleErr.message.includes("schema cache")) {
-        const retry2 = await db.from('sales_log').insert([basePayload]);
-        saleErr = retry2.error;
+      // Tier 3: Minimal fallback to legacy schema
+      if (saleErr && saleErr.message.toLowerCase().includes("schema cache")) {
+        res = await db.from('sales_log').insert([{
+          item_name: itemName,
+          quantity_sold: qtySold,
+          total_price: totalVal
+        }]);
+        saleErr = res.error;
       }
 
       if (saleErr) {
@@ -779,7 +780,7 @@
         return;
       }
 
-      // Update remaining inventory stock balance
+      // Deduct sold stock balance from inventory
       const newQty = item.quantity - qtySold;
       await db.from('items').update({ quantity: newQty }).eq('id', itemId);
 
@@ -807,7 +808,7 @@
         <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); border-radius: 10px; padding: 12px; margin-bottom: 12px;">
           <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
             <strong style="color:var(--text-main); font-size:13px;">${sale.item_name}</strong>
-            <span class="badge ${sale.sale_type === 'Sample' ? 'badge-sample' : (sale.sale_type === 'Credit' ? 'badge-credit' : 'badge-cash')}">${sale.sale_type}</span>
+            <span style="font-size:11px; padding:2px 6px; background:rgba(255,255,255,0.1); border-radius:4px;">${sale.sale_type || 'Paid'}</span>
           </div>
           <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">Client: <span style="color:white;">${sale.destination || 'N/A'}</span></div>
           <div style="font-size:12px; color:var(--text-muted); margin-bottom:6px;">Qty: ${sale.quantity_sold} | Unit: ${formatCurrency(sale.unit_price)}</div>
@@ -855,7 +856,7 @@
       link.click();
     }
 
-    /* STEP-BY-STEP GUIDED TOUR CONTROLLER */
+    /* STEP-BY-STEP GUIDED TOUR */
     let tourStep = 0;
     const tourSteps = [
       {
