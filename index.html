@@ -8,9 +8,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --bg-dark: #0f172a;
-      --panel-bg: #1e293b;
-      --border-light: rgba(255, 255, 255, 0.1);
+      --bg-dark: #090d16;
+      --panel-bg: #111827;
+      --border-light: rgba(255, 255, 255, 0.08);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --accent-cyan: #38bdf8;
@@ -22,18 +22,139 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
     
-    /* AUTH LOGIN SCREEN OVERLAY */
+    /* WORLD-CLASS AUTH LOGIN SCREEN OVERLAY */
     #auth-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(15, 23, 42, 0.95); display: flex; justify-content: center; align-items: center; z-index: 9999;
+      background: radial-gradient(circle at 50% 20%, #1e293b 0%, #090d16 100%);
+      display: flex; justify-content: center; align-items: center; z-index: 9999;
+      overflow: hidden;
     }
-    .auth-box {
-      background: var(--panel-bg); border: 1px solid var(--border-light); border-radius: 16px;
-      width: 100%; max-width: 420px; padding: 35px; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    /* Background ambient glowing spheres for high-end feel */
+    #auth-overlay::before {
+      content: ''; position: absolute; width: 500px; height: 500px; background: rgba(56, 189, 248, 0.07);
+      border-radius: 50%; top: -100px; left: -100px; filter: blur(80px); pointer-events: none;
+    }
+    #auth-overlay::after {
+      content: ''; position: absolute; width: 400px; height: 400px; background: rgba(168, 85, 247, 0.07);
+      border-radius: 50%; bottom: -100px; right: -100px; filter: blur(80px); pointer-events: none;
+    }
+
+    .auth-card {
+      position: relative;
+      background: rgba(17, 24, 39, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 440px;
+      padding: 40px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
       text-align: center;
+      animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-    .auth-box h2 { color: var(--accent-cyan); font-size: 20px; margin-bottom: 8px; font-weight: 800; }
-    .auth-box p { color: var(--text-muted); font-size: 13px; margin-bottom: 25px; }
+
+    @keyframes fadeInScale {
+      0% { opacity: 0; transform: translateY(20px) scale(0.96); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .auth-logo-badge {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(168, 85, 247, 0.2));
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; color: var(--accent-cyan);
+      margin: 0 auto 20px auto;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+    }
+
+    .auth-card h2 { 
+      color: var(--text-main); 
+      font-size: 22px; 
+      margin-bottom: 8px; 
+      font-weight: 700; 
+      letter-spacing: -0.5px;
+    }
+    .auth-card p { 
+      color: var(--text-muted); 
+      font-size: 13px; 
+      margin-bottom: 30px; 
+      line-height: 1.5;
+    }
+
+    /* Modern Floating Label Inputs */
+    .auth-input-group {
+      position: relative;
+      margin-bottom: 18px;
+      text-align: left;
+    }
+    .auth-input-group label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+    .auth-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .auth-input-wrapper i {
+      position: absolute;
+      left: 14px;
+      color: var(--text-muted);
+      font-size: 14px;
+      transition: color 0.2s ease;
+    }
+    .auth-control {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      padding: 12px 14px 12px 40px;
+      color: white;
+      font-size: 14px;
+      transition: all 0.25s ease;
+    }
+    .auth-control:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+      background: rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
+    }
+    .auth-control:focus + i, .auth-input-wrapper:focus-within i {
+      color: var(--accent-cyan);
+    }
+
+    .auth-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent-cyan), #0284c7);
+      color: #020617;
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);
+      margin-top: 10px;
+    }
+    .auth-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.45);
+      background: linear-gradient(135deg, #7dd3fc, var(--accent-cyan));
+    }
+    .auth-btn:active { transform: translateY(0); }
 
     /* NAVBAR */
     .navbar {
@@ -131,25 +252,35 @@
 </head>
 <body>
 
-  <!-- PASSWORD AUTHENTICATION SCREEN -->
+  <!-- WORLD-CLASS PASSWORD AUTHENTICATION SCREEN -->
   <div id="auth-overlay">
-    <div class="auth-box">
-      <div style="font-size: 32px; color: var(--accent-cyan); margin-bottom: 12px;"><i class="fa-solid fa-boxes-stacked"></i></div>
-      <h2>Welcome to Labaid Trading PLC Inventory System</h2>
-      <p>Please enter your credentials to log in.</p>
+    <div class="auth-card">
+      <div class="auth-logo-badge">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <h2>Labaid Trading PLC</h2>
+      <p>Enterprise Inventory & Procurement System. Please authenticate to continue.</p>
       
       <form onsubmit="handleLogin(event)">
-        <div class="form-group">
+        <div class="auth-input-group">
           <label>Username</label>
-          <input type="text" class="form-control" id="login-user" required placeholder="Enter username (e.g. Labaid)">
+          <div class="auth-input-wrapper">
+            <i class="fa-solid fa-user-shield"></i>
+            <input type="text" class="auth-control" id="login-user" required placeholder="Enter username (e.g. Labaid)">
+          </div>
         </div>
-        <div class="form-group">
+        <div class="auth-input-group">
           <label>Password</label>
-          <input type="password" class="form-control" id="login-pass" required placeholder="Enter password (e.g. Abc123)">
+          <div class="auth-input-wrapper">
+            <i class="fa-solid fa-key"></i>
+            <input type="password" class="auth-control" id="login-pass" required placeholder="Enter password (e.g. Abc123)">
+          </div>
         </div>
-        <div id="login-error" style="color: var(--accent-rose); font-size: 12px; margin-bottom: 12px; display: none;">Invalid username or password.</div>
-        <button type="submit" class="btn-action btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 14px;">
-          <i class="fa-solid fa-lock-open"></i> Login to System
+        <div id="login-error" style="color: var(--accent-rose); font-size: 12px; margin-bottom: 15px; display: none; background: rgba(244, 63, 94, 0.1); padding: 8px; border-radius: 6px; border: 1px solid rgba(244, 63, 94, 0.2);">
+          <i class="fa-solid fa-circle-exclamation"></i> Invalid username or password. Please try again.
+        </div>
+        <button type="submit" class="auth-btn">
+          <span>Authenticate & Access</span> <i class="fa-solid fa-arrow-right-to-bracket"></i>
         </button>
       </form>
     </div>
@@ -164,10 +295,10 @@
       <button class="btn-action" style="background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); border-color: var(--accent-purple);" onclick="openPasswordModal()">
         <i class="fa-solid fa-key"></i> Change Password
       </button>
-      <button class="btn-action" id="tour-sales-btn" onclick="toggleSalesDrawer()">
+      <button class="btn-action" onclick="toggleSalesDrawer()">
         <i class="fa-solid fa-receipt"></i> Sales History
       </button>
-      <button class="btn-action" id="tour-export-btn" onclick="openExportModal()">
+      <button class="btn-action" onclick="openExportModal()">
         <i class="fa-solid fa-file-csv"></i> Export Data
       </button>
       <button class="btn-action" onclick="toggleAuditDrawer()">
@@ -183,7 +314,7 @@
   <div class="app-container">
     
     <!-- LEFT SIDEBAR: REGISTRATION FORM -->
-    <aside class="sidebar" id="tour-reg-form">
+    <aside class="sidebar">
       <h3 style="margin-bottom: 15px; color: var(--accent-cyan);">
         <i class="fa-solid fa-plus-circle"></i> Item Registration
       </h3>
@@ -258,7 +389,7 @@
 
     <!-- RIGHT CONTENT AREA -->
     <main class="content-area">
-      <div class="view-tabs" id="tour-view-tabs">
+      <div class="view-tabs">
         <button class="tab-btn active" id="tab-equipment" onclick="switchEnterpriseView('equipment')">
           <i class="fa-solid fa-microscope"></i> Equipment & Supplies
         </button>
@@ -266,7 +397,7 @@
           <i class="fa-solid fa-flask"></i> Chemicals & Reagents
         </button>
       </div>
-      <div class="table-container" id="tour-table">
+      <div class="table-container">
         <table>
           <thead id="ent-table-head"></thead>
           <tbody id="ent-table-body"></tbody>
@@ -443,7 +574,6 @@
     let currentView = 'equipment';
     let currentSalesFilter = 'all';
 
-    // Retrieve custom credentials from LocalStorage or fallback to default
     function getStoredCredentials() {
       return {
         user: localStorage.getItem('labaid_username') || "Labaid",
@@ -451,7 +581,6 @@
       };
     }
 
-    // Login Authentication Function
     function handleLogin(e) {
       e.preventDefault();
       const user = document.getElementById('login-user').value.trim();
@@ -475,7 +604,6 @@
       addAuditEntry("System Session", "User logged out.");
     }
 
-    // Change Password Functions
     function openPasswordModal() {
       document.getElementById('pw-user').value = '';
       document.getElementById('pw-old').value = '';
@@ -670,7 +798,6 @@
       loadEnterpriseData();
     }
 
-    // Remove just the attached PDF file from an item
     async function removePdf(id) {
       if (!confirm("Are you sure you want to remove the attached PDF catalog for this item?")) return;
       await db.from('items').update({ pdf_url: null }).eq('id', id);
@@ -678,7 +805,6 @@
       loadEnterpriseData();
     }
 
-    // Delete a specific item completely from the inventory list & database
     async function deleteItem(id, itemName) {
       if (!confirm(`Are you sure you want to completely delete "${itemName}" from the inventory? This will also remove any attached PDF files.`)) return;
       
