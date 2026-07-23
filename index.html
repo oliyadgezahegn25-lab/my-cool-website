@@ -109,7 +109,7 @@
     }
     .form-control:focus { border-color: var(--accent-cyan); box-shadow: 0 0 15px rgba(6, 182, 212, 0.25); }
 
-    /* FIX DROPDOWN CONTRAST */
+    /* FIX DROPDOWN CONTRAST (WHITE ON WHITE ISSUE FIXED) */
     select.form-control option, select option {
       background-color: #0f172a !important;
       color: #f8fafc !important;
@@ -317,8 +317,9 @@
         <select class="form-control" id="export-timeline" onchange="toggleCustomDateGroup()">
           <option value="all">All Time History</option>
           <option value="today">Today</option>
-          <option value="7days">Last 7 Days</option>
-          <option value="30days">Last 30 Days</option>
+          <option value="7days">Past 7 Days (Week)</option>
+          <option value="30days">Past Month (30 Days)</option>
+          <option value="1year">Past Year (365 Days)</option>
           <option value="custom">Custom Date Range</option>
         </select>
       </div>
@@ -358,454 +359,459 @@
       </div>
     </div>
   </div>
+
+  <!-- JAVASCRIPT LOGIC ENGINE -->
   <script>
-  // SUPABASE DATABASE SETUP
-  const SUPABASE_URL = "https://cbmvbbfbgauqusibdnup.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_gq0-KFzH8Ru9-etDSZ_Cwg_pQrHCYcY";
+    // SUPABASE DATABASE SETUP
+    const SUPABASE_URL = "https://cbmvbbfbgauqusibdnup.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_gq0-KFzH8Ru9-etDSZ_Cwg_pQrHCYcY";
 
-  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  
-  // GLOBAL STATE
-  let enterpriseItems = [];
-  let salesHistory = [];
-  let currentView = 'equipment';
-
-  // INITIALIZATION
-  window.addEventListener('DOMContentLoaded', () => {
-    loadEnterpriseData();
-  });
-
-  /* -------------------------------------------------------------
-     1. DATA FETCHING & KPI LOGIC
-  ------------------------------------------------------------- */
-  async function loadEnterpriseData() {
-    // Fetch Items
-    const { data: itemsData, error: itemsErr } = await db.from('items').select('*').order('id', { ascending: false });
-    if (itemsErr) {
-      console.error("Error loading items:", itemsErr);
-      document.getElementById('ent-table-body').innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--accent-rose);"><i class="fa-solid fa-triangle-exclamation"></i> Database connection error.</td></tr>`;
-      return;
-    }
-
-    enterpriseItems = itemsData || [];
-    calculateKPIs(enterpriseItems);
-    renderEnterpriseTable(enterpriseItems);
-
-    // Fetch Sales Log
-    const { data: salesData } = await db.from('sales_log').select('*').order('created_at', { ascending: false });
-    salesHistory = salesData || [];
-  }
-
-  function calculateKPIs(items) {
-    let expiringCount = 0;
-    const now = new Date();
-    const ninetyDays = new Date();
-    ninetyDays.setDate(now.getDate() + 90);
-
-    items.forEach(item => {
-      if (item.expiry_date) {
-        const expDate = new Date(item.expiry_date);
-        if (expDate <= ninetyDays) expiringCount++;
-      }
-    });
-
-    document.getElementById('kpi-total-skus').innerText = items.length;
-    document.getElementById('kpi-expiring').innerText = expiringCount;
-  }
-
-  /* -------------------------------------------------------------
-     2. VIEW SWITCHING & TABLE RENDER
-  ------------------------------------------------------------- */
-  function switchEnterpriseView(viewMode) {
-    currentView = viewMode;
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     
-    document.getElementById('tab-equipment').classList.remove('active');
-    document.getElementById('tab-chemicals').classList.remove('active');
+    // GLOBAL STATE
+    let enterpriseItems = [];
+    let salesHistory = [];
+    let currentView = 'equipment';
 
-    const chemFields = document.getElementById('chem-special-fields');
-    const catSelect = document.getElementById('ent-category');
-
-    if (viewMode === 'equipment') {
-      document.getElementById('tab-equipment').classList.add('active');
-      document.getElementById('panel-form-title').innerHTML = `<i class="fa-solid fa-plus-circle"></i> Register Equipment / Supply`;
-      document.getElementById('directory-title').innerHTML = `<i class="fa-solid fa-database"></i> General Equipment Directory`;
-      chemFields.style.display = 'none';
-
-      catSelect.innerHTML = `
-        <option value="Laboratory Equipment">Laboratory Equipment</option>
-        <option value="Educational & Lab Supplies">Educational & Lab Supplies</option>
-        <option value="Electrical & Power Supplies">Electrical & Power Supplies</option>
-        <option value="Agricultural Equipment">Agricultural Equipment</option>
-        <option value="Industrial Machinery">Industrial Machinery</option>
-      `;
-    } else if (viewMode === 'chemicals') {
-      document.getElementById('tab-chemicals').classList.add('active');
-      document.getElementById('panel-form-title').innerHTML = `<i class="fa-solid fa-flask"></i> Register Chemical / Reagent`;
-      document.getElementById('directory-title').innerHTML = `<i class="fa-solid fa-vial-circle-check"></i> Chemicals & Regulatory Directory`;
-      chemFields.style.display = 'block';
-
-      catSelect.innerHTML = `<option value="Chemicals & Reagents">Chemicals & Reagents</option>`;
-    }
-
-    renderEnterpriseTable(enterpriseItems);
-  }
-
-  function renderEnterpriseTable(items) {
-    const thead = document.getElementById('ent-table-head');
-    const tbody = document.getElementById('ent-table-body');
-
-    const filtered = items.filter(item => {
-      const isChem = item.category === "Chemicals & Reagents";
-      return currentView === 'chemicals' ? isChem : !isChem;
+    // INITIALIZATION
+    window.addEventListener('DOMContentLoaded', () => {
+      loadEnterpriseData();
     });
 
-    document.getElementById('row-count').innerText = `Showing ${filtered.length} entries`;
-
-    if (currentView === 'chemicals') {
-      thead.innerHTML = `
-        <tr>
-          <th>Chemical Description</th>
-          <th>CAS Number</th>
-          <th>Purity Grade</th>
-          <th>Stock Level</th>
-          <th>Unit Price</th>
-          <th>MSDS / Spec</th>
-          <th>Actions</th>
-        </tr>
-      `;
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">No chemical records found.</td></tr>`;
+    /* -------------------------------------------------------------
+       1. DATA FETCHING & KPI LOGIC
+    ------------------------------------------------------------- */
+    async function loadEnterpriseData() {
+      // Fetch Items
+      const { data: itemsData, error: itemsErr } = await db.from('items').select('*').order('id', { ascending: false });
+      if (itemsErr) {
+        console.error("Error loading items:", itemsErr);
+        document.getElementById('ent-table-body').innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--accent-rose);"><i class="fa-solid fa-triangle-exclamation"></i> Database connection error.</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = filtered.map(item => {
-        const qty = parseInt(item.quantity) || 0;
-        return `
+      enterpriseItems = itemsData || [];
+      calculateKPIs(enterpriseItems);
+      renderEnterpriseTable(enterpriseItems);
+
+      // Fetch Sales Log
+      const { data: salesData } = await db.from('sales_log').select('*').order('created_at', { ascending: false });
+      salesHistory = salesData || [];
+    }
+
+    function calculateKPIs(items) {
+      let expiringCount = 0;
+      const now = new Date();
+      const ninetyDays = new Date();
+      ninetyDays.setDate(now.getDate() + 90);
+
+      items.forEach(item => {
+        if (item.expiry_date) {
+          const expDate = new Date(item.expiry_date);
+          if (expDate <= ninetyDays) expiringCount++;
+        }
+      });
+
+      document.getElementById('kpi-total-skus').innerText = items.length;
+      document.getElementById('kpi-expiring').innerText = expiringCount;
+    }
+
+    /* -------------------------------------------------------------
+       2. VIEW SWITCHING & TABLE RENDER
+    ------------------------------------------------------------- */
+    function switchEnterpriseView(viewMode) {
+      currentView = viewMode;
+      
+      document.getElementById('tab-equipment').classList.remove('active');
+      document.getElementById('tab-chemicals').classList.remove('active');
+
+      const chemFields = document.getElementById('chem-special-fields');
+      const catSelect = document.getElementById('ent-category');
+
+      if (viewMode === 'equipment') {
+        document.getElementById('tab-equipment').classList.add('active');
+        document.getElementById('panel-form-title').innerHTML = `<i class="fa-solid fa-plus-circle"></i> Register Equipment / Supply`;
+        document.getElementById('directory-title').innerHTML = `<i class="fa-solid fa-database"></i> General Equipment Directory`;
+        chemFields.style.display = 'none';
+
+        catSelect.innerHTML = `
+          <option value="Laboratory Equipment">Laboratory Equipment</option>
+          <option value="Educational & Lab Supplies">Educational & Lab Supplies</option>
+          <option value="Electrical & Power Supplies">Electrical & Power Supplies</option>
+          <option value="Agricultural Equipment">Agricultural Equipment</option>
+          <option value="Industrial Machinery">Industrial Machinery</option>
+        `;
+      } else if (viewMode === 'chemicals') {
+        document.getElementById('tab-chemicals').classList.add('active');
+        document.getElementById('panel-form-title').innerHTML = `<i class="fa-solid fa-flask"></i> Register Chemical / Reagent`;
+        document.getElementById('directory-title').innerHTML = `<i class="fa-solid fa-vial-circle-check"></i> Chemicals & Regulatory Directory`;
+        chemFields.style.display = 'block';
+
+        catSelect.innerHTML = `<option value="Chemicals & Reagents">Chemicals & Reagents</option>`;
+      }
+
+      renderEnterpriseTable(enterpriseItems);
+    }
+
+    function renderEnterpriseTable(items) {
+      const thead = document.getElementById('ent-table-head');
+      const tbody = document.getElementById('ent-table-body');
+
+      const filtered = items.filter(item => {
+        const isChem = item.category === "Chemicals & Reagents";
+        return currentView === 'chemicals' ? isChem : !isChem;
+      });
+
+      document.getElementById('row-count').innerText = `Showing ${filtered.length} entries`;
+
+      if (currentView === 'chemicals') {
+        thead.innerHTML = `
           <tr>
-            <td>
-              <strong>${item.item_name}</strong>
-              <div style="font-size:11px; color:var(--text-muted);">${item.brand || 'No Brand'}</div>
-            </td>
-            <td><code style="color:var(--accent-cyan);">${item.cas_number || 'N/A'}</code></td>
-            <td><span style="color:var(--accent-purple); font-weight:600;">${item.purity || 'N/A'}</span></td>
-            <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
-            <td><strong style="color:var(--accent-cyan);">${formatCurrency(item.price)}</strong></td>
-            <td>
-              ${item.pdf_url 
-                ? `<a href="${item.pdf_url}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> View MSDS</a>` 
-                : `<span style="font-size:11px; color:var(--text-muted);">None</span>`}
-            </td>
-            <td>
-              <div style="display:flex; gap:6px;">
-                <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald);" onclick="recordQuickSale(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
-                <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-rose);" onclick="deleteItemRecord(${item.id})"><i class="fa-solid fa-trash"></i></button>
-              </div>
-            </td>
+            <th>Chemical Description</th>
+            <th>CAS Number</th>
+            <th>Purity Grade</th>
+            <th>Stock Level</th>
+            <th>Unit Price</th>
+            <th>MSDS / Spec</th>
+            <th>Actions</th>
           </tr>
         `;
-      }).join('');
 
-    } else {
-      thead.innerHTML = `
-        <tr>
-          <th>Equipment / Item Description</th>
-          <th>Category</th>
-          <th>Model / Brand</th>
-          <th>Stock Level</th>
-          <th>Unit Price</th>
-          <th>Spec Sheet</th>
-          <th>Actions</th>
-        </tr>
-      `;
+        if (filtered.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">No chemical records found.</td></tr>`;
+          return;
+        }
 
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">No equipment records found.</td></tr>`;
+        tbody.innerHTML = filtered.map(item => {
+          const qty = parseInt(item.quantity) || 0;
+          return `
+            <tr>
+              <td>
+                <strong>${item.item_name}</strong>
+                <div style="font-size:11px; color:var(--text-muted);">${item.brand || 'No Brand'}</div>
+              </td>
+              <td><code style="color:var(--accent-cyan);">${item.cas_number || 'N/A'}</code></td>
+              <td><span style="color:var(--accent-purple); font-weight:600;">${item.purity || 'N/A'}</span></td>
+              <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
+              <td><strong style="color:var(--accent-cyan);">${formatCurrency(item.price)}</strong></td>
+              <td>
+                ${item.pdf_url 
+                  ? `<a href="${item.pdf_url}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> View MSDS</a>` 
+                  : `<span style="font-size:11px; color:var(--text-muted);">None</span>`}
+              </td>
+              <td>
+                <div style="display:flex; gap:6px;">
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald);" onclick="recordQuickSale(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-rose);" onclick="deleteItemRecord(${item.id})"><i class="fa-solid fa-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+      } else {
+        thead.innerHTML = `
+          <tr>
+            <th>Equipment / Item Description</th>
+            <th>Category</th>
+            <th>Model / Brand</th>
+            <th>Stock Level</th>
+            <th>Unit Price</th>
+            <th>Spec Sheet</th>
+            <th>Actions</th>
+          </tr>
+        `;
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">No equipment records found.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = filtered.map(item => {
+          const qty = parseInt(item.quantity) || 0;
+          return `
+            <tr>
+              <td><strong>${item.item_name}</strong></td>
+              <td><span style="font-size:12px; color:var(--text-muted);">${item.category || 'General'}</span></td>
+              <td>${item.model || 'N/A'} <span style="font-size:11px; color:var(--text-muted);">(${item.brand || 'Generic'})</span></td>
+              <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
+              <td><strong style="color:var(--accent-cyan);">${formatCurrency(item.price)}</strong></td>
+              <td>
+                ${item.pdf_url 
+                  ? `<a href="${item.pdf_url}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> Spec Sheet</a>` 
+                  : `<span style="font-size:11px; color:var(--text-muted);">None</span>`}
+              </td>
+              <td>
+                <div style="display:flex; gap:6px;">
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald);" onclick="recordQuickSale(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-rose);" onclick="deleteItemRecord(${item.id})"><i class="fa-solid fa-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    /* -------------------------------------------------------------
+       3. FORM SUBMISSIONS & RECORDING SALES
+    ------------------------------------------------------------- */
+    document.getElementById('enterprise-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const newItem = {
+        category: document.getElementById('ent-category').value,
+        item_name: document.getElementById('ent-name').value,
+        brand: document.getElementById('ent-brand').value || null,
+        model: document.getElementById('ent-model').value || null,
+        cas_number: document.getElementById('ent-cas').value || null,
+        purity: document.getElementById('ent-purity').value || null,
+        expiry_date: document.getElementById('ent-expiry').value || null,
+        unit_of_measure: document.getElementById('ent-unit').value || null,
+        quantity: parseInt(document.getElementById('ent-qty').value) || 0,
+        price: parseFloat(document.getElementById('ent-price').value) || 0
+      };
+
+      const { error } = await db.from('items').insert([newItem]);
+
+      if (error) {
+        alert("Failed to save entry: " + error.message);
+      } else {
+        logAuditEvent("Item Created", `Added ${newItem.item_name} (${newItem.quantity} units)`);
+        document.getElementById('enterprise-form').reset();
+        loadEnterpriseData();
+      }
+    });
+
+    async function recordQuickSale(id) {
+      const item = enterpriseItems.find(i => i.id === id);
+      if (!item || item.quantity <= 0) return;
+
+      const sellQtyInput = prompt(`Record sale for "${item.item_name}". Enter quantity sold:`, "1");
+      if (!sellQtyInput || isNaN(sellQtyInput) || parseInt(sellQtyInput) <= 0) return;
+
+      const sellQty = parseInt(sellQtyInput);
+      if (sellQty > item.quantity) {
+        alert("Error: Quantity sold exceeds available inventory stock!");
         return;
       }
 
-      tbody.innerHTML = filtered.map(item => {
-        const qty = parseInt(item.quantity) || 0;
-        return `
-          <tr>
-            <td><strong>${item.item_name}</strong></td>
-            <td><span style="font-size:12px; color:var(--text-muted);">${item.category || 'General'}</span></td>
-            <td>${item.model || 'N/A'} <span style="font-size:11px; color:var(--text-muted);">(${item.brand || 'Generic'})</span></td>
-            <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
-            <td><strong style="color:var(--accent-cyan);">${formatCurrency(item.price)}</strong></td>
-            <td>
-              ${item.pdf_url 
-                ? `<a href="${item.pdf_url}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> Spec Sheet</a>` 
-                : `<span style="font-size:11px; color:var(--text-muted);">None</span>`}
-            </td>
-            <td>
-              <div style="display:flex; gap:6px;">
-                <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald);" onclick="recordQuickSale(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
-                <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-rose);" onclick="deleteItemRecord(${item.id})"><i class="fa-solid fa-trash"></i></button>
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-  }
+      const newQty = item.quantity - sellQty;
 
-  /* -------------------------------------------------------------
-     3. FORM SUBMISSIONS & RECORDING SALES
-  ------------------------------------------------------------- */
-  document.getElementById('enterprise-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const newItem = {
-      category: document.getElementById('ent-category').value,
-      item_name: document.getElementById('ent-name').value,
-      brand: document.getElementById('ent-brand').value || null,
-      model: document.getElementById('ent-model').value || null,
-      cas_number: document.getElementById('ent-cas').value || null,
-      purity: document.getElementById('ent-purity').value || null,
-      expiry_date: document.getElementById('ent-expiry').value || null,
-      unit_of_measure: document.getElementById('ent-unit').value || null,
-      quantity: parseInt(document.getElementById('ent-qty').value) || 0,
-      price: parseFloat(document.getElementById('ent-price').value) || 0
-    };
-
-    const { error } = await db.from('items').insert([newItem]);
-
-    if (error) {
-      alert("Failed to save entry: " + error.message);
-    } else {
-      logAuditEvent("Item Created", `Added ${newItem.item_name} (${newItem.quantity} units)`);
-      document.getElementById('enterprise-form').reset();
-      loadEnterpriseData();
-    }
-  });
-
-  async function recordQuickSale(id) {
-    const item = enterpriseItems.find(i => i.id === id);
-    if (!item || item.quantity <= 0) return;
-
-    const sellQtyInput = prompt(`Record sale for "${item.item_name}". Enter quantity sold:`, "1");
-    if (!sellQtyInput || isNaN(sellQtyInput) || parseInt(sellQtyInput) <= 0) return;
-
-    const sellQty = parseInt(sellQtyInput);
-    if (sellQty > item.quantity) {
-      alert("Error: Quantity sold exceeds available inventory stock!");
-      return;
-    }
-
-    const newQty = item.quantity - sellQty;
-
-    // Update Stock Level
-    const { error: updateErr } = await db.from('items').update({ quantity: newQty }).eq('id', id);
-    
-    if (updateErr) {
-      alert("Transaction failed: " + updateErr.message);
-      return;
-    }
-
-    // Log to Sales Table
-    const salesRecord = {
-      item_id: item.id,
-      item_name: item.item_name,
-      category: item.category,
-      quantity_sold: sellQty,
-      unit_price: item.price,
-      total_sales_value: sellQty * item.price,
-      created_at: new Date().toISOString()
-    };
-
-    await db.from('sales_log').insert([salesRecord]);
-    logAuditEvent("Sale Recorded", `Sold ${sellQty}x ${item.item_name} for total ${(sellQty * item.price).toFixed(2)} ETB`);
-    loadEnterpriseData();
-  }
-
-  /* -------------------------------------------------------------
-     4. TIMELINE EXPORT ENGINE (CSV)
-  ------------------------------------------------------------- */
-  function openExportModal() {
-    document.getElementById('export-modal').classList.add('active');
-  }
-
-  function closeExportModal() {
-    document.getElementById('export-modal').classList.remove('active');
-  }
-
-  function toggleExportTimelineOptions() {
-    const target = document.getElementById('export-target').value;
-    const timelineGroup = document.getElementById('timeline-group');
-    timelineGroup.style.display = target === 'sales' ? 'block' : 'none';
-    if (target === 'inventory') {
-      document.getElementById('custom-date-group').style.display = 'none';
-    }
-  }
-
-  function toggleCustomDateGroup() {
-    const timeline = document.getElementById('export-timeline').value;
-    document.getElementById('custom-date-group').style.display = timeline === 'custom' ? 'grid' : 'none';
-  }
-
-  function processExportRequest() {
-    const target = document.getElementById('export-target').value;
-
-    if (target === 'inventory') {
-      exportInventoryCSV();
-    } else {
-      exportSalesCSV();
-    }
-    closeExportModal();
-  }
-
-  function exportInventoryCSV() {
-    if (enterpriseItems.length === 0) {
-      alert("No inventory data available to export.");
-      return;
-    }
-
-    let csv = "data:text/csv;charset=utf-8,ID,Item Name,Category,Brand,Model,CAS Number,Purity,Quantity,Unit Price (ETB)\n";
-
-    enterpriseItems.forEach(item => {
-      csv += [
-        item.id,
-        `"${(item.item_name || '').replace(/"/g, '""')}"`,
-        `"${item.category || ''}"`,
-        `"${item.brand || ''}"`,
-        `"${item.model || ''}"`,
-        `"${item.cas_number || ''}"`,
-        `"${item.purity || ''}"`,
-        item.quantity || 0,
-        item.price || 0
-      ].join(",") + "\n";
-    });
-
-    downloadCSVFile(csv, `Labaid_Inventory_Report_${new Date().toISOString().split('T')[0]}.csv`);
-  }
-
-  function exportSalesCSV() {
-    if (salesHistory.length === 0) {
-      alert("No sales records available to export.");
-      return;
-    }
-
-    const timeline = document.getElementById('export-timeline').value;
-    const now = new Date();
-
-    const filteredSales = salesHistory.filter(sale => {
-      const saleDate = new Date(sale.created_at);
-
-      if (timeline === 'today') {
-        return saleDate.toDateString() === now.toDateString();
-      } else if (timeline === '7days') {
-        const past7 = new Date(); past7.setDate(now.getDate() - 7);
-        return saleDate >= past7;
-      } else if (timeline === '30days') {
-        const past30 = new Date(); past30.setDate(now.getDate() - 30);
-        return saleDate >= past30;
-      } else if (timeline === 'custom') {
-        const start = document.getElementById('export-start-date').value ? new Date(document.getElementById('export-start-date').value) : new Date(0);
-        const end = document.getElementById('export-end-date').value ? new Date(document.getElementById('export-end-date').value) : new Date();
-        end.setHours(23, 59, 59);
-        return saleDate >= start && saleDate <= end;
+      // Update Stock Level
+      const { error: updateErr } = await db.from('items').update({ quantity: newQty }).eq('id', id);
+      
+      if (updateErr) {
+        alert("Transaction failed: " + updateErr.message);
+        return;
       }
-      return true; // 'all'
-    });
 
-    if (filteredSales.length === 0) {
-      alert("No sales transactions found for the selected timeline filter.");
-      return;
-    }
+      // Log to Sales Table
+      const salesRecord = {
+        item_id: item.id,
+        item_name: item.item_name,
+        category: item.category,
+        quantity_sold: sellQty,
+        unit_price: item.price,
+        total_sales_value: sellQty * item.price,
+        created_at: new Date().toISOString()
+      };
 
-    let csv = "data:text/csv;charset=utf-8,Transaction ID,Item Name,Category,Quantity Sold,Unit Price (ETB),Total Sales Value (ETB),Date Time\n";
-
-    filteredSales.forEach(s => {
-      csv += [
-        s.id,
-        `"${(s.item_name || '').replace(/"/g, '""')}"`,
-        `"${s.category || ''}"`,
-        s.quantity_sold || 0,
-        s.unit_price || 0,
-        s.total_sales_value || 0,
-        `"${new Date(s.created_at).toLocaleString()}"`
-      ].join(",") + "\n";
-    });
-
-    downloadCSVFile(csv, `Labaid_Sales_Report_${timeline}_${new Date().toISOString().split('T')[0]}.csv`);
-  }
-
-  function downloadCSVFile(csvContent, filename) {
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
-  /* -------------------------------------------------------------
-     5. UTILITY & SEARCH HELPERS
-  ------------------------------------------------------------- */
-  function filterEnterpriseTable() {
-    const query = document.getElementById('global-search').value.toLowerCase();
-    const stockStatus = document.getElementById('stock-filter').value;
-
-    const filtered = enterpriseItems.filter(item => {
-      const matchesQuery = 
-        (item.item_name && item.item_name.toLowerCase().includes(query)) ||
-        (item.cas_number && item.cas_number.toLowerCase().includes(query)) ||
-        (item.brand && item.brand.toLowerCase().includes(query)) ||
-        (item.model && item.model.toLowerCase().includes(query));
-
-      const qty = parseInt(item.quantity) || 0;
-      let matchesStock = true;
-
-      if (stockStatus === 'instock') matchesStock = qty > 0;
-      else if (stockStatus === 'low') matchesStock = qty > 0 && qty <= 5;
-      else if (stockStatus === 'outofstock') matchesStock = qty === 0;
-
-      return matchesQuery && matchesStock;
-    });
-
-    renderEnterpriseTable(filtered);
-  }
-
-  function toggleAuditDrawer() {
-    const drawer = document.getElementById('audit-drawer');
-    drawer.style.right = drawer.style.right === '0px' ? '-450px' : '0px';
-  }
-
-  function logAuditEvent(title, details) {
-    const container = document.getElementById('audit-log-container');
-    const logEntry = document.createElement('div');
-    logEntry.style.cssText = "background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); border-radius: 12px; padding: 12px; margin-bottom: 10px;";
-    
-    logEntry.innerHTML = `
-      <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom: 4px;">
-        <span>${new Date().toLocaleTimeString()}</span>
-        <span>Action Logged</span>
-      </div>
-      <div style="font-size:13px; font-weight:600; color:var(--accent-cyan);">${title}</div>
-      <div style="font-size:11px; color:var(--text-muted);">${details}</div>
-    `;
-    container.prepend(logEntry);
-  }
-
-  function formatCurrency(val) {
-    if (!val || isNaN(val)) return "0.00 ETB";
-    return parseFloat(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ETB";
-  }
-
-  async function deleteItemRecord(id) {
-    const item = enterpriseItems.find(i => i.id === id);
-    if (!confirm(`Are you sure you want to permanently delete "${item ? item.item_name : 'this item'}"?`)) return;
-
-    const { error } = await db.from('items').delete().eq('id', id);
-    if (error) {
-      alert("Purge failed: " + error.message);
-    } else {
-      logAuditEvent("Item Purged", `Removed ID ${id} (${item ? item.item_name : ''})`);
+      await db.from('sales_log').insert([salesRecord]);
+      logAuditEvent("Sale Recorded", `Sold ${sellQty}x ${item.item_name} for total ${(sellQty * item.price).toFixed(2)} ETB`);
       loadEnterpriseData();
     }
-  }
-</script>
+
+    /* -------------------------------------------------------------
+       4. TIMELINE EXPORT ENGINE (CSV)
+    ------------------------------------------------------------- */
+    function openExportModal() {
+      document.getElementById('export-modal').classList.add('active');
+    }
+
+    function closeExportModal() {
+      document.getElementById('export-modal').classList.remove('active');
+    }
+
+    function toggleExportTimelineOptions() {
+      const target = document.getElementById('export-target').value;
+      const timelineGroup = document.getElementById('timeline-group');
+      timelineGroup.style.display = target === 'sales' ? 'block' : 'none';
+      if (target === 'inventory') {
+        document.getElementById('custom-date-group').style.display = 'none';
+      }
+    }
+
+    function toggleCustomDateGroup() {
+      const timeline = document.getElementById('export-timeline').value;
+      document.getElementById('custom-date-group').style.display = timeline === 'custom' ? 'grid' : 'none';
+    }
+
+    function processExportRequest() {
+      const target = document.getElementById('export-target').value;
+
+      if (target === 'inventory') {
+        exportInventoryCSV();
+      } else {
+        exportSalesCSV();
+      }
+      closeExportModal();
+    }
+
+    function exportInventoryCSV() {
+      if (enterpriseItems.length === 0) {
+        alert("No inventory data available to export.");
+        return;
+      }
+
+      let csv = "data:text/csv;charset=utf-8,ID,Item Name,Category,Brand,Model,CAS Number,Purity,Quantity,Unit Price (ETB)\n";
+
+      enterpriseItems.forEach(item => {
+        csv += [
+          item.id,
+          `"${(item.item_name || '').replace(/"/g, '""')}"`,
+          `"${item.category || ''}"`,
+          `"${item.brand || ''}"`,
+          `"${item.model || ''}"`,
+          `"${item.cas_number || ''}"`,
+          `"${item.purity || ''}"`,
+          item.quantity || 0,
+          item.price || 0
+        ].join(",") + "\n";
+      });
+
+      downloadCSVFile(csv, `Labaid_Inventory_Report_${new Date().toISOString().split('T')[0]}.csv`);
+    }
+
+    function exportSalesCSV() {
+      if (salesHistory.length === 0) {
+        alert("No sales records available to export.");
+        return;
+      }
+
+      const timeline = document.getElementById('export-timeline').value;
+      const now = new Date();
+
+      const filteredSales = salesHistory.filter(sale => {
+        const saleDate = new Date(sale.created_at);
+
+        if (timeline === 'today') {
+          return saleDate.toDateString() === now.toDateString();
+        } else if (timeline === '7days') {
+          const past7 = new Date(); past7.setDate(now.getDate() - 7);
+          return saleDate >= past7;
+        } else if (timeline === '30days') {
+          const past30 = new Date(); past30.setDate(now.getDate() - 30);
+          return saleDate >= past30;
+        } else if (timeline === '1year') {
+          const pastYear = new Date(); pastYear.setDate(now.getDate() - 365);
+          return saleDate >= pastYear;
+        } else if (timeline === 'custom') {
+          const start = document.getElementById('export-start-date').value ? new Date(document.getElementById('export-start-date').value) : new Date(0);
+          const end = document.getElementById('export-end-date').value ? new Date(document.getElementById('export-end-date').value) : new Date();
+          end.setHours(23, 59, 59);
+          return saleDate >= start && saleDate <= end;
+        }
+        return true; // 'all'
+      });
+
+      if (filteredSales.length === 0) {
+        alert("No sales transactions found for the selected timeline filter.");
+        return;
+      }
+
+      let csv = "data:text/csv;charset=utf-8,Transaction ID,Item Name,Category,Quantity Sold,Unit Price (ETB),Total Sales Value (ETB),Date Time\n";
+
+      filteredSales.forEach(s => {
+        csv += [
+          s.id,
+          `"${(s.item_name || '').replace(/"/g, '""')}"`,
+          `"${s.category || ''}"`,
+          s.quantity_sold || 0,
+          s.unit_price || 0,
+          s.total_sales_value || 0,
+          `"${new Date(s.created_at).toLocaleString()}"`
+        ].join(",") + "\n";
+      });
+
+      downloadCSVFile(csv, `Labaid_Sales_Report_${timeline}_${new Date().toISOString().split('T')[0]}.csv`);
+    }
+
+    function downloadCSVFile(csvContent, filename) {
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    /* -------------------------------------------------------------
+       5. UTILITY & SEARCH HELPERS
+    ------------------------------------------------------------- */
+    function filterEnterpriseTable() {
+      const query = document.getElementById('global-search').value.toLowerCase();
+      const stockStatus = document.getElementById('stock-filter').value;
+
+      const filtered = enterpriseItems.filter(item => {
+        const matchesQuery = 
+          (item.item_name && item.item_name.toLowerCase().includes(query)) ||
+          (item.cas_number && item.cas_number.toLowerCase().includes(query)) ||
+          (item.brand && item.brand.toLowerCase().includes(query)) ||
+          (item.model && item.model.toLowerCase().includes(query));
+
+        const qty = parseInt(item.quantity) || 0;
+        let matchesStock = true;
+
+        if (stockStatus === 'instock') matchesStock = qty > 0;
+        else if (stockStatus === 'low') matchesStock = qty > 0 && qty <= 5;
+        else if (stockStatus === 'outofstock') matchesStock = qty === 0;
+
+        return matchesQuery && matchesStock;
+      });
+
+      renderEnterpriseTable(filtered);
+    }
+
+    function toggleAuditDrawer() {
+      const drawer = document.getElementById('audit-drawer');
+      drawer.style.right = drawer.style.right === '0px' ? '-450px' : '0px';
+    }
+
+    function logAuditEvent(title, details) {
+      const container = document.getElementById('audit-log-container');
+      const logEntry = document.createElement('div');
+      logEntry.style.cssText = "background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); border-radius: 12px; padding: 12px; margin-bottom: 10px;";
+      
+      logEntry.innerHTML = `
+        <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom: 4px;">
+          <span>${new Date().toLocaleTimeString()}</span>
+          <span>Action Logged</span>
+        </div>
+        <div style="font-size:13px; font-weight:600; color:var(--accent-cyan);">${title}</div>
+        <div style="font-size:11px; color:var(--text-muted);">${details}</div>
+      `;
+      container.prepend(logEntry);
+    }
+
+    function formatCurrency(val) {
+      if (!val || isNaN(val)) return "0.00 ETB";
+      return parseFloat(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ETB";
+    }
+
+    async function deleteItemRecord(id) {
+      const item = enterpriseItems.find(i => i.id === id);
+      if (!confirm(`Are you sure you want to permanently delete "${item ? item.item_name : 'this item'}"?`)) return;
+
+      const { error } = await db.from('items').delete().eq('id', id);
+      if (error) {
+        alert("Purge failed: " + error.message);
+      } else {
+        logAuditEvent("Item Purged", `Removed ID ${id} (${item ? item.item_name : ''})`);
+        loadEnterpriseData();
+      }
+    }
+  </script>
 </body>
 </html>
