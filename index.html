@@ -3,227 +3,460 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Labaid Trading PLC - Supply & Inventory Management System</title>
+  <title>Labaid Trading PLC - Management System</title>
 
-  <!-- Supabase Library -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
-  <!-- FontAwesome Icons -->
+  <!-- Google Fonts & FontAwesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
-      --bg-primary: #020617;
-      --bg-card: rgba(15, 23, 42, 0.85);
-      --bg-glass: rgba(255, 255, 255, 0.04);
+      --bg-main: #0b0f19;
+      --bg-card: #111827;
+      --bg-input: #1f2937;
+      --border-light: rgba(255, 255, 255, 0.08);
+      --border-focus: #06b6d4;
       --accent-cyan: #06b6d4;
-      --accent-purple: #8b5cf6;
       --accent-emerald: #10b981;
       --accent-amber: #f59e0b;
       --accent-rose: #f43f5e;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --border-light: rgba(255, 255, 255, 0.15);
-      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --accent-purple: #8b5cf6;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
 
     body {
-      font-family: var(--font-family);
-      background: radial-gradient(circle at 10% 10%, #1e1b4b 0%, transparent 40%),
-                  radial-gradient(circle at 90% 90%, #042f2e 0%, transparent 40%),
-                  var(--bg-primary);
+      background-color: var(--bg-main);
       color: var(--text-main);
       min-height: 100vh;
-      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
-    /* TOP NAVIGATION BAR */
-    header {
-      padding: 16px 40px;
-      display: flex; justify-content: space-between; align-items: center;
-      background: rgba(2, 6, 23, 0.9); backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border-light); position: sticky; top: 0; z-index: 1000;
-    }
-
-    .brand-logo { display: flex; align-items: center; gap: 14px; }
-    .brand-logo i { font-size: 26px; color: var(--accent-cyan); text-shadow: 0 0 15px var(--accent-cyan); }
-    .brand-title { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
-    .brand-badge { background: rgba(6, 182, 212, 0.15); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); padding: 3px 10px; border-radius: 20px; font-size: 11px; text-transform: uppercase; font-weight: 600; }
-
-    .nav-actions { display: flex; align-items: center; gap: 12px; }
-
-    .btn-action {
-      background: rgba(255,255,255,0.08); border: 1px solid var(--border-light); color: var(--text-main);
-      padding: 9px 16px; border-radius: 12px; cursor: pointer; font-size: 13px; font-weight: 600;
-      transition: all 0.2s ease; display: flex; align-items: center; gap: 8px;
-    }
-    .btn-action:hover { background: var(--accent-cyan); color: #020617; border-color: var(--accent-cyan); box-shadow: 0 0 20px rgba(6, 182, 212, 0.4); }
-
-    /* DASHBOARD METRICS */
-    .dashboard-container { max-width: 1600px; margin: 30px auto; padding: 0 30px; }
-    
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
-    .kpi-card {
-      background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 20px;
-      padding: 22px; backdrop-filter: blur(15px); position: relative; overflow: hidden;
-    }
-    .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; }
-    .kpi-card.emerald::before { background: var(--accent-emerald); }
-    .kpi-card.rose::before { background: var(--accent-rose); }
-
-    .kpi-title { font-size: 13px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
-    .kpi-value { font-size: 28px; font-weight: 800; margin: 10px 0 5px; }
-    .kpi-sub { font-size: 12px; color: var(--text-muted); }
-
-    /* CONTROLS BAR & TABS */
-    .view-navigation {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;
-      background: rgba(15, 23, 42, 0.6); padding: 8px; border-radius: 16px; border: 1px solid var(--border-light);
-    }
-    .tab-group { display: flex; gap: 8px; }
-    .nav-tab {
-      padding: 10px 20px; border-radius: 12px; border: none; background: transparent; color: var(--text-muted);
-      font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 14px; display: flex; align-items: center; gap: 8px;
-    }
-    .nav-tab.active { background: var(--accent-cyan); color: #020617; box-shadow: 0 0 15px rgba(6, 182, 212, 0.3); }
-
-    /* LAYOUT GRID */
-    .content-grid { display: grid; grid-template-columns: 420px 1fr; gap: 25px; }
-    @media(max-width: 1100px) { .content-grid { grid-template-columns: 1fr; } }
-
-    .panel-card {
-      background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 20px;
-      padding: 25px; backdrop-filter: blur(15px);
-    }
-
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
-    
-    .form-control {
-      width: 100%; padding: 11px 14px; background: rgba(15, 23, 42, 0.9);
-      border: 1px solid var(--border-light); border-radius: 10px; color: var(--text-main); outline: none; font-size: 14px;
-    }
-    .form-control:focus { border-color: var(--accent-cyan); box-shadow: 0 0 15px rgba(6, 182, 212, 0.25); }
-
-    /* CRITICAL FIX FOR DROPDOWN LIST VISIBILITY AND BRIGHTNESS */
-    select.form-control, select {
-      background-color: #0f172a !important;
-      color: #f8fafc !important;
-    }
-    select.form-control option, select option {
-      background-color: #0f172a !important;
-      color: #f8fafc !important;
+    /* DROPDOWN CONTRAST FIX */
+    select.form-control option,
+    select option {
+      background-color: #111827 !important;
+      color: #f9fafb !important;
       padding: 10px;
     }
-    select.form-control option:hover, select.form-control option:focus {
-      background-color: #1e293b !important;
-      color: #06b6d4 !important;
+
+    /* TOP HEADER BAR */
+    .top-header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-light);
+      padding: 16px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      sticky: top;
+      z-index: 100;
     }
 
-    /* MODERN TABLE STYLING */
-    table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
-    th { padding: 14px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; text-align: left; font-weight: 700; }
-    tbody tr { background: rgba(255, 255, 255, 0.03); transition: background 0.2s; }
-    tbody tr:hover { background: rgba(255, 255, 255, 0.07); }
-    td { padding: 14px; font-size: 13.5px; border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); }
-    td:first-child { border-left: 1px solid var(--border-light); border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
-    td:last-child { border-right: 1px solid var(--border-light); border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--accent-cyan), #3b82f6);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: #020617;
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(to right, #ffffff, var(--text-muted));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-sub {
+      font-size: 12px;
+      color: var(--accent-cyan);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-action {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-light);
+      color: var(--text-main);
+      padding: 9px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--accent-cyan);
+      transform: translateY(-1px);
+    }
+
+    /* MAIN CONTAINER */
+    .app-container {
+      padding: 25px 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* KPI METRICS */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 15px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      padding: 18px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 800;
+      margin-top: 4px;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .kpi-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    /* CONTENT LAYOUT GRID */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 25px;
+    }
+
+    @media (max-width: 1100px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* SIDEBAR FORM */
+    .panel-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 22px;
+      height: fit-content;
+    }
+
+    .panel-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--accent-cyan);
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-light);
+      color: var(--text-main);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--accent-cyan);
+      color: #020617;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: opacity 0.2s;
+    }
+
+    .btn-submit:hover {
+      opacity: 0.9;
+    }
+
+    /* DIRECTORY TABLE PANEL */
+    .view-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 12px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--accent-cyan);
+    }
+
+    .table-controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      justify-content: space-between;
+    }
+
+    .search-input {
+      flex: 1;
+      max-width: 400px;
+    }
+
+    .data-table-wrapper {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 14px 16px;
+      color: var(--text-muted);
+      font-weight: 700;
+      border-bottom: 1px solid var(--border-light);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-light);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
 
     /* MODAL OVERLAYS */
     .modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(10px); display: flex; justify-content: center; align-items: center;
-      z-index: 2000; opacity: 0; pointer-events: none; transition: 0.3s ease;
-    }
-    .modal-overlay.active { opacity: 1; pointer-events: auto; }
-    .modal-box {
-      background: #090d16; border: 1px solid var(--border-light); border-radius: 24px;
-      width: 90%; max-width: 550px; padding: 30px; box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-      max-height: 90vh; overflow-y: auto;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(2, 6, 23, 0.8);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
     }
 
-    /* DRAWERS */
-    .side-drawer {
-      position: fixed; top: 0; right: -500px; width: 480px; max-width: 100vw; height: 100vh;
-      background: #090d16; border-left: 1px solid var(--border-light); box-shadow: -10px 0 30px rgba(0,0,0,0.8);
-      z-index: 2500; transition: right 0.3s ease; padding: 25px; overflow-y: auto;
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
     }
-    .side-drawer.open { right: 0; }
+
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 18px;
+      width: 100%;
+      max-width: 520px;
+      padding: 25px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    /* SIDE DRAWERS */
+    .side-drawer {
+      position: fixed;
+      top: 0;
+      right: -420px;
+      width: 400px;
+      height: 100vh;
+      background: var(--bg-card);
+      border-left: 1px solid var(--border-light);
+      box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+      z-index: 900;
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 25px;
+      overflow-y: auto;
+    }
+
+    .side-drawer.open {
+      right: 0;
+    }
   </style>
 </head>
 <body>
 
-  <!-- TOP HEADER BAR -->
-  <header id="tour-header">
-    <div class="brand-logo">
-      <i class="fa-solid fa-flask-vial"></i>
+  <!-- TOP HEADER -->
+  <header class="top-header">
+    <div class="brand-section">
+      <div class="brand-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
       <div>
-        <div class="brand-title">Labaid Trading PLC</div>
-        <div class="brand-badge">Laboratory & Educational Supplies</div>
+        <div class="brand-title">LABAID TRADING PLC</div>
+        <div class="brand-sub">Inventory & Sales Management System</div>
       </div>
     </div>
 
-    <div class="nav-actions">
-      <button class="btn-action" onclick="startTourGuide()"><i class="fa-solid fa-compass"></i> Tour Guide</button>
-      <button class="btn-action" id="btn-sales-log" onclick="toggleSalesDrawer()"><i class="fa-solid fa-receipt"></i> Sales Log</button>
-      <button class="btn-action" id="btn-export" onclick="openExportModal()"><i class="fa-solid fa-file-export"></i> Export Center</button>
-      <button class="btn-action" onclick="toggleAuditDrawer()"><i class="fa-solid fa-list-check"></i> Audit Logs</button>
+    <div class="header-actions">
+      <button class="btn-action" onclick="startTourGuide()"><i class="fa-solid fa-compass" style="color:var(--accent-amber);"></i> Tour Guide</button>
+      <button class="btn-action" onclick="openExportModal()"><i class="fa-solid fa-file-export" style="color:var(--accent-cyan);"></i> Export CSV</button>
+      <button class="btn-action" onclick="toggleAuditDrawer()"><i class="fa-solid fa-shield-halved" style="color:var(--accent-purple);"></i> Audit Trail</button>
+      <button class="btn-action" style="background: var(--accent-emerald); color: #020617; font-weight: 800;" onclick="toggleSalesDrawer()">
+        <i class="fa-solid fa-bars"></i> Sales Log Menu
+      </button>
     </div>
   </header>
 
-  <!-- DASHBOARD METRICS SECTION -->
-  <div class="dashboard-container">
-    
-    <div class="kpi-grid" id="tour-kpis">
-      <div class="kpi-card emerald">
-        <div class="kpi-title">Active Inventory SKUs</div>
-        <div class="kpi-value" id="kpi-total-skus">0</div>
-        <div class="kpi-sub"><i class="fa-solid fa-boxes-stacked"></i> Tracked items in database</div>
+  <!-- MAIN APP CONTENT -->
+  <div class="app-container">
+
+    <!-- KPI COUNT METRICS -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div>
+          <div class="kpi-label">Registered SKUs</div>
+          <div class="kpi-value" id="kpi-total-skus" style="color: var(--accent-cyan);">0</div>
+        </div>
+        <div class="kpi-icon" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);">
+          <i class="fa-solid fa-layer-group"></i>
+        </div>
       </div>
-      <div class="kpi-card rose">
-        <div class="kpi-title">Expiring Reagents (90 Days)</div>
-        <div class="kpi-value" id="kpi-expiring">0</div>
-        <div class="kpi-sub"><i class="fa-solid fa-clock"></i> Reagent expiration alerts</div>
+
+      <div class="kpi-card">
+        <div>
+          <div class="kpi-label">Chemicals & Reagents</div>
+          <div class="kpi-value" id="kpi-chemicals-count" style="color: var(--accent-purple);">0</div>
+        </div>
+        <div class="kpi-icon" style="background: rgba(139, 92, 246, 0.15); color: var(--accent-purple);">
+          <i class="fa-solid fa-flask"></i>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div>
+          <div class="kpi-label">Items Sold Record</div>
+          <div class="kpi-value" id="kpi-sales-count" style="color: var(--accent-emerald);">0</div>
+        </div>
+        <div class="kpi-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">
+          <i class="fa-solid fa-cart-check"></i>
+        </div>
       </div>
     </div>
 
-    <!-- CONTROL BAR & TABS -->
-    <div class="view-navigation" id="tour-tabs">
-      <div class="tab-group">
-        <button class="nav-tab active" id="tab-equipment" onclick="switchEnterpriseView('equipment')">
-          <i class="fa-solid fa-microscope"></i> Equipment & Supplies
-        </button>
-        <button class="nav-tab" id="tab-chemicals" onclick="switchEnterpriseView('chemicals')">
-          <i class="fa-solid fa-vial-circle-check"></i> Chemicals & Reagents
-        </button>
-      </div>
-
-      <div style="display: flex; gap: 10px;">
-        <input type="text" class="form-control" id="global-search" placeholder="🔍 Search item, CAS, brand..." style="width: 280px;" onkeyup="filterEnterpriseTable()">
-        <select class="form-control" id="stock-filter" style="width: 160px;" onchange="filterEnterpriseTable()">
-          <option value="all">All Stock Levels</option>
-          <option value="instock">In Stock (>0)</option>
-          <option value="low">Low Stock (&le; 5)</option>
-          <option value="outofstock">Out of Stock (=0)</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- MAIN GRID LAYOUT -->
+    <!-- MAIN GRID SECTION -->
     <div class="content-grid">
-      
-      <!-- ITEM REGISTRATION FORM -->
-      <div class="panel-card" id="tour-form">
-        <h3 style="color: var(--accent-cyan); margin-bottom: 20px; font-size: 18px;" id="panel-form-title">
+
+      <!-- LEFT SIDEBAR: REGISTRATION FORM -->
+      <div class="panel-box">
+        <div class="panel-title" id="panel-form-title">
           <i class="fa-solid fa-plus-circle"></i> Register New Item
-        </h3>
+        </div>
 
         <form id="enterprise-form" onsubmit="handleItemSubmit(event)">
           <div class="form-group">
-            <label>Category</label>
-            <select class="form-control" id="ent-category">
+            <label>Item Category</label>
+            <select class="form-control" id="ent-category" required>
               <option value="Laboratory Equipment">Laboratory Equipment</option>
               <option value="Educational & Lab Supplies">Educational & Lab Supplies</option>
               <option value="Electrical & Power Supplies">Electrical & Power Supplies</option>
@@ -233,87 +466,95 @@
           </div>
 
           <div class="form-group">
-            <label>Item Description / Specification</label>
-            <input type="text" class="form-control" id="ent-name" placeholder="e.g. UV-Vis Spectrophotometer" required>
+            <label>Item Name / Specification</label>
+            <input type="text" class="form-control" id="ent-name" placeholder="e.g. Water Distillation Unit 10L/h" required>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <div class="form-group">
-              <label>Manufacturer / Brand</label>
-              <input type="text" class="form-control" id="ent-brand" placeholder="e.g. Shimadzu">
+              <label>Brand</label>
+              <input type="text" class="form-control" id="ent-brand" placeholder="e.g. Scitech">
             </div>
             <div class="form-group">
-              <label>Model Number</label>
-              <input type="text" class="form-control" id="ent-model" placeholder="e.g. UV-1900i">
+              <label>Model</label>
+              <input type="text" class="form-control" id="ent-model" placeholder="e.g. WD-10">
             </div>
           </div>
 
           <div class="form-group">
-            <label>Catalogue / Spec URL</label>
-            <input type="url" class="form-control" id="ent-catalog" placeholder="https://example.com/catalog.pdf">
+            <label>Catalogue / Spec Link URL</label>
+            <input type="url" class="form-control" id="ent-catalog" placeholder="https://drive.google.com/spec.pdf">
           </div>
 
-          <!-- CHEMICAL SPECIALIZED FIELDS -->
-          <div id="chem-special-fields" style="display: none; background: rgba(139, 92, 246, 0.08); padding: 15px; border-radius: 12px; border: 1px solid rgba(139, 92, 246, 0.3); margin-bottom: 16px;">
-            <div style="font-size: 12px; font-weight: 700; color: var(--accent-purple); margin-bottom: 10px;">🧪 CHEMICAL REGULATORY DETAILS</div>
-            
+          <!-- CHEMICAL SPECIFIC FIELDS -->
+          <div id="chem-special-fields" style="display: none; border-top: 1px dashed var(--border-light); padding-top: 12px; margin-top: 8px;">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
               <div class="form-group">
                 <label>CAS Number</label>
-                <input type="text" class="form-control" id="ent-cas" placeholder="e.g. 64-17-5">
+                <input type="text" class="form-control" id="ent-cas" placeholder="7647-01-0">
               </div>
               <div class="form-group">
                 <label>Purity Grade</label>
-                <input type="text" class="form-control" id="ent-purity" placeholder="e.g. AR Grade 99.9%">
+                <input type="text" class="form-control" id="ent-purity" placeholder="AR Grade 98%">
               </div>
-            </div>
-
-            <div class="form-group">
-              <label>Expiry Date</label>
-              <input type="date" class="form-control" id="ent-expiry">
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <div class="form-group">
               <label>Unit of Measure</label>
-              <input type="text" class="form-control" id="ent-unit" placeholder="e.g. Pcs / Bottle">
+              <input type="text" class="form-control" id="ent-unit" placeholder="Pcs / Bottle / Set" required>
             </div>
             <div class="form-group">
-              <label>Quantity in Stock</label>
+              <label>Initial Stock Qty</label>
               <input type="number" class="form-control" id="ent-qty" min="0" required>
             </div>
           </div>
 
           <div class="form-group">
             <label>Unit Selling Price (ETB)</label>
-            <input type="number" class="form-control" id="ent-price" step="0.01" placeholder="0.00">
+            <input type="number" step="0.01" class="form-control" id="ent-price" placeholder="0.00" required>
           </div>
 
-          <button type="submit" class="btn-action" style="width: 100%; justify-content: center; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); border: none; padding: 12px; font-size: 15px;">
-            <i class="fa-solid fa-cloud-arrow-up"></i> Save Item to DB
-          </button>
+          <button type="submit" class="btn-submit"><i class="fa-solid fa-cloud-arrow-up"></i> Save Item to Directory</button>
         </form>
       </div>
 
-      <!-- MAIN DIRECTORY DATA TABLE -->
-      <div class="panel-card" id="tour-table">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-          <h3 style="color: var(--accent-cyan); font-size: 18px;" id="directory-title">
-            <i class="fa-solid fa-database"></i> Labaid Trading Directory
-          </h3>
-          <span style="font-size: 12px; color: var(--text-muted);" id="row-count">Showing 0 entries</span>
+      <!-- RIGHT PANEL: DIRECTORY TABLES -->
+      <div class="panel-box">
+        <div class="view-tabs">
+          <button class="tab-btn active" id="tab-equipment" onclick="switchEnterpriseView('equipment')">
+            <i class="fa-solid fa-microscope"></i> Equipment & Supplies
+          </button>
+          <button class="tab-btn" id="tab-chemicals" onclick="switchEnterpriseView('chemicals')">
+            <i class="fa-solid fa-flask"></i> Chemicals & Reagents
+          </button>
         </div>
 
-        <div style="overflow-x: auto;">
+        <div class="table-controls">
+          <input type="text" class="form-control search-input" id="global-search" placeholder="Search by name, brand, model..." onkeyup="filterEnterpriseTable()">
+          <select class="form-control" id="stock-filter" style="width: 180px;" onchange="filterEnterpriseTable()">
+            <option value="all">All Stock Status</option>
+            <option value="instock">In Stock Only</option>
+            <option value="low">Low Stock (&le; 5)</option>
+            <option value="outofstock">Out of Stock (0)</option>
+          </select>
+        </div>
+
+        <div class="data-table-wrapper">
           <table>
             <thead id="ent-table-head">
-              <!-- Dynamic Headers -->
+              <!-- Rendered via JS -->
             </thead>
             <tbody id="ent-table-body">
-              <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading database records...</td></tr>
+              <!-- Rendered via JS -->
             </tbody>
           </table>
+        </div>
+
+        <div style="margin-top: 12px; font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between;">
+          <span id="row-count">Showing 0 entries</span>
+          <span>Labaid Trading PLC Live Sync</span>
         </div>
       </div>
 
@@ -366,7 +607,7 @@
             <input type="number" class="form-control" id="edit-qty" required>
           </div>
           <div class="form-group">
-            <label>Unit Price (ETB)</label>
+            <label>Unit Selling Price (ETB)</label>
             <input type="number" step="0.01" class="form-control" id="edit-price" required>
           </div>
         </div>
@@ -379,11 +620,11 @@
     </div>
   </div>
 
-  <!-- SALE RECORDING MODAL -->
+  <!-- RECORD SALE MODAL -->
   <div class="modal-overlay" id="sale-modal">
     <div class="modal-box">
       <h3 style="color: var(--accent-emerald); margin-bottom: 15px;"><i class="fa-solid fa-cart-shopping"></i> Record Item Sale</h3>
-      <div id="sale-item-summary" style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;"></div>
+      <div id="sale-item-summary" style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;"></div>
 
       <form id="sale-form" onsubmit="handleSaleSubmit(event)">
         <input type="hidden" id="sale-item-id">
@@ -427,7 +668,7 @@
   <div class="modal-overlay" id="export-modal">
     <div class="modal-box">
       <h3 style="color: var(--accent-cyan); margin-bottom: 10px;"><i class="fa-solid fa-file-csv"></i> Export Data Center</h3>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Generate custom CSV reports for inventory or sales timelines.</p>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Generate custom CSV reports for inventory or sales records.</p>
       
       <div class="form-group">
         <label>Export Target Dataset</label>
@@ -467,24 +708,44 @@
     </div>
   </div>
 
-  <!-- SLIDE-OUT AUDIT LOG DRAWER -->
-  <div id="audit-drawer" class="side-drawer">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-light); padding-bottom: 15px;">
-      <h3 style="margin: 0; color: var(--accent-cyan); font-size: 18px;"><i class="fa-solid fa-list-check"></i> System Audit Trail</h3>
-      <button onclick="toggleAuditDrawer()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">&times;</button>
-    </div>
-    <div id="audit-log-container">
-      <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); border-radius: 12px; padding: 12px; margin-bottom: 10px;">
-        <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom: 4px;">
-          <span>System Initialized</span>
-          <span>Just Now</span>
+  <!-- TOUR GUIDE MODAL -->
+  <div class="modal-overlay" id="tour-modal">
+    <div class="modal-box" style="max-width: 600px;">
+      <h3 style="color: var(--accent-amber); margin-bottom: 10px;"><i class="fa-solid fa-compass"></i> System Interactive Guide</h3>
+      <div style="font-size: 13px; color: var(--text-main); line-height: 1.6; max-height: 380px; overflow-y: auto; padding-right: 10px;">
+        <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+          <strong style="color:var(--accent-cyan);">1. Registration Panel (Left Sidebar)</strong><br>
+          Fill in item attributes including name, category, brand, model, units, price, initial stock, and spec catalog link. Submit to save directly to the Supabase database.
         </div>
-        <div style="font-size:13px; font-weight:600; color:var(--accent-emerald);">Labaid Trading PLC Database Sync Active</div>
+        <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+          <strong style="color:var(--accent-purple);">2. Switch Views (Equipment vs. Chemicals)</strong><br>
+          Use the top tabs above the directory table to toggle between standard equipment/supplies and chemical reagents (which include CAS & Purity specs).
+        </div>
+        <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+          <strong style="color:var(--accent-amber);">3. Item Actions (Edit & Sell)</strong><br>
+          Each table row features an <strong>Edit</strong> button (to modify item attributes or catalogue links) and a <strong>Sell</strong> button (to deduct stock and log transactions).
+        </div>
+        <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+          <strong style="color:var(--accent-emerald);">4. Sales Log Menu & Audit Trail</strong><br>
+          Click <strong>Sales Log Menu</strong> at the top right to review client sales records. Click <strong>Audit Trail</strong> to review real-time activity logs.
+        </div>
+      </div>
+      <div style="margin-top: 20px; text-align: right;">
+        <button class="btn-action" style="background: var(--accent-amber); color: #020617; font-weight:700; width: 100%; justify-content: center;" onclick="closeTourGuide()">Got It!</button>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE-OUT PAST SOLD ITEMS DRAWER -->
+  <!-- AUDIT LOG DRAWER -->
+  <div id="audit-drawer" class="side-drawer">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-light); padding-bottom: 15px;">
+      <h3 style="margin: 0; color: var(--accent-purple); font-size: 18px;"><i class="fa-solid fa-list-check"></i> System Audit Trail</h3>
+      <button onclick="toggleAuditDrawer()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">&times;</button>
+    </div>
+    <div id="audit-log-container"></div>
+  </div>
+
+  <!-- SALES LOG DRAWER -->
   <div id="sales-drawer" class="side-drawer">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-light); padding-bottom: 15px;">
       <h3 style="margin: 0; color: var(--accent-emerald); font-size: 18px;"><i class="fa-solid fa-clock-rotate-left"></i> Past Sold Items Log</h3>
@@ -495,7 +756,7 @@
     </div>
   </div>
 
-  <!-- JAVASCRIPT LOGIC ENGINE -->
+  <!-- JAVASCRIPT ENGINE -->
   <script>
     // SUPABASE DATABASE SETUP
     const SUPABASE_URL = "https://cbmvbbfbgauqusibdnup.supabase.co";
@@ -511,9 +772,11 @@
 
     // INITIALIZATION
     window.addEventListener('DOMContentLoaded', () => {
+      addAuditEntry("System Init", "Labaid Trading PLC database session started.");
       loadEnterpriseData();
     });
 
+    // AUDIT TRAIL ENGINE
     function addAuditEntry(action, details) {
       const entry = {
         time: new Date().toLocaleTimeString(),
@@ -533,7 +796,7 @@
       container.innerHTML = auditLogs.map(log => `
         <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); border-radius: 12px; padding: 12px; margin-bottom: 10px;">
           <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom: 4px;">
-            <span style="color:var(--accent-cyan); font-weight:700;">${log.action}</span>
+            <span style="color:var(--accent-purple); font-weight:700;">${log.action}</span>
             <span>${log.time}</span>
           </div>
           <div style="font-size:13px; color:var(--text-main);">${log.details}</div>
@@ -541,38 +804,30 @@
       `).join('');
     }
 
+    // DATA LOADING
     async function loadEnterpriseData() {
       const { data: itemsData, error: itemsErr } = await db.from('items').select('*').order('id', { ascending: false });
       if (itemsErr) {
         console.error("Error loading items:", itemsErr);
-        document.getElementById('ent-table-body').innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--accent-rose);"><i class="fa-solid fa-triangle-exclamation"></i> Database connection error.</td></tr>`;
+        document.getElementById('ent-table-body').innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--accent-rose);"><i class="fa-solid fa-triangle-exclamation"></i> Database connection error. Check Supabase credentials or RLS policies.</td></tr>`;
         return;
       }
 
       enterpriseItems = itemsData || [];
-      calculateKPIs(enterpriseItems);
-      renderEnterpriseTable(enterpriseItems);
-
+      
       const { data: salesData } = await db.from('sales_log').select('*').order('created_at', { ascending: false });
       salesHistory = salesData || [];
+
+      updateMetrics();
+      renderEnterpriseTable(enterpriseItems);
       renderSalesHistoryDrawer();
     }
 
-    function calculateKPIs(items) {
-      let expiringCount = 0;
-      const now = new Date();
-      const ninetyDays = new Date();
-      ninetyDays.setDate(now.getDate() + 90);
-
-      items.forEach(item => {
-        if (item.expiry_date) {
-          const expDate = new Date(item.expiry_date);
-          if (expDate <= ninetyDays) expiringCount++;
-        }
-      });
-
-      document.getElementById('kpi-total-skus').innerText = items.length;
-      document.getElementById('kpi-expiring').innerText = expiringCount;
+    function updateMetrics() {
+      const chems = enterpriseItems.filter(i => i.category === "Chemicals & Reagents").length;
+      document.getElementById('kpi-total-skus').innerText = enterpriseItems.length;
+      document.getElementById('kpi-chemicals-count').innerText = chems;
+      document.getElementById('kpi-sales-count').innerText = salesHistory.length;
     }
 
     function switchEnterpriseView(viewMode) {
@@ -587,7 +842,6 @@
       if (viewMode === 'equipment') {
         document.getElementById('tab-equipment').classList.add('active');
         document.getElementById('panel-form-title').innerHTML = `<i class="fa-solid fa-plus-circle"></i> Register Equipment / Supply`;
-        document.getElementById('directory-title').innerHTML = `<i class="fa-solid fa-database"></i> Equipment & Supplies Directory`;
         chemFields.style.display = 'none';
 
         catSelect.innerHTML = `
@@ -600,7 +854,6 @@
       } else if (viewMode === 'chemicals') {
         document.getElementById('tab-chemicals').classList.add('active');
         document.getElementById('panel-form-title').innerHTML = `<i class="fa-solid fa-flask"></i> Register Chemical / Reagent`;
-        document.getElementById('directory-title').innerHTML = `<i class="fa-solid fa-vial-circle-check"></i> Chemicals & Reagents Directory`;
         chemFields.style.display = 'block';
 
         catSelect.innerHTML = `<option value="Chemicals & Reagents">Chemicals & Reagents</option>`;
@@ -616,6 +869,7 @@
       const filtered = enterpriseItems.filter(item => {
         const matchesSearch = (item.item_name || '').toLowerCase().includes(search) ||
                               (item.brand || '').toLowerCase().includes(search) ||
+                              (item.model || '').toLowerCase().includes(search) ||
                               (item.cas_number || '').toLowerCase().includes(search);
         
         const qty = parseInt(item.quantity) || 0;
@@ -650,7 +904,7 @@
             <th>Purity Grade</th>
             <th>Stock Level</th>
             <th>Unit Price</th>
-            <th>Catalogue / Spec</th>
+            <th>Catalogue</th>
             <th>Actions</th>
           </tr>
         `;
@@ -743,7 +997,6 @@
         catalog_url: document.getElementById('ent-catalog').value,
         cas_number: document.getElementById('ent-cas').value,
         purity: document.getElementById('ent-purity').value,
-        expiry_date: document.getElementById('ent-expiry').value || null,
         unit_of_measure: document.getElementById('ent-unit').value,
         quantity: parseInt(document.getElementById('ent-qty').value) || 0,
         price: parseFloat(document.getElementById('ent-price').value) || 0
@@ -753,7 +1006,7 @@
       if (error) {
         alert("Error creating item: " + error.message);
       } else {
-        addAuditEntry("Item Added", `Registered ${newItem.item_name} (${newItem.quantity} ${newItem.unit_of_measure})`);
+        addAuditEntry("Item Added", `Registered "${newItem.item_name}" (${newItem.quantity} ${newItem.unit_of_measure})`);
         document.getElementById('enterprise-form').reset();
         loadEnterpriseData();
       }
@@ -796,7 +1049,7 @@
       if (error) {
         alert("Error updating item: " + error.message);
       } else {
-        addAuditEntry("Item Updated", `Updated details for ${updated.item_name}`);
+        addAuditEntry("Item Updated", `Updated specifications for "${updated.item_name}"`);
         closeEditModal();
         loadEnterpriseData();
       }
@@ -810,7 +1063,7 @@
       document.getElementById('sale-item-id').value = item.id;
       document.getElementById('sale-item-name').value = item.item_name;
       document.getElementById('sale-item-summary').innerHTML = `
-        <strong>${item.item_name}</strong> | Available Stock: <span style="color:var(--accent-cyan);">${item.quantity}</span>
+        <strong>${item.item_name}</strong> | Stock: <span style="color:var(--accent-cyan); font-weight:700;">${item.quantity} ${item.unit_of_measure || ''}</span>
       `;
       document.getElementById('sale-unit-price').value = item.price;
       document.getElementById('sale-qty').value = 1;
@@ -847,7 +1100,7 @@
         return;
       }
 
-      // Record Sale Log
+      // Record Sale
       const { error: saleErr } = await db.from('sales_log').insert([{
         item_id: itemId,
         item_name: itemName,
@@ -863,11 +1116,11 @@
         return;
       }
 
-      // Deduct Quantity
+      // Deduct Inventory Stock
       const newQty = item.quantity - qtySold;
       await db.from('items').update({ quantity: newQty }).eq('id', itemId);
 
-      addAuditEntry("Sale Executed", `Sold ${qtySold}x ${itemName} to ${client} for ${formatCurrency(totalVal)}`);
+      addAuditEntry("Sale Executed", `Sold ${qtySold}x "${itemName}" to ${client} for ${formatCurrency(totalVal)}`);
       closeSaleModal();
       document.getElementById('sale-form').reset();
       loadEnterpriseData();
@@ -886,9 +1139,9 @@
             <span>${sale.item_name}</span>
             <span>${formatCurrency(sale.total_price)}</span>
           </div>
-          <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
             <div>Client: <strong style="color:var(--text-main);">${sale.client_name}</strong></div>
-            <div>Qty: ${sale.quantity_sold} | Unit Price: ${formatCurrency(sale.unit_price)}</div>
+            <div>Qty Sold: <strong>${sale.quantity_sold}</strong> | Unit Price: ${formatCurrency(sale.unit_price)}</div>
             <div>Date: ${sale.sale_date || sale.created_at?.split('T')[0]}</div>
           </div>
         </div>
@@ -984,14 +1237,18 @@
       document.getElementById('sales-drawer').classList.toggle('open');
     }
 
+    /* TOUR GUIDE CONTROLS */
+    function startTourGuide() {
+      document.getElementById('tour-modal').classList.add('active');
+    }
+
+    function closeTourGuide() {
+      document.getElementById('tour-modal').classList.remove('active');
+    }
+
     /* UTILITY HELPERS */
     function formatCurrency(val) {
       return (parseFloat(val) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ETB';
-    }
-
-    /* TOUR GUIDE LOGIC */
-    function startTourGuide() {
-      alert("Welcome to Labaid Trading PLC System Tour!\n\n1. Quick Metrics: Key active stock counts.\n2. Tabs: Switch between Supplies and Chemical directory views.\n3. Search/Filter: Find items by brand, name, or CAS.\n4. Registration Panel: Fill details and submit to DB.\n5. Table Actions: Edit details or complete sales directly!\n6. Top Action Menu: Export CSV logs and review sales/audit records.");
     }
   </script>
 </body>
