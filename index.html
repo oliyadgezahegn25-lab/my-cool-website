@@ -133,9 +133,11 @@
     .menu-main-nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
     .menu-tab-btn { flex: 1; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: white; border-radius: 12px; cursor: pointer; font-family: 'Times New Roman', Times, serif; font-size: 14px; }
     .menu-tab-btn.active { background: linear-gradient(90deg,#06b6d4,#a855f7); border-color: transparent; font-weight: bold; }
-    .history-card-item { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; cursor: pointer; }
 
     .price-box { background: rgba(6, 182, 212, 0.1); border: 1px solid #06b6d4; border-radius: 12px; padding: 10px 15px; margin: 10px 0; }
+
+    /* TOUR TOOLTIP STYLES */
+    .tour-highlight { position: relative; z-index: 1001 !important; box-shadow: 0 0 25px #06b6d4 !important; border-color: #06b6d4 !important; }
   </style>
 </head>
 <body>
@@ -143,6 +145,7 @@
   <header>
     <h1>Labaid Trading PLC <span>Inventory Portal</span></h1>
     <div>
+      <button class="top-menu-btn" onclick="startGuidedTour()">📍 Guided Tour</button>
       <button class="top-menu-btn" onclick="toggleDrawer()">📋 Menu & Past Sales</button>
     </div>
   </header>
@@ -150,7 +153,7 @@
   <div class="container">
     
     <!-- MAIN INVENTORY SECTION NAV SWITCH -->
-    <div class="view-switch-nav">
+    <div class="view-switch-nav" id="tour-step-switch">
       <button class="view-tab-btn active" id="tab-equipment" onclick="switchInventoryView('equipment')">🔬 General Equipment & Supplies</button>
       <button class="view-tab-btn" id="tab-chemicals" onclick="switchInventoryView('chemicals')">🧪 Chemicals & Reagents</button>
     </div>
@@ -158,7 +161,7 @@
     <div class="grid">
       
       <!-- ADD ITEM FORM -->
-      <div class="card">
+      <div class="card" id="tour-step-form">
         <h2 id="form-section-title">Add Equipment / Supply</h2>
         <form id="add-form">
           <input type="hidden" id="form_is_chemical" value="false">
@@ -210,7 +213,7 @@
       </div>
 
       <!-- INVENTORY DISPLAY TABLE -->
-      <div class="card">
+      <div class="card" id="tour-step-table">
         <h2 id="table-section-title">General Equipment Directory</h2>
         
         <div style="margin-bottom: 15px;">
@@ -244,7 +247,7 @@
         <input type="text" id="edit-item-name" required>
 
         <label>Category</label>
-        <select id="edit-category">
+        <select id="edit-category" onchange="toggleEditChemicalFields()">
           <option value="Laboratory Equipment">Laboratory Equipment</option>
           <option value="Chemicals & Reagents">Chemicals & Reagents</option>
           <option value="Educational & Lab Supplies">Educational & Lab Supplies</option>
@@ -259,14 +262,17 @@
         <label>Model / Specifications</label>
         <input type="text" id="edit-model">
 
-        <label>Purity Grade</label>
-        <input type="text" id="edit-purity">
+        <!-- DYNAMIC EDIT CHEMICAL FIELDS -->
+        <div id="edit-chemical-fields" style="display: none;">
+          <label>Purity Grade</label>
+          <input type="text" id="edit-purity" placeholder="e.g. AR Grade (≥99.5%)">
 
-        <label>CAS Number</label>
-        <input type="text" id="edit-cas-number">
+          <label>CAS Number</label>
+          <input type="text" id="edit-cas-number" placeholder="e.g. 7647-01-0">
 
-        <label>Storage Conditions</label>
-        <input type="text" id="edit-storage-conditions">
+          <label>Storage Conditions</label>
+          <input type="text" id="edit-storage-conditions" placeholder="e.g. Store 2-8°C">
+        </div>
 
         <label>Unit of Measure</label>
         <input type="text" id="edit-unit-of-measure">
@@ -279,6 +285,32 @@
 
         <button type="submit" class="btn-primary" style="margin-top: 10px;">Save Changes</button>
       </form>
+    </div>
+  </div>
+
+  <!-- WELCOME / TOUR OVERLAY MODAL -->
+  <div class="modal-overlay" id="welcome-modal">
+    <div class="modal" style="text-align: center; max-width: 480px;">
+      <h2 style="color:#67e8f9; margin-top:0;">Welcome to Labaid Trading PLC</h2>
+      <p style="color:#cbd5e1; font-size:15px; line-height:1.6; margin-bottom:25px;">
+        Manage laboratory equipment, electrical & industrial supplies, chemicals, and sale transactions easily.
+      </p>
+      <div style="display: flex; gap: 12px;">
+        <button class="btn-secondary" style="flex:1;" onclick="skipTour()">Skip Tour</button>
+        <button class="btn-primary" style="flex:1;" onclick="startGuidedTourFromWelcome()">Start Tour 🚀</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOUR STEP MODAL -->
+  <div class="modal-overlay" id="tour-step-modal">
+    <div class="modal" style="max-width: 420px; text-align: center;">
+      <h3 id="tour-step-title" style="color:#67e8f9; margin-top:0;">Tour Step</h3>
+      <p id="tour-step-body" style="color:#cbd5e1; font-size:14px; line-height:1.5;"></p>
+      <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+        <button class="btn-secondary" onclick="closeTour()">Skip</button>
+        <button class="btn-primary" style="width: auto; padding: 10px 24px;" onclick="nextTourStep()">Next ➡️</button>
+      </div>
     </div>
   </div>
 
@@ -305,10 +337,10 @@
         <input type="date" id="modal-date" required>
 
         <label>Quantity Sold</label>
-        <input type="number" id="modal-qty" min="1" required placeholder="1" oninput="calculateTransactionTotal()">
+        <input type="number" id="modal-qty" min="1" required placeholder="1">
 
         <label>Unit Selling Price (ETB)</label>
-        <input type="number" id="modal-unit-price" step="0.01" required placeholder="0.00" oninput="calculateTransactionTotal()">
+        <input type="number" id="modal-unit-price" step="0.01" required placeholder="0.00">
 
         <div class="price-box">
           <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -319,20 +351,6 @@
 
         <button type="submit" class="btn-primary" style="margin-top: 10px;">Confirm & Save Sale</button>
       </form>
-    </div>
-  </div>
-
-  <!-- DETAIL INSPECTOR MODAL -->
-  <div class="modal-overlay" id="detail-modal">
-    <div class="modal">
-      <button class="close-modal" onclick="closeDetailModal()">&times;</button>
-      <h3 style="color:#67e8f9; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px;">
-        📄 Sale Record Receipt
-      </h3>
-      <div id="detail-modal-body" style="line-height: 1.8; font-size: 15px; color:#cbd5e1;"></div>
-      <div style="margin-top: 20px; text-align: right;">
-        <button class="btn-secondary" onclick="closeDetailModal()">Close</button>
-      </div>
     </div>
   </div>
 
@@ -366,18 +384,13 @@
     </div>
   </div>
 
-  <!-- HIDDEN FILE INPUT FOR IN-TABLE PDF UPLOADS -->
-  <input type="file" id="inline-pdf-input" accept="application/pdf" style="display:none;">
-
   <script>
     const SUPABASE_URL = "https://cbmvbbfbgauqusibdnup.supabase.co";
     const SUPABASE_KEY = "sb_publishable_gq0-KFzH8Ru9-etDSZ_Cwg_pQrHCYcY";
 
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     let allItems = [];
-    let allSales = [];
-    let activePdfItemId = null;
-    let currentViewMode = 'equipment'; // 'equipment' or 'chemicals'
+    let currentViewMode = 'equipment';
 
     function cleanValue(val) { return (val && val.toString().trim() !== "") ? val : "None"; }
     function formatPrice(val) {
@@ -387,14 +400,122 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       loadInventory();
+      if (!localStorage.getItem('labaid_tour_completed')) {
+        document.getElementById('welcome-modal').classList.add('active');
+      }
     });
 
-    // SWITCH BETWEEN GENERAL EQUIPMENT AND CHEMICALS
+    /* TOUR SYSTEM LOGIC */
+    let currentTourStep = 0;
+    const tourSteps = [
+      { elementId: 'tour-step-switch', title: '1. Switch Inventory Mode', body: 'Use these tabs to switch between General Equipment/Supplies and Chemical/Reagents.' },
+      { elementId: 'tour-step-form', title: '2. Add Items', body: 'Fill out this form to add new products or chemicals into your live database.' },
+      { elementId: 'tour-step-table', title: '3. Inventory Directory', body: 'View, edit, attach tech specs/MSDS, and record sales directly from this table.' }
+    ];
+
+    function startGuidedTourFromWelcome() {
+      document.getElementById('welcome-modal').classList.remove('active');
+      startGuidedTour();
+    }
+
+    function skipTour() {
+      document.getElementById('welcome-modal').classList.remove('active');
+      localStorage.setItem('labaid_tour_completed', 'true');
+    }
+
+    function startGuidedTour() {
+      currentTourStep = 0;
+      showTourStep();
+    }
+
+    function showTourStep() {
+      const step = tourSteps[currentTourStep];
+      document.getElementById('tour-step-title').innerText = step.title;
+      document.getElementById('tour-step-body').innerText = step.body;
+      document.getElementById('tour-step-modal').classList.add('active');
+    }
+
+    function nextTourStep() {
+      currentTourStep++;
+      if (currentTourStep >= tourSteps.length) {
+        closeTour();
+      } else {
+        showTourStep();
+      }
+    }
+
+    function closeTour() {
+      document.getElementById('tour-step-modal').classList.remove('active');
+      localStorage.setItem('labaid_tour_completed', 'true');
+    }
+
+    /* DYNAMIC EDIT FORM LOGIC */
+    function toggleEditChemicalFields() {
+      const cat = document.getElementById('edit-category').value;
+      const chemFields = document.getElementById('edit-chemical-fields');
+      if (cat === "Chemicals & Reagents") {
+        chemFields.style.display = "block";
+      } else {
+        chemFields.style.display = "none";
+      }
+    }
+
+    function openEditModal(itemId) {
+      const item = allItems.find(i => i.id === itemId);
+      if (!item) return;
+
+      document.getElementById('edit-item-id').value = item.id;
+      document.getElementById('edit-item-name').value = item.item_name || '';
+      document.getElementById('edit-category').value = item.category || 'Laboratory Equipment';
+      document.getElementById('edit-brand').value = item.brand === 'None' ? '' : (item.brand || '');
+      document.getElementById('edit-model').value = item.model === 'None' ? '' : (item.model || '');
+      document.getElementById('edit-purity').value = item.purity === 'None' ? '' : (item.purity || '');
+      document.getElementById('edit-cas-number').value = item.cas_number === 'None' ? '' : (item.cas_number || '');
+      document.getElementById('edit-storage-conditions').value = item.storage_conditions === 'None' ? '' : (item.storage_conditions || '');
+      document.getElementById('edit-unit-of-measure').value = item.unit_of_measure === 'None' ? '' : (item.unit_of_measure || '');
+      document.getElementById('edit-quantity').value = item.quantity || 0;
+      document.getElementById('edit-price').value = item.price || '';
+
+      toggleEditChemicalFields();
+      document.getElementById('edit-modal').classList.add('active');
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal').classList.remove('active');
+    }
+
+    document.getElementById('edit-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = parseInt(document.getElementById('edit-item-id').value);
+      const isChem = document.getElementById('edit-category').value === "Chemicals & Reagents";
+
+      const updatedItem = {
+        item_name: document.getElementById('edit-item-name').value,
+        category: document.getElementById('edit-category').value,
+        brand: cleanValue(document.getElementById('edit-brand').value),
+        model: cleanValue(document.getElementById('edit-model').value),
+        purity: isChem ? cleanValue(document.getElementById('edit-purity').value) : null,
+        cas_number: isChem ? cleanValue(document.getElementById('edit-cas-number').value) : null,
+        storage_conditions: isChem ? cleanValue(document.getElementById('edit-storage-conditions').value) : null,
+        unit_of_measure: cleanValue(document.getElementById('edit-unit-of-measure').value),
+        quantity: parseInt(document.getElementById('edit-quantity').value) || 0,
+        price: document.getElementById('edit-price').value !== "" ? parseFloat(document.getElementById('edit-price').value) : null
+      };
+
+      const { error } = await db.from('items').update(updatedItem).eq('id', id);
+      if (error) {
+        alert("Error updating item: " + error.message);
+      } else {
+        closeEditModal();
+        loadInventory();
+      }
+    });
+
+    /* GENERAL INVENTORY SWITCH & LOAD */
     function switchInventoryView(mode) {
       currentViewMode = mode;
       document.getElementById('tab-equipment').classList.remove('active');
       document.getElementById('tab-chemicals').classList.remove('active');
-
       const chemFields = document.getElementById('chemical-fields');
       const catSelect = document.getElementById('category');
 
@@ -418,14 +539,11 @@
         document.getElementById('table-section-title').innerText = "Chemicals & Reagents Directory";
         document.getElementById('form_is_chemical').value = "true";
         chemFields.style.display = 'block';
-
         catSelect.innerHTML = `<option value="Chemicals & Reagents">Chemicals & Reagents</option>`;
       }
-
       renderTable(allItems);
     }
 
-    // FETCH ITEMS
     async function loadInventory() {
       const { data, error } = await db.from('items').select('*').order('id', { ascending: false });
       if (error) {
@@ -436,7 +554,6 @@
       renderTable(allItems);
     }
 
-    // RENDER TABLE ACCORDING TO VIEW MODE
     function renderTable(items) {
       const thead = document.getElementById('table-head');
       const tbody = document.getElementById('inventory-rows');
@@ -478,15 +595,12 @@
             <td>
               <div class="pdf-actions">
                 ${item.pdf_url 
-                  ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">📄 MSDS</a>
-                     <button class="btn-pdf-remove" onclick="removePdf(${item.id})">&times;</button>` 
-                  : `<button class="btn-pdf-add" onclick="triggerInlinePdfUpload(${item.id})">+ MSDS</button>`}
+                  ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">📄 MSDS</a>` 
+                  : `<span style="font-size:11px; color:#64748b;">None</span>`}
               </div>
             </td>
             <td style="white-space: nowrap;">
-              <button class="btn-sell" ${item.quantity <= 0 ? 'disabled' : ''} onclick="openSellModal(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}', ${item.price || 0})">Sold</button>
               <button class="btn-edit" onclick="openEditModal(${item.id})">Edit</button>
-              <button class="btn-add-stock" onclick="addStock(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}')">+ Stock</button>
             </td>
           </tr>
         `).join('');
@@ -523,294 +637,21 @@
             <td>
               <div class="pdf-actions">
                 ${item.pdf_url 
-                  ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">📄 Spec</a>
-                     <button class="btn-pdf-remove" onclick="removePdf(${item.id})">&times;</button>` 
-                  : `<button class="btn-pdf-add" onclick="triggerInlinePdfUpload(${item.id})">+ PDF</button>`}
+                  ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">📄 Spec</a>` 
+                  : `<span style="font-size:11px; color:#64748b;">None</span>`}
               </div>
             </td>
             <td style="white-space: nowrap;">
-              <button class="btn-sell" ${item.quantity <= 0 ? 'disabled' : ''} onclick="openSellModal(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}', ${item.price || 0})">Sold</button>
               <button class="btn-edit" onclick="openEditModal(${item.id})">Edit</button>
-              <button class="btn-add-stock" onclick="addStock(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}')">+ Stock</button>
             </td>
           </tr>
         `).join('');
       }
     }
 
-    // EDIT ITEM MODAL LOGIC
-    function openEditModal(itemId) {
-      const item = allItems.find(i => i.id === itemId);
-      if (!item) return;
-
-      document.getElementById('edit-item-id').value = item.id;
-      document.getElementById('edit-item-name').value = item.item_name || '';
-      document.getElementById('edit-category').value = item.category || 'Laboratory Equipment';
-      document.getElementById('edit-brand').value = item.brand === 'None' ? '' : (item.brand || '');
-      document.getElementById('edit-model').value = item.model === 'None' ? '' : (item.model || '');
-      document.getElementById('edit-purity').value = item.purity === 'None' ? '' : (item.purity || '');
-      document.getElementById('edit-cas-number').value = item.cas_number === 'None' ? '' : (item.cas_number || '');
-      document.getElementById('edit-storage-conditions').value = item.storage_conditions === 'None' ? '' : (item.storage_conditions || '');
-      document.getElementById('edit-unit-of-measure').value = item.unit_of_measure === 'None' ? '' : (item.unit_of_measure || '');
-      document.getElementById('edit-quantity').value = item.quantity || 0;
-      document.getElementById('edit-price').value = item.price || '';
-
-      document.getElementById('edit-modal').classList.add('active');
-    }
-
-    function closeEditModal() {
-      document.getElementById('edit-modal').classList.remove('active');
-    }
-
-    document.getElementById('edit-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const id = parseInt(document.getElementById('edit-item-id').value);
-      const updatedItem = {
-        item_name: document.getElementById('edit-item-name').value,
-        category: document.getElementById('edit-category').value,
-        brand: cleanValue(document.getElementById('edit-brand').value),
-        model: cleanValue(document.getElementById('edit-model').value),
-        purity: cleanValue(document.getElementById('edit-purity').value),
-        cas_number: cleanValue(document.getElementById('edit-cas-number').value),
-        storage_conditions: cleanValue(document.getElementById('edit-storage-conditions').value),
-        unit_of_measure: cleanValue(document.getElementById('edit-unit-of-measure').value),
-        quantity: parseInt(document.getElementById('edit-quantity').value) || 0,
-        price: document.getElementById('edit-price').value !== "" ? parseFloat(document.getElementById('edit-price').value) : null
-      };
-
-      const { error } = await db.from('items').update(updatedItem).eq('id', id);
-
-      if (error) {
-        alert("Error updating item: " + error.message);
-      } else {
-        closeEditModal();
-        loadInventory();
-      }
-    });
-
-    // ADD ITEM FORM SUBMISSION
-    document.getElementById('add-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const submitBtn = document.getElementById('submit-btn');
-      submitBtn.disabled = true;
-      submitBtn.innerText = "Saving Item...";
-
-      const pdfInput = document.getElementById('pdf_file');
-      let pdf_url = null;
-
-      if (pdfInput.files.length > 0) {
-        const file = pdfInput.files[0];
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const filePath = `specs/${fileName}`;
-
-        const { data: uploadData, error: uploadError } = await db.storage.from('item-docs').upload(filePath, file);
-
-        if (uploadError) {
-          alert("PDF Upload failed: " + uploadError.message);
-          submitBtn.disabled = false;
-          submitBtn.innerText = "Save to Inventory";
-          return;
-        }
-
-        const { data: publicUrlData } = db.storage.from('item-docs').getPublicUrl(filePath);
-        pdf_url = publicUrlData.publicUrl;
-      }
-
-      const newItem = {
-        category: document.getElementById('category').value,
-        item_name: document.getElementById('item_name').value,
-        brand: cleanValue(document.getElementById('brand').value),
-        model: cleanValue(document.getElementById('model').value),
-        purity: cleanValue(document.getElementById('purity').value),
-        cas_number: cleanValue(document.getElementById('cas_number').value),
-        storage_conditions: cleanValue(document.getElementById('storage_conditions').value),
-        unit_of_measure: cleanValue(document.getElementById('unit_of_measure').value),
-        quantity: parseInt(document.getElementById('quantity').value) || 0,
-        price: document.getElementById('price').value !== "" ? parseFloat(document.getElementById('price').value) : null,
-        pdf_url: pdf_url
-      };
-
-      const { error } = await db.from('items').insert([newItem]);
-
-      if (error) alert("Could not save item: " + error.message);
-      else {
-        document.getElementById('add-form').reset();
-        loadInventory();
-      }
-
-      submitBtn.disabled = false;
-      submitBtn.innerText = "Save to Inventory";
-    });
-
-    // PDF ATTACH & REMOVE
-    function triggerInlinePdfUpload(itemId) {
-      activePdfItemId = itemId;
-      document.getElementById('inline-pdf-input').click();
-    }
-
-    document.getElementById('inline-pdf-input').addEventListener('change', async (e) => {
-      if (!e.target.files.length || !activePdfItemId) return;
-      const file = e.target.files[0];
-      const filePath = `specs/${Date.now()}_${file.name}`;
-      const { error: uploadError } = await db.storage.from('item-docs').upload(filePath, file);
-      if (uploadError) { alert("PDF Upload failed: " + uploadError.message); return; }
-      const { data } = db.storage.from('item-docs').getPublicUrl(filePath);
-      await db.from('items').update({ pdf_url: data.publicUrl }).eq('id', activePdfItemId);
-      loadInventory();
-      e.target.value = ""; 
-    });
-
-    async function removePdf(itemId) {
-      if (!confirm("Remove this document?")) return;
-      await db.from('items').update({ pdf_url: null }).eq('id', itemId);
-      loadInventory();
-    }
-
-    // SALE MODAL
-    function openSellModal(id, maxQty, name, defaultUnitPrice) {
-      document.getElementById('modal-item-id').value = id;
-      document.getElementById('modal-item-max-qty').value = maxQty;
-      document.getElementById('modal-item-title').innerText = `Record Sale: ${name}`;
-      document.getElementById('modal-date').value = new Date().toISOString().split('T')[0];
-      document.getElementById('modal-qty').max = maxQty;
-      document.getElementById('modal-qty').value = 1;
-      document.getElementById('modal-unit-price').value = defaultUnitPrice || 0;
-      calculateTransactionTotal();
-      document.getElementById('sell-modal').classList.add('active');
-    }
-
-    function calculateTransactionTotal() {
-      const qty = parseInt(document.getElementById('modal-qty').value) || 0;
-      const unitPrice = parseFloat(document.getElementById('modal-unit-price').value) || 0;
-      document.getElementById('modal-total-price-disp').innerText = formatPrice(qty * unitPrice);
-    }
-
-    function closeSellModal() {
-      document.getElementById('sell-modal').classList.remove('active');
-      document.getElementById('sell-form').reset();
-    }
-
-    document.getElementById('sell-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = parseInt(document.getElementById('modal-item-id').value);
-      const maxQty = parseInt(document.getElementById('modal-item-max-qty').value);
-      const unitPrice = parseFloat(document.getElementById('modal-unit-price').value) || 0;
-      const soldQty = parseInt(document.getElementById('modal-qty').value);
-
-      if (soldQty > maxQty) { alert(`Only ${maxQty} available.`); return; }
-
-      const item = allItems.find(i => i.id === id);
-      await db.from('items').update({ quantity: maxQty - soldQty }).eq('id', id);
-      await db.from('sales').insert([{
-        item_id: id,
-        item_name: item ? item.item_name : "Item",
-        quantity: soldQty,
-        sale_type: document.getElementById('modal-sale-type').value,
-        organization: document.getElementById('modal-org').value,
-        sale_date: document.getElementById('modal-date').value,
-        unit_price: unitPrice
-      }]);
-
-      closeSellModal();
-      loadInventory();
-      loadSalesHistory();
-    });
-
-    // ADD STOCK
-    async function addStock(id, currentQty, name) {
-      const input = prompt(`How many units of "${name}" to add?`, "1");
-      if (!input) return;
-      const addQty = parseInt(input, 10);
-      if (isNaN(addQty) || addQty <= 0) return;
-      await db.from('items').update({ quantity: currentQty + addQty }).eq('id', id);
-      loadInventory();
-    }
-
-    // SEARCH FILTER
-    function filterItems() {
-      const query = document.getElementById('search').value.toLowerCase();
-      const filtered = allItems.filter(i => 
-        i.item_name.toLowerCase().includes(query) ||
-        (i.brand && i.brand.toLowerCase().includes(query)) ||
-        (i.model && i.model.toLowerCase().includes(query)) ||
-        (i.purity && i.purity.toLowerCase().includes(query)) ||
-        (i.cas_number && i.cas_number.toLowerCase().includes(query))
-      );
-      renderTable(filtered);
-    }
-
-    // DRAWER & HISTORY
     function toggleDrawer() {
       document.getElementById('transactions-drawer').classList.toggle('open');
-      if (document.getElementById('transactions-drawer').classList.contains('open')) loadSalesHistory();
     }
-
-    function switchDrawerTab(tab) {
-      document.getElementById('tab-btn-history').classList.remove('active');
-      document.getElementById('tab-btn-summary').classList.remove('active');
-      document.getElementById('drawer-tab-history').style.display = 'none';
-      document.getElementById('drawer-tab-summary').style.display = 'none';
-
-      if (tab === 'history') {
-        document.getElementById('tab-btn-history').classList.add('active');
-        document.getElementById('drawer-tab-history').style.display = 'block';
-      } else {
-        document.getElementById('tab-btn-summary').classList.add('active');
-        document.getElementById('drawer-tab-summary').style.display = 'block';
-        calculateSummaryAnalytics();
-      }
-    }
-
-    async function loadSalesHistory() {
-      const { data } = await db.from('sales').select('*').order('sale_date', { ascending: false });
-      allSales = data || [];
-      const container = document.getElementById('sales-history-cards');
-      if (allSales.length === 0) {
-        container.innerHTML = `<p style="text-align:center; color:#94a3b8;">No sales found.</p>`;
-        return;
-      }
-      container.innerHTML = allSales.map(s => `
-        <div class="history-card-item" onclick="openDetailModal(${s.id})">
-          <div style="display:flex; justify-content:space-between;">
-            <strong style="color:#67e8f9;">${s.item_name}</strong>
-            <span style="color:#10b981; font-weight:bold;">${formatPrice(s.quantity * (s.unit_price || 0))}</span>
-          </div>
-          <div style="display:flex; justify-content:space-between; margin-top:4px; font-size:12px; color:#cbd5e1;">
-            <span>To: ${s.organization || 'N/A'}</span>
-            <span>Qty: ${s.quantity}</span>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function calculateSummaryAnalytics() {
-      let grandTotal = 0, totalQty = 0;
-      allSales.forEach(s => {
-        grandTotal += (s.quantity || 0) * (s.unit_price || 0);
-        totalQty += parseInt(s.quantity) || 0;
-      });
-      document.getElementById('summary-total-sales').innerText = formatPrice(grandTotal);
-      document.getElementById('summary-total-qty').innerText = `${totalQty} Units`;
-    }
-
-    function openDetailModal(saleId) {
-      const sale = allSales.find(s => s.id === saleId);
-      if (!sale) return;
-      document.getElementById('detail-modal-body').innerHTML = `
-        <p><strong>Receipt #:</strong> #${sale.id}</p>
-        <p><strong>Item Sold:</strong> ${sale.item_name}</p>
-        <p><strong>Client:</strong> ${sale.organization || 'N/A'}</p>
-        <p><strong>Quantity:</strong> ${sale.quantity} units</p>
-        <p><strong>Unit Price:</strong> ${formatPrice(sale.unit_price)}</p>
-        <p style="color:#10b981; font-size:16px;"><strong>Total Amount:</strong> ${formatPrice(sale.quantity * (sale.unit_price || 0))}</p>
-        <p><strong>Date:</strong> ${sale.sale_date}</p>
-      `;
-      document.getElementById('detail-modal').classList.add('active');
-    }
-    function closeDetailModal() { document.getElementById('detail-modal').classList.remove('active'); }
   </script>
 </body>
 </html>
