@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Labaid Enterprise - Global Laboratory & Supply Chain Management</title>
+  <title>Labaid Trading PLC - Supply & Inventory Management System</title>
 
   <!-- Supabase Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -14,8 +14,8 @@
   <style>
     :root {
       --bg-primary: #020617;
-      --bg-card: rgba(15, 23, 42, 0.75);
-      --bg-glass: rgba(255, 255, 255, 0.03);
+      --bg-card: rgba(15, 23, 42, 0.85);
+      --bg-glass: rgba(255, 255, 255, 0.04);
       --accent-cyan: #06b6d4;
       --accent-purple: #8b5cf6;
       --accent-emerald: #10b981;
@@ -23,7 +23,7 @@
       --accent-rose: #f43f5e;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --border-light: rgba(255, 255, 255, 0.12);
+      --border-light: rgba(255, 255, 255, 0.15);
       --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
@@ -43,7 +43,7 @@
     header {
       padding: 16px 40px;
       display: flex; justify-content: space-between; align-items: center;
-      background: rgba(2, 6, 23, 0.85); backdrop-filter: blur(20px);
+      background: rgba(2, 6, 23, 0.9); backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border-light); position: sticky; top: 0; z-index: 1000;
     }
 
@@ -52,7 +52,7 @@
     .brand-title { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
     .brand-badge { background: rgba(6, 182, 212, 0.15); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); padding: 3px 10px; border-radius: 20px; font-size: 11px; text-transform: uppercase; font-weight: 600; }
 
-    .nav-actions { display: flex; align-items: center; gap: 16px; }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
 
     .btn-action {
       background: rgba(255,255,255,0.08); border: 1px solid var(--border-light); color: var(--text-main);
@@ -68,9 +68,7 @@
     .kpi-card {
       background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 20px;
       padding: 22px; backdrop-filter: blur(15px); position: relative; overflow: hidden;
-      transition: transform 0.3s ease;
     }
-    .kpi-card:hover { transform: translateY(-4px); }
     .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; }
     .kpi-card.emerald::before { background: var(--accent-emerald); }
     .kpi-card.rose::before { background: var(--accent-rose); }
@@ -104,19 +102,19 @@
     .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
     
     .form-control {
-      width: 100%; padding: 11px 14px; background: rgba(255, 255, 255, 0.05);
+      width: 100%; padding: 11px 14px; background: rgba(15, 23, 42, 0.9);
       border: 1px solid var(--border-light); border-radius: 10px; color: var(--text-main); outline: none; font-size: 14px;
     }
     .form-control:focus { border-color: var(--accent-cyan); box-shadow: 0 0 15px rgba(6, 182, 212, 0.25); }
 
-    /* FIX DROPDOWN CONTRAST (WHITE ON WHITE ISSUE FIXED) */
+    /* FIX FOR DROPDOWN LIST VISIBILITY AND BRIGHTNESS */
     select.form-control option, select option {
       background-color: #0f172a !important;
       color: #f8fafc !important;
-      padding: 8px;
+      padding: 10px;
     }
 
-    /* MODERN ENTERPRISE TABLE */
+    /* MODERN TABLE STYLING */
     table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
     th { padding: 14px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; text-align: left; font-weight: 700; }
     tbody tr { background: rgba(255, 255, 255, 0.03); transition: background 0.2s; }
@@ -135,23 +133,33 @@
     .modal-box {
       background: #090d16; border: 1px solid var(--border-light); border-radius: 24px;
       width: 90%; max-width: 550px; padding: 30px; box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+      max-height: 90vh; overflow-y: auto;
+    }
+
+    /* DRAWERS */
+    .side-drawer {
+      position: fixed; top: 0; right: -500px; width: 480px; max-width: 100vw; height: 100vh;
+      background: #090d16; border-left: 1px solid var(--border-light); box-shadow: -10px 0 30px rgba(0,0,0,0.8);
+      z-index: 2500; transition: right 0.3s ease; padding: 25px; overflow-y: auto;
     }
   </style>
 </head>
 <body>
 
   <!-- TOP HEADER BAR -->
-  <header>
+  <header id="tour-header">
     <div class="brand-logo">
       <i class="fa-solid fa-flask-vial"></i>
       <div>
-        <div class="brand-title">Labaid Enterprise</div>
-        <div class="brand-badge">Global Laboratory & Supply Hub</div>
+        <div class="brand-title">Labaid Trading PLC</div>
+        <div class="brand-badge">Laboratory & Educational Supplies</div>
       </div>
     </div>
 
     <div class="nav-actions">
-      <button class="btn-action" onclick="openExportModal()"><i class="fa-solid fa-file-export"></i> Export Center</button>
+      <button class="btn-action" onclick="startTourGuide()"><i class="fa-solid fa-compass"></i> Tour Guide</button>
+      <button class="btn-action" id="btn-sales-log" onclick="toggleSalesDrawer()"><i class="fa-solid fa-receipt"></i> Sales Log</button>
+      <button class="btn-action" id="btn-export" onclick="openExportModal()"><i class="fa-solid fa-file-export"></i> Export Center</button>
       <button class="btn-action" onclick="toggleAuditDrawer()"><i class="fa-solid fa-list-check"></i> Audit Logs</button>
     </div>
   </header>
@@ -159,7 +167,7 @@
   <!-- DASHBOARD METRICS SECTION -->
   <div class="dashboard-container">
     
-    <div class="kpi-grid">
+    <div class="kpi-grid" id="tour-kpis">
       <div class="kpi-card emerald">
         <div class="kpi-title">Active Inventory SKUs</div>
         <div class="kpi-value" id="kpi-total-skus">0</div>
@@ -168,12 +176,12 @@
       <div class="kpi-card rose">
         <div class="kpi-title">Expiring Reagents (90 Days)</div>
         <div class="kpi-value" id="kpi-expiring">0</div>
-        <div class="kpi-sub"><i class="fa-solid fa-clock"></i> Chemical compliance watch</div>
+        <div class="kpi-sub"><i class="fa-solid fa-clock"></i> Reagent expiration alerts</div>
       </div>
     </div>
 
     <!-- CONTROL BAR & TABS -->
-    <div class="view-navigation">
+    <div class="view-navigation" id="tour-tabs">
       <div class="tab-group">
         <button class="nav-tab active" id="tab-equipment" onclick="switchEnterpriseView('equipment')">
           <i class="fa-solid fa-microscope"></i> Equipment & Supplies
@@ -184,7 +192,7 @@
       </div>
 
       <div style="display: flex; gap: 10px;">
-        <input type="text" class="form-control" id="global-search" placeholder="🔍 Search description, CAS, brand..." style="width: 280px;" onkeyup="filterEnterpriseTable()">
+        <input type="text" class="form-control" id="global-search" placeholder="🔍 Search item, CAS, brand..." style="width: 280px;" onkeyup="filterEnterpriseTable()">
         <select class="form-control" id="stock-filter" style="width: 160px;" onchange="filterEnterpriseTable()">
           <option value="all">All Stock Levels</option>
           <option value="instock">In Stock (>0)</option>
@@ -198,7 +206,7 @@
     <div class="content-grid">
       
       <!-- ITEM REGISTRATION FORM -->
-      <div class="panel-card" id="form-panel">
+      <div class="panel-card" id="tour-form">
         <h3 style="color: var(--accent-cyan); margin-bottom: 20px; font-size: 18px;" id="panel-form-title">
           <i class="fa-solid fa-plus-circle"></i> Register New Item
         </h3>
@@ -231,9 +239,14 @@
             </div>
           </div>
 
+          <div class="form-group">
+            <label>Catalogue / Spec URL</label>
+            <input type="url" class="form-control" id="ent-catalog" placeholder="https://example.com/catalog.pdf">
+          </div>
+
           <!-- CHEMICAL SPECIALIZED FIELDS -->
           <div id="chem-special-fields" style="display: none; background: rgba(139, 92, 246, 0.08); padding: 15px; border-radius: 12px; border: 1px solid rgba(139, 92, 246, 0.3); margin-bottom: 16px;">
-            <div style="font-size: 12px; font-weight: 700; color: var(--accent-purple); margin-bottom: 10px;">🧪 CHEMICAL REGULATORY SUITE</div>
+            <div style="font-size: 12px; font-weight: 700; color: var(--accent-purple); margin-bottom: 10px;">🧪 CHEMICAL REGULATORY DETAILS</div>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
               <div class="form-group">
@@ -255,7 +268,7 @@
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
             <div class="form-group">
               <label>Unit of Measure</label>
-              <input type="text" class="form-control" id="ent-unit" placeholder="e.g. Unit / 2.5L Bottle">
+              <input type="text" class="form-control" id="ent-unit" placeholder="e.g. Pcs / Bottle">
             </div>
             <div class="form-group">
               <label>Quantity in Stock</label>
@@ -269,16 +282,16 @@
           </div>
 
           <button type="submit" class="btn-action" style="width: 100%; justify-content: center; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); border: none; padding: 12px; font-size: 15px;">
-            <i class="fa-solid fa-cloud-arrow-up"></i> Save Item to Enterprise DB
+            <i class="fa-solid fa-cloud-arrow-up"></i> Save Item to DB
           </button>
         </form>
       </div>
 
       <!-- MAIN DIRECTORY DATA TABLE -->
-      <div class="panel-card">
+      <div class="panel-card" id="tour-table">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
           <h3 style="color: var(--accent-cyan); font-size: 18px;" id="directory-title">
-            <i class="fa-solid fa-database"></i> Inventory Master Directory
+            <i class="fa-solid fa-database"></i> Labaid Trading Directory
           </h3>
           <span style="font-size: 12px; color: var(--text-muted);" id="row-count">Showing 0 entries</span>
         </div>
@@ -286,7 +299,7 @@
         <div style="overflow-x: auto;">
           <table>
             <thead id="ent-table-head">
-              <!-- Rendered Dynamically -->
+              <!-- Dynamic Headers -->
             </thead>
             <tbody id="ent-table-body">
               <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading database records...</td></tr>
@@ -295,6 +308,109 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- EDIT ITEM MODAL -->
+  <div class="modal-overlay" id="edit-modal">
+    <div class="modal-box">
+      <h3 style="color: var(--accent-cyan); margin-bottom: 15px;"><i class="fa-solid fa-pen-to-square"></i> Edit Inventory Item</h3>
+      
+      <form id="edit-form">
+        <input type="hidden" id="edit-id">
+        
+        <div class="form-group">
+          <label>Category</label>
+          <select class="form-control" id="edit-category">
+            <option value="Laboratory Equipment">Laboratory Equipment</option>
+            <option value="Educational & Lab Supplies">Educational & Lab Supplies</option>
+            <option value="Electrical & Power Supplies">Electrical & Power Supplies</option>
+            <option value="Agricultural Equipment">Agricultural Equipment</option>
+            <option value="Industrial Machinery">Industrial Machinery</option>
+            <option value="Chemicals & Reagents">Chemicals & Reagents</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Item Name / Description</label>
+          <input type="text" class="form-control" id="edit-name" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Brand</label>
+            <input type="text" class="form-control" id="edit-brand">
+          </div>
+          <div class="form-group">
+            <label>Model</label>
+            <input type="text" class="form-control" id="edit-model">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Catalogue / Spec Link URL</label>
+          <input type="url" class="form-control" id="edit-catalog" placeholder="https://...">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Stock Quantity</label>
+            <input type="number" class="form-control" id="edit-qty" required>
+          </div>
+          <div class="form-group">
+            <label>Unit Price (ETB)</label>
+            <input type="number" step="0.01" class="form-control" id="edit-price" required>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button type="button" class="btn-action" style="flex:1; justify-content: center;" onclick="closeEditModal()">Cancel</button>
+          <button type="submit" class="btn-action" style="flex:1; justify-content: center; background: var(--accent-cyan); color: #020617;">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SALE RECORDING MODAL -->
+  <div class="modal-overlay" id="sale-modal">
+    <div class="modal-box">
+      <h3 style="color: var(--accent-emerald); margin-bottom: 15px;"><i class="fa-solid fa-cart-shopping"></i> Record Item Sale</h3>
+      <div id="sale-item-summary" style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;"></div>
+
+      <form id="sale-form">
+        <input type="hidden" id="sale-item-id">
+        
+        <div class="form-group">
+          <label>Buyer / Client Name</label>
+          <input type="text" class="form-control" id="sale-client" placeholder="e.g. Bule Hora University / Walk-in Client" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Quantity Sold</label>
+            <input type="number" class="form-control" id="sale-qty" min="1" required oninput="calculateSaleTotal()">
+          </div>
+          <div class="form-group">
+            <label>Selling Price / Unit (ETB)</label>
+            <input type="number" step="0.01" class="form-control" id="sale-unit-price" required oninput="calculateSaleTotal()">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Sale Date</label>
+          <input type="date" class="form-control" id="sale-date" required>
+        </div>
+
+        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--accent-emerald); border-radius: 10px; padding: 12px; text-align: center; margin-bottom: 15px;">
+          <div style="font-size: 11px; color: var(--text-muted);">TOTAL TRANSACTION VALUE</div>
+          <div style="font-size: 20px; font-weight: 800; color: var(--accent-emerald);" id="sale-total-display">0.00 ETB</div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn-action" style="flex:1; justify-content: center;" onclick="closeSaleModal()">Cancel</button>
+          <button type="submit" class="btn-action" style="flex:1; justify-content: center; background: var(--accent-emerald); color: #020617;">Confirm Sale</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -343,20 +459,30 @@
   </div>
 
   <!-- SLIDE-OUT AUDIT LOG DRAWER -->
-  <div id="audit-drawer" style="position: fixed; top: 0; right: -450px; width: 420px; max-width: 100vw; height: 100vh; background: #090d16; border-left: 1px solid var(--border-light); box-shadow: -10px 0 30px rgba(0,0,0,0.8); z-index: 2500; transition: right 0.3s ease; padding: 25px; overflow-y: auto;">
+  <div id="audit-drawer" class="side-drawer">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-light); padding-bottom: 15px;">
-      <h3 style="margin: 0; color: var(--accent-cyan); font-size: 18px;"><i class="fa-solid fa-receipt"></i> System Audit Trail</h3>
+      <h3 style="margin: 0; color: var(--accent-cyan); font-size: 18px;"><i class="fa-solid fa-list-check"></i> System Audit Trail</h3>
       <button onclick="toggleAuditDrawer()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">&times;</button>
     </div>
-
     <div id="audit-log-container">
       <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); border-radius: 12px; padding: 12px; margin-bottom: 10px;">
         <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom: 4px;">
           <span>System Initialized</span>
           <span>Just Now</span>
         </div>
-        <div style="font-size:13px; font-weight:600; color:var(--accent-emerald);">Database Active & Syncing</div>
+        <div style="font-size:13px; font-weight:600; color:var(--accent-emerald);">Labaid Trading PLC Database Sync Active</div>
       </div>
+    </div>
+  </div>
+
+  <!-- SLIDE-OUT PAST SOLD ITEMS DRAWER -->
+  <div id="sales-drawer" class="side-drawer">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-light); padding-bottom: 15px;">
+      <h3 style="margin: 0; color: var(--accent-emerald); font-size: 18px;"><i class="fa-solid fa-clock-rotate-left"></i> Past Sold Items Log</h3>
+      <button onclick="toggleSalesDrawer()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">&times;</button>
+    </div>
+    <div id="sales-history-container">
+      <div style="text-align: center; color: var(--text-muted); font-size: 13px;">Loading sales records...</div>
     </div>
   </div>
 
@@ -397,6 +523,7 @@
       // Fetch Sales Log
       const { data: salesData } = await db.from('sales_log').select('*').order('created_at', { ascending: false });
       salesHistory = salesData || [];
+      renderSalesHistoryDrawer();
     }
 
     function calculateKPIs(items) {
@@ -431,7 +558,7 @@
       if (viewMode === 'equipment') {
         document.getElementById('tab-equipment').classList.add('active');
         document.getElementById('panel-form-title').innerHTML = `<i class="fa-solid fa-plus-circle"></i> Register Equipment / Supply`;
-        document.getElementById('directory-title').innerHTML = `<i class="fa-solid fa-database"></i> General Equipment Directory`;
+        document.getElementById('directory-title').innerHTML = `<i class="fa-solid fa-database"></i> Equipment & Supplies Directory`;
         chemFields.style.display = 'none';
 
         catSelect.innerHTML = `
@@ -444,7 +571,7 @@
       } else if (viewMode === 'chemicals') {
         document.getElementById('tab-chemicals').classList.add('active');
         document.getElementById('panel-form-title').innerHTML = `<i class="fa-solid fa-flask"></i> Register Chemical / Reagent`;
-        document.getElementById('directory-title').innerHTML = `<i class="fa-solid fa-vial-circle-check"></i> Chemicals & Regulatory Directory`;
+        document.getElementById('directory-title').innerHTML = `<i class="fa-solid fa-vial-circle-check"></i> Chemicals & Reagents Directory`;
         chemFields.style.display = 'block';
 
         catSelect.innerHTML = `<option value="Chemicals & Reagents">Chemicals & Reagents</option>`;
@@ -472,7 +599,7 @@
             <th>Purity Grade</th>
             <th>Stock Level</th>
             <th>Unit Price</th>
-            <th>MSDS / Spec</th>
+            <th>Catalogue / Spec</th>
             <th>Actions</th>
           </tr>
         `;
@@ -484,6 +611,7 @@
 
         tbody.innerHTML = filtered.map(item => {
           const qty = parseInt(item.quantity) || 0;
+          const catUrl = item.pdf_url || item.catalog_url;
           return `
             <tr>
               <td>
@@ -495,13 +623,14 @@
               <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
               <td><strong style="color:var(--accent-cyan);">${formatCurrency(item.price)}</strong></td>
               <td>
-                ${item.pdf_url 
-                  ? `<a href="${item.pdf_url}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> View MSDS</a>` 
+                ${catUrl 
+                  ? `<a href="${catUrl}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> Catalogue</a>` 
                   : `<span style="font-size:11px; color:var(--text-muted);">None</span>`}
               </td>
               <td>
                 <div style="display:flex; gap:6px;">
-                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald);" onclick="recordQuickSale(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald);" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-amber);" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i> Edit</button>
                   <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-rose);" onclick="deleteItemRecord(${item.id})"><i class="fa-solid fa-trash"></i></button>
                 </div>
               </td>
@@ -512,12 +641,12 @@
       } else {
         thead.innerHTML = `
           <tr>
-            <th>Equipment / Item Description</th>
+            <th>Equipment Description</th>
             <th>Category</th>
             <th>Model / Brand</th>
             <th>Stock Level</th>
             <th>Unit Price</th>
-            <th>Spec Sheet</th>
+            <th>Catalogue / Spec</th>
             <th>Actions</th>
           </tr>
         `;
@@ -529,6 +658,7 @@
 
         tbody.innerHTML = filtered.map(item => {
           const qty = parseInt(item.quantity) || 0;
+          const catUrl = item.pdf_url || item.catalog_url;
           return `
             <tr>
               <td><strong>${item.item_name}</strong></td>
@@ -537,13 +667,14 @@
               <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
               <td><strong style="color:var(--accent-cyan);">${formatCurrency(item.price)}</strong></td>
               <td>
-                ${item.pdf_url 
-                  ? `<a href="${item.pdf_url}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> Spec Sheet</a>` 
+                ${catUrl 
+                  ? `<a href="${catUrl}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> Catalogue</a>` 
                   : `<span style="font-size:11px; color:var(--text-muted);">None</span>`}
               </td>
               <td>
                 <div style="display:flex; gap:6px;">
-                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald);" onclick="recordQuickSale(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald);" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-amber);" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i> Edit</button>
                   <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-rose);" onclick="deleteItemRecord(${item.id})"><i class="fa-solid fa-trash"></i></button>
                 </div>
               </td>
@@ -554,7 +685,7 @@
     }
 
     /* -------------------------------------------------------------
-       3. FORM SUBMISSIONS & RECORDING SALES
+       3. FORM SUBMISSION, EDIT & SALE MODALS
     ------------------------------------------------------------- */
     document.getElementById('enterprise-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -564,6 +695,7 @@
         item_name: document.getElementById('ent-name').value,
         brand: document.getElementById('ent-brand').value || null,
         model: document.getElementById('ent-model').value || null,
+        pdf_url: document.getElementById('ent-catalog').value || null,
         cas_number: document.getElementById('ent-cas').value || null,
         purity: document.getElementById('ent-purity').value || null,
         expiry_date: document.getElementById('ent-expiry').value || null,
@@ -583,63 +715,161 @@
       }
     });
 
-    async function recordQuickSale(id) {
+    // EDIT MODAL LOGIC
+    function openEditModal(id) {
+      const item = enterpriseItems.find(i => i.id === id);
+      if (!item) return;
+
+      document.getElementById('edit-id').value = item.id;
+      document.getElementById('edit-category').value = item.category || 'Laboratory Equipment';
+      document.getElementById('edit-name').value = item.item_name || '';
+      document.getElementById('edit-brand').value = item.brand || '';
+      document.getElementById('edit-model').value = item.model || '';
+      document.getElementById('edit-catalog').value = item.pdf_url || item.catalog_url || '';
+      document.getElementById('edit-qty').value = item.quantity || 0;
+      document.getElementById('edit-price').value = item.price || 0;
+
+      document.getElementById('edit-modal').classList.add('active');
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal').classList.remove('active');
+    }
+
+    document.getElementById('edit-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('edit-id').value;
+
+      const updatedFields = {
+        category: document.getElementById('edit-category').value,
+        item_name: document.getElementById('edit-name').value,
+        brand: document.getElementById('edit-brand').value || null,
+        model: document.getElementById('edit-model').value || null,
+        pdf_url: document.getElementById('edit-catalog').value || null,
+        quantity: parseInt(document.getElementById('edit-qty').value) || 0,
+        price: parseFloat(document.getElementById('edit-price').value) || 0
+      };
+
+      const { error } = await db.from('items').update(updatedFields).eq('id', id);
+
+      if (error) {
+        alert("Update failed: " + error.message);
+      } else {
+        logAuditEvent("Item Updated", `Updated properties for item ID ${id}`);
+        closeEditModal();
+        loadEnterpriseData();
+      }
+    });
+
+    // SALE MODAL LOGIC
+    function openSaleModal(id) {
       const item = enterpriseItems.find(i => i.id === id);
       if (!item || item.quantity <= 0) return;
 
-      const sellQtyInput = prompt(`Record sale for "${item.item_name}". Enter quantity sold:`, "1");
-      if (!sellQtyInput || isNaN(sellQtyInput) || parseInt(sellQtyInput) <= 0) return;
+      document.getElementById('sale-item-id').value = item.id;
+      document.getElementById('sale-item-summary').innerHTML = `Selling: <strong>${item.item_name}</strong> | Available Stock: <strong>${item.quantity}</strong>`;
+      document.getElementById('sale-qty').value = 1;
+      document.getElementById('sale-qty').max = item.quantity;
+      document.getElementById('sale-unit-price').value = item.price || 0;
+      document.getElementById('sale-client').value = '';
+      document.getElementById('sale-date').value = new Date().toISOString().split('T')[0];
 
-      const sellQty = parseInt(sellQtyInput);
-      if (sellQty > item.quantity) {
-        alert("Error: Quantity sold exceeds available inventory stock!");
+      calculateSaleTotal();
+      document.getElementById('sale-modal').classList.add('active');
+    }
+
+    function closeSaleModal() {
+      document.getElementById('sale-modal').classList.remove('active');
+    }
+
+    function calculateSaleTotal() {
+      const qty = parseInt(document.getElementById('sale-qty').value) || 0;
+      const unitPrice = parseFloat(document.getElementById('sale-unit-price').value) || 0;
+      const total = qty * unitPrice;
+      document.getElementById('sale-total-display').innerText = formatCurrency(total);
+    }
+
+    document.getElementById('sale-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const id = parseInt(document.getElementById('sale-item-id').value);
+      const item = enterpriseItems.find(i => i.id === id);
+      const sellQty = parseInt(document.getElementById('sale-qty').value);
+      const unitPrice = parseFloat(document.getElementById('sale-unit-price').value);
+      const clientName = document.getElementById('sale-client').value;
+      const saleDate = document.getElementById('sale-date').value;
+
+      if (!item || sellQty > item.quantity) {
+        alert("Error: Sale quantity exceeds available inventory stock!");
         return;
       }
 
       const newQty = item.quantity - sellQty;
 
-      // Update Stock Level
+      // Update Inventory Qty
       const { error: updateErr } = await db.from('items').update({ quantity: newQty }).eq('id', id);
-      
       if (updateErr) {
         alert("Transaction failed: " + updateErr.message);
         return;
       }
 
-      // Log to Sales Table
+      // Record Sales Transaction
       const salesRecord = {
         item_id: item.id,
         item_name: item.item_name,
         category: item.category,
+        client_name: clientName,
         quantity_sold: sellQty,
-        unit_price: item.price,
-        total_sales_value: sellQty * item.price,
-        created_at: new Date().toISOString()
+        unit_price: unitPrice,
+        total_sales_value: sellQty * unitPrice,
+        created_at: new Date(saleDate).toISOString()
       };
 
       await db.from('sales_log').insert([salesRecord]);
-      logAuditEvent("Sale Recorded", `Sold ${sellQty}x ${item.item_name} for total ${(sellQty * item.price).toFixed(2)} ETB`);
+      logAuditEvent("Sale Executed", `Sold ${sellQty}x ${item.item_name} to "${clientName}" for total ${(sellQty * unitPrice).toFixed(2)} ETB`);
+      
+      closeSaleModal();
       loadEnterpriseData();
-    }
+    });
 
     /* -------------------------------------------------------------
-       4. TIMELINE EXPORT ENGINE (CSV)
+       4. SALES HISTORY DRAWER & TIMELINE EXPORT
     ------------------------------------------------------------- */
-    function openExportModal() {
-      document.getElementById('export-modal').classList.add('active');
+    function toggleSalesDrawer() {
+      const drawer = document.getElementById('sales-drawer');
+      drawer.style.right = drawer.style.right === '0px' ? '-500px' : '0px';
     }
 
-    function closeExportModal() {
-      document.getElementById('export-modal').classList.remove('active');
+    function renderSalesHistoryDrawer() {
+      const container = document.getElementById('sales-history-container');
+      if (salesHistory.length === 0) {
+        container.innerHTML = `<div style="text-align: center; color: var(--text-muted);">No sales recorded yet.</div>`;
+        return;
+      }
+
+      container.innerHTML = salesHistory.map(s => `
+        <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); border-radius: 12px; padding: 14px; margin-bottom: 12px;">
+          <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom: 6px;">
+            <span><i class="fa-solid fa-calendar"></i> ${new Date(s.created_at).toLocaleDateString()}</span>
+            <span>ID: #${s.id}</span>
+          </div>
+          <div style="font-size:14px; font-weight:700; color:var(--accent-emerald);">${s.item_name}</div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Client: <strong style="color:white;">${s.client_name || 'Walk-in / Direct'}</strong></div>
+          <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:12px; background:rgba(0,0,0,0.3); padding:8px; border-radius:8px;">
+            <span>Qty: <strong>${s.quantity_sold}</strong> @ ${formatCurrency(s.unit_price)}</span>
+            <span style="color:var(--accent-cyan); font-weight:700;">Total: ${formatCurrency(s.total_sales_value)}</span>
+          </div>
+        </div>
+      `).join('');
     }
+
+    function openExportModal() { document.getElementById('export-modal').classList.add('active'); }
+    function closeExportModal() { document.getElementById('export-modal').classList.remove('active'); }
 
     function toggleExportTimelineOptions() {
       const target = document.getElementById('export-target').value;
-      const timelineGroup = document.getElementById('timeline-group');
-      timelineGroup.style.display = target === 'sales' ? 'block' : 'none';
-      if (target === 'inventory') {
-        document.getElementById('custom-date-group').style.display = 'none';
-      }
+      document.getElementById('timeline-group').style.display = target === 'sales' ? 'block' : 'none';
+      if (target === 'inventory') document.getElementById('custom-date-group').style.display = 'none';
     }
 
     function toggleCustomDateGroup() {
@@ -649,22 +879,14 @@
 
     function processExportRequest() {
       const target = document.getElementById('export-target').value;
-
-      if (target === 'inventory') {
-        exportInventoryCSV();
-      } else {
-        exportSalesCSV();
-      }
+      if (target === 'inventory') exportInventoryCSV();
+      else exportSalesCSV();
       closeExportModal();
     }
 
     function exportInventoryCSV() {
-      if (enterpriseItems.length === 0) {
-        alert("No inventory data available to export.");
-        return;
-      }
-
-      let csv = "data:text/csv;charset=utf-8,ID,Item Name,Category,Brand,Model,CAS Number,Purity,Quantity,Unit Price (ETB)\n";
+      if (enterpriseItems.length === 0) { alert("No inventory data to export."); return; }
+      let csv = "data:text/csv;charset=utf-8,ID,Item Name,Category,Brand,Model,Catalogue URL,Quantity,Unit Price (ETB)\n";
 
       enterpriseItems.forEach(item => {
         csv += [
@@ -673,60 +895,45 @@
           `"${item.category || ''}"`,
           `"${item.brand || ''}"`,
           `"${item.model || ''}"`,
-          `"${item.cas_number || ''}"`,
-          `"${item.purity || ''}"`,
+          `"${item.pdf_url || item.catalog_url || ''}"`,
           item.quantity || 0,
           item.price || 0
         ].join(",") + "\n";
       });
 
-      downloadCSVFile(csv, `Labaid_Inventory_Report_${new Date().toISOString().split('T')[0]}.csv`);
+      downloadCSVFile(csv, `Labaid_Inventory_${new Date().toISOString().split('T')[0]}.csv`);
     }
 
     function exportSalesCSV() {
-      if (salesHistory.length === 0) {
-        alert("No sales records available to export.");
-        return;
-      }
-
+      if (salesHistory.length === 0) { alert("No sales history to export."); return; }
       const timeline = document.getElementById('export-timeline').value;
       const now = new Date();
 
       const filteredSales = salesHistory.filter(sale => {
         const saleDate = new Date(sale.created_at);
-
-        if (timeline === 'today') {
-          return saleDate.toDateString() === now.toDateString();
-        } else if (timeline === '7days') {
-          const past7 = new Date(); past7.setDate(now.getDate() - 7);
-          return saleDate >= past7;
-        } else if (timeline === '30days') {
-          const past30 = new Date(); past30.setDate(now.getDate() - 30);
-          return saleDate >= past30;
-        } else if (timeline === '1year') {
-          const pastYear = new Date(); pastYear.setDate(now.getDate() - 365);
-          return saleDate >= pastYear;
-        } else if (timeline === 'custom') {
+        if (timeline === 'today') return saleDate.toDateString() === now.toDateString();
+        if (timeline === '7days') { const p = new Date(); p.setDate(now.getDate() - 7); return saleDate >= p; }
+        if (timeline === '30days') { const p = new Date(); p.setDate(now.getDate() - 30); return saleDate >= p; }
+        if (timeline === '1year') { const p = new Date(); p.setDate(now.getDate() - 365); return saleDate >= p; }
+        if (timeline === 'custom') {
           const start = document.getElementById('export-start-date').value ? new Date(document.getElementById('export-start-date').value) : new Date(0);
           const end = document.getElementById('export-end-date').value ? new Date(document.getElementById('export-end-date').value) : new Date();
           end.setHours(23, 59, 59);
           return saleDate >= start && saleDate <= end;
         }
-        return true; // 'all'
+        return true;
       });
 
-      if (filteredSales.length === 0) {
-        alert("No sales transactions found for the selected timeline filter.");
-        return;
-      }
+      if (filteredSales.length === 0) { alert("No sales records found for this timeline."); return; }
 
-      let csv = "data:text/csv;charset=utf-8,Transaction ID,Item Name,Category,Quantity Sold,Unit Price (ETB),Total Sales Value (ETB),Date Time\n";
+      let csv = "data:text/csv;charset=utf-8,Transaction ID,Item Name,Category,Buyer Client,Quantity Sold,Unit Price (ETB),Total Sales Value (ETB),Date Time\n";
 
       filteredSales.forEach(s => {
         csv += [
           s.id,
           `"${(s.item_name || '').replace(/"/g, '""')}"`,
           `"${s.category || ''}"`,
+          `"${s.client_name || 'N/A'}"`,
           s.quantity_sold || 0,
           s.unit_price || 0,
           s.total_sales_value || 0,
@@ -734,7 +941,7 @@
         ].join(",") + "\n";
       });
 
-      downloadCSVFile(csv, `Labaid_Sales_Report_${timeline}_${new Date().toISOString().split('T')[0]}.csv`);
+      downloadCSVFile(csv, `Labaid_Sales_${timeline}_${new Date().toISOString().split('T')[0]}.csv`);
     }
 
     function downloadCSVFile(csvContent, filename) {
@@ -748,7 +955,7 @@
     }
 
     /* -------------------------------------------------------------
-       5. UTILITY & SEARCH HELPERS
+       5. UTILITY & TOUR GUIDE ENGINE
     ------------------------------------------------------------- */
     function filterEnterpriseTable() {
       const query = document.getElementById('global-search').value.toLowerCase();
@@ -776,7 +983,7 @@
 
     function toggleAuditDrawer() {
       const drawer = document.getElementById('audit-drawer');
-      drawer.style.right = drawer.style.right === '0px' ? '-450px' : '0px';
+      drawer.style.right = drawer.style.right === '0px' ? '-500px' : '0px';
     }
 
     function logAuditEvent(title, details) {
@@ -802,14 +1009,27 @@
 
     async function deleteItemRecord(id) {
       const item = enterpriseItems.find(i => i.id === id);
-      if (!confirm(`Are you sure you want to permanently delete "${item ? item.item_name : 'this item'}"?`)) return;
+      if (!confirm(`Permanently delete "${item ? item.item_name : 'this item'}"?`)) return;
 
       const { error } = await db.from('items').delete().eq('id', id);
       if (error) {
-        alert("Purge failed: " + error.message);
+        alert("Delete failed: " + error.message);
       } else {
-        logAuditEvent("Item Purged", `Removed ID ${id} (${item ? item.item_name : ''})`);
+        logAuditEvent("Item Deleted", `Removed ID ${id}`);
         loadEnterpriseData();
+      }
+    }
+
+    // TOUR GUIDE INTERACTIVE STEPPER
+    function startTourGuide() {
+      const steps = [
+        "Welcome to Labaid Trading PLC System Tour!\n\n1. Registration Panel: Register new equipment or chemicals and attach catalogue URLs.",
+        "2. Table Actions: Use 'Sell' to log buyers and custom dates, 'Edit' to update any column/catalogue link, or 'Delete'.",
+        "3. Top Menu Actions:\n- 'Sales Log': View detailed past sales history.\n- 'Export Center': Export complete inventory or filtered sales reports by timeline (week, month, year).",
+        "4. Navigation Tabs: Switch easily between General Equipment and Chemical/Reagent directories."
+      ];
+      for (let i = 0; i < steps.length; i++) {
+        alert(steps[i]);
       }
     }
   </script>
