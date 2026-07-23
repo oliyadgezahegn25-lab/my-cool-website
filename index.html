@@ -41,7 +41,7 @@
 
     header {
         padding:20px 8%;
-        display:flex; justify-content:space-between; align-items:center;
+        display:flex; justify-space-between; align-items:center;
         background:rgba(255,255,255,.08); backdrop-filter:blur(15px);
         border-bottom:1px solid var(--border); box-shadow:0 10px 30px rgba(0,0,0,.3);
         position: relative; z-index: 10;
@@ -93,7 +93,7 @@
 
     /* MAIN SECTION SWITCH TABS */
     .view-switch-nav {
-        display: flex; gap: 10px; margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 18px; border: 1px solid var(--border);
+        display: flex; gap: 10px; margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 18px; border: 1px solid var(--border); transition: all 0.3s ease;
     }
     .view-tab-btn {
         flex: 1; padding: 12px; border: none; background: transparent; color: #94a3b8;
@@ -111,8 +111,6 @@
 
     .pdf-actions { display: flex; align-items: center; gap: 4px; }
     .btn-pdf { color:#22d3ee; text-decoration:none; font-size:12px; font-weight:600; border:1px solid #22d3ee; padding:3px 6px; border-radius:10px; }
-    .btn-pdf-remove { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; }
-    .btn-pdf-add { background: rgba(6, 182, 212, 0.2); color: #06b6d4; border: 1px solid #06b6d4; padding: 2px 6px; border-radius: 10px; cursor: pointer; font-size: 11px; }
 
     /* ACTION BUTTONS */
     .btn-sell { background:#10b981; border:none; padding:5px 10px; border-radius:12px; color:white; cursor:pointer; font-family: 'Times New Roman', Times, serif; font-size:12px; margin-right:2px; }
@@ -136,8 +134,14 @@
 
     .price-box { background: rgba(6, 182, 212, 0.1); border: 1px solid #06b6d4; border-radius: 12px; padding: 10px 15px; margin: 10px 0; }
 
-    /* TOUR TOOLTIP STYLES */
-    .tour-highlight { position: relative; z-index: 1001 !important; box-shadow: 0 0 25px #06b6d4 !important; border-color: #06b6d4 !important; }
+    /* SPOTLIGHT HIGHLIGHT FOR TOUR */
+    .tour-spotlight {
+        position: relative;
+        z-index: 1002 !important;
+        outline: 3px solid #06b6d4 !important;
+        box-shadow: 0 0 35px #06b6d4 !important;
+        border-radius: 18px;
+    }
   </style>
 </head>
 <body>
@@ -170,7 +174,7 @@
           <select id="category">
             <option value="Laboratory Equipment">Laboratory Equipment</option>
             <option value="Educational & Lab Supplies">Educational & Lab Supplies</option>
-            <option value="Electrical Supplies">Electrical Supplies</option>
+            <option value="Educational & Electrical Supplies">Educational & Electrical Supplies</option>
             <option value="Agricultural Equipment">Agricultural Equipment</option>
             <option value="Industrial Equipment">Industrial Equipment</option>
           </select>
@@ -251,7 +255,7 @@
           <option value="Laboratory Equipment">Laboratory Equipment</option>
           <option value="Chemicals & Reagents">Chemicals & Reagents</option>
           <option value="Educational & Lab Supplies">Educational & Lab Supplies</option>
-          <option value="Electrical Supplies">Electrical Supplies</option>
+          <option value="Educational & Electrical Supplies">Educational & Electrical Supplies</option>
           <option value="Agricultural Equipment">Agricultural Equipment</option>
           <option value="Industrial Equipment">Industrial Equipment</option>
         </select>
@@ -303,13 +307,13 @@
   </div>
 
   <!-- TOUR STEP MODAL -->
-  <div class="modal-overlay" id="tour-step-modal">
-    <div class="modal" style="max-width: 420px; text-align: center;">
+  <div class="modal-overlay" id="tour-step-modal" style="background: rgba(0,0,0,0.65);">
+    <div class="modal" style="max-width: 420px; text-align: center; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);">
       <h3 id="tour-step-title" style="color:#67e8f9; margin-top:0;">Tour Step</h3>
       <p id="tour-step-body" style="color:#cbd5e1; font-size:14px; line-height:1.5;"></p>
       <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-        <button class="btn-secondary" onclick="closeTour()">Skip</button>
-        <button class="btn-primary" style="width: auto; padding: 10px 24px;" onclick="nextTourStep()">Next ➡️</button>
+        <button class="btn-secondary" onclick="closeTour()">Skip Tour</button>
+        <button class="btn-primary" style="width: auto; padding: 10px 24px;" onclick="nextTourStep()">Next Step ➡️</button>
       </div>
     </div>
   </div>
@@ -382,9 +386,7 @@
         <h2 id="summary-total-qty" style="margin: 5px 0; color:#a855f7;">0 Units</h2>
       </div>
     </div>
-  </div>
-
-  <script>
+  </div><script>
     const SUPABASE_URL = "https://cbmvbbfbgauqusibdnup.supabase.co";
     const SUPABASE_KEY = "sb_publishable_gq0-KFzH8Ru9-etDSZ_Cwg_pQrHCYcY";
 
@@ -405,12 +407,12 @@
       }
     });
 
-    /* TOUR SYSTEM LOGIC */
+    /* TOUR SYSTEM LOGIC WITH DYNAMIC HIGHLIGHTING */
     let currentTourStep = 0;
     const tourSteps = [
       { elementId: 'tour-step-switch', title: '1. Switch Inventory Mode', body: 'Use these tabs to switch between General Equipment/Supplies and Chemical/Reagents.' },
       { elementId: 'tour-step-form', title: '2. Add Items', body: 'Fill out this form to add new products or chemicals into your live database.' },
-      { elementId: 'tour-step-table', title: '3. Inventory Directory', body: 'View, edit, attach tech specs/MSDS, and record sales directly from this table.' }
+      { elementId: 'tour-step-table', title: '3. Inventory Directory & Actions', body: 'View, edit, attach tech specs/MSDS, record sales ("Sold"), and add stock directly from this table.' }
     ];
 
     function startGuidedTourFromWelcome() {
@@ -429,7 +431,16 @@
     }
 
     function showTourStep() {
+      document.querySelectorAll('.tour-spotlight').forEach(el => el.classList.remove('tour-spotlight'));
+
       const step = tourSteps[currentTourStep];
+      const targetEl = document.getElementById(step.elementId);
+
+      if (targetEl) {
+        targetEl.classList.add('tour-spotlight');
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
       document.getElementById('tour-step-title').innerText = step.title;
       document.getElementById('tour-step-body').innerText = step.body;
       document.getElementById('tour-step-modal').classList.add('active');
@@ -445,11 +456,12 @@
     }
 
     function closeTour() {
+      document.querySelectorAll('.tour-spotlight').forEach(el => el.classList.remove('tour-spotlight'));
       document.getElementById('tour-step-modal').classList.remove('active');
       localStorage.setItem('labaid_tour_completed', 'true');
     }
 
-    /* DYNAMIC EDIT FORM LOGIC */
+    /* EDIT MODAL LOGIC */
     function toggleEditChemicalFields() {
       const cat = document.getElementById('edit-category').value;
       const chemFields = document.getElementById('edit-chemical-fields');
@@ -511,7 +523,7 @@
       }
     });
 
-    /* GENERAL INVENTORY SWITCH & LOAD */
+    /* VIEW SWITCHING & INVENTORY LOAD */
     function switchInventoryView(mode) {
       currentViewMode = mode;
       document.getElementById('tab-equipment').classList.remove('active');
@@ -529,7 +541,7 @@
         catSelect.innerHTML = `
           <option value="Laboratory Equipment">Laboratory Equipment</option>
           <option value="Educational & Lab Supplies">Educational & Lab Supplies</option>
-          <option value="Electrical Supplies">Electrical Supplies</option>
+          <option value="Educational & Electrical Supplies">Educational & Electrical Supplies</option>
           <option value="Agricultural Equipment">Agricultural Equipment</option>
           <option value="Industrial Equipment">Industrial Equipment</option>
         `;
@@ -600,7 +612,9 @@
               </div>
             </td>
             <td style="white-space: nowrap;">
+              <button class="btn-sell" ${item.quantity <= 0 ? 'disabled' : ''} onclick="openSellModal(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}', ${item.price || 0})">Sold</button>
               <button class="btn-edit" onclick="openEditModal(${item.id})">Edit</button>
+              <button class="btn-add-stock" onclick="addStock(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}')">+ Stock</button>
             </td>
           </tr>
         `).join('');
@@ -642,7 +656,9 @@
               </div>
             </td>
             <td style="white-space: nowrap;">
+              <button class="btn-sell" ${item.quantity <= 0 ? 'disabled' : ''} onclick="openSellModal(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}', ${item.price || 0})">Sold</button>
               <button class="btn-edit" onclick="openEditModal(${item.id})">Edit</button>
+              <button class="btn-add-stock" onclick="addStock(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}')">+ Stock</button>
             </td>
           </tr>
         `).join('');
@@ -651,6 +667,17 @@
 
     function toggleDrawer() {
       document.getElementById('transactions-drawer').classList.toggle('open');
+    }
+
+    function filterItems() {
+      const query = document.getElementById('search').value.toLowerCase();
+      const filtered = allItems.filter(i => 
+        (i.item_name && i.item_name.toLowerCase().includes(query)) ||
+        (i.brand && i.brand.toLowerCase().includes(query)) ||
+        (i.model && i.model.toLowerCase().includes(query)) ||
+        (i.purity && i.purity.toLowerCase().includes(query))
+      );
+      renderTable(filtered);
     }
   </script>
 </body>
