@@ -338,13 +338,25 @@
     <div class="modal-box">
       <h3 style="color: var(--accent-cyan); margin-bottom: 10px;"><i class="fa-solid fa-file-csv"></i> Export Data Center</h3>
       <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Download custom CSV spreadsheets for inventory or past sales records.</p>
+      
       <div class="form-group">
         <label>Export Target Dataset</label>
-        <select class="form-control" id="export-target">
+        <select class="form-control" id="export-target" onchange="toggleExportTimeFilter()">
           <option value="inventory">Entire Inventory Directory</option>
           <option value="sales">Past Sales History</option>
         </select>
       </div>
+
+      <div class="form-group" id="export-time-group" style="display: none;">
+        <label>Time Period Filter</label>
+        <select class="form-control" id="export-time-range">
+          <option value="all">All Time Records</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+          <option value="year">This Year</option>
+        </select>
+      </div>
+
       <div style="display: flex; gap: 10px; margin-top: 20px;">
         <button class="btn-action" style="flex:1; justify-content: center;" onclick="closeExportModal()">Cancel</button>
         <button class="btn-action" style="flex:1; justify-content: center; background: var(--accent-cyan); color: #020617;" onclick="processExportRequest()">Download CSV Report</button>
@@ -404,6 +416,16 @@
     let currentView = 'equipment';
     let currentSalesFilter = 'all';
 
+    // Tour state variables
+    let currentTourStep = 0;
+    const tourSteps = [
+      { elementId: 'tour-reg-form', title: 'Item Registration Form', desc: 'Use this sidebar panel to add new equipment, supplies, or chemical inventory items with specs and pricing.' },
+      { elementId: 'tour-view-tabs', title: 'Category Views', desc: 'Switch instantly between standard laboratory equipment/supplies and specialized chemicals & reagents directories.' },
+      { elementId: 'tour-table', title: 'Inventory Data Table', desc: 'View complete stock statuses, units, prices, catalogue files, and perform quick edits or sales transactions here.' },
+      { elementId: 'tour-sales-btn', title: 'Sales History Menu', desc: 'Open this drawer to review historical records, client details, and filter transaction lists by date ranges.' },
+      { elementId: 'tour-export-btn', title: 'Data Export Center', desc: 'Download custom spreadsheet reports of your inventory directory or past sales segmented by time periods.' }
+    ];
+
     window.addEventListener('DOMContentLoaded', () => {
       addAuditEntry("System Session", "Dashboard loaded.");
       loadEnterpriseData();
@@ -439,7 +461,6 @@
       const { data: itemsData } = await db.from('items').select('*').order('id', { ascending: false });
       enterpriseItems = itemsData || [];
 
-      // Fetch from Supabase, merge with local storage fallback if table schema fails
       let salesData = [];
       try {
         const res = await db.from('sales_log').select('*').order('id', { ascending: false });
@@ -628,77 +649,68 @@
     }
 
     function closeSaleModal() { document.getElementById('sale-modal').classList.remove('active'); }
-    function toggleSaleTypeMode() {
-      if (document.getElementById('sale-type').value === 'Sample') document.getElementById('sale-unit-price').value = 0;
-      calculateSaleTotal();
-    }
+
     function calculateSaleTotal() {
       const qty = parseFloat(document.getElementById('sale-qty').value) || 0;
-      const unitPrice = parseFloat(document.getElementById('sale-unit-price').value) || 0;
-      document.getElementById('sale-total-display').innerText = formatCurrency(qty * unitPrice);
+      const price = parseFloat(document.getElementById('sale-unit-price').value) || 0;
+      const total = qty * price;
+      document.getElementById('sale-total-display').textContent = formatCurrency(total);
     }
 
-    /* BULLETPROOF TRANSACTION PROCESSOR WITH ROBUST FALLBACK */
     async function handleSaleSubmit(e) {
       e.preventDefault();
-      const itemId = document.getElementById('sale-item-id').value;
-      const itemName = document.getElementById('sale-item-name').value;
-      const client = document.getElementById('sale-client').value;
-      const saleType = document.getElementById('sale-type').value;
-      const qtySold = parseInt(document.getElementById('sale-qty').value) || 0;
-      const unitPrice = parseFloat(document.getElementById('sale-unit-price').value) || 0;
-      const saleDate = document.getElementById('sale-date').value;
-      const totalVal = qtySold * unitPrice;
+      const itemId = parseInt(document.getElementById('sale-item-id').value);
+      const qtySold = parseInt(document.getElementById('sale-qty').value);
+      const item = enterpriseItems.find(i => i.id === itemId);
 
-      const item = enterpriseItems.find(i => i.id == itemId);
-      if (item && item.quantity < qtySold) {
-        alert("Insufficient stock available!");
+      if (!item || item.quantity < qtySold) {
+        alert("Insufficient stock quantity!");
         return;
       }
 
-      const payload = {
+      const saleRecord = {
         item_id: itemId,
-        item_name: itemName,
-        sale_type: saleType,
-        destination: client,
-        quantity_sold: qtySold,
-        unit_price: unitPrice,
-        total_price: totalVal,
-        sale_date: saleDate
+        item_name: document.getElementById('sale-item-name').value,
+        sale_type: document.getElementById('sale-type').value,
+        client_name: document.getElementById('sale-client').value,
+        quantity: qtySold,
+        unit_price: parseFloat(document.getElementById('sale-unit-price').value),
+        total_price: qtySold * parseFloat(document.getElementById('sale-unit-price').value),
+        sale_date: document.getElementById('sale-date').value
       };
 
-      // Try saving to Supabase, but if schema cache blocks it, save locally instantly
-      let { error } = await db.from('sales_log').insert([payload]);
-      if (error) {
-        const localSales = JSON.parse(localStorage.getItem('local_sales_fallback') || '[]');
-        localSales.unshift({ ...payload, id: 'local_' + Date.now() });
+      try {
+        await db.from('sales_log').insert([saleRecord]);
+      } catch (err) {
+        let localSales = JSON.parse(localStorage.getItem('local_sales_fallback') || '[]');
+        localSales.unshift(saleRecord);
         localStorage.setItem('local_sales_fallback', JSON.stringify(localSales));
       }
 
-      if (item) {
-        const newQty = item.quantity - qtySold;
-        await db.from('items').update({ quantity: newQty }).eq('id', itemId);
-      }
+      const newQty = item.quantity - qtySold;
+      await db.from('items').update({ quantity: newQty }).eq('id', itemId);
 
-      addAuditEntry("Sale Processed", `Sold ${qtySold} x "${itemName}" to ${client}`);
+      addAuditEntry("Sale Recorded", `Sold ${qtySold}x "${saleRecord.item_name}" to ${saleRecord.client_name}`);
       closeSaleModal();
       loadEnterpriseData();
-      toggleSalesDrawer();
+      document.getElementById('sale-form').reset();
     }
 
-    function toggleSalesDrawer() { document.getElementById('sales-drawer').classList.toggle('open'); }
-    function toggleAuditDrawer() { document.getElementById('audit-drawer').classList.toggle('open'); }
+    function toggleSalesDrawer() {
+      document.getElementById('sales-drawer').classList.toggle('open');
+    }
+
+    function toggleAuditDrawer() {
+      document.getElementById('audit-drawer').classList.toggle('open');
+    }
 
     function setSalesFilter(filter) {
       currentSalesFilter = filter;
       ['week', 'month', 'year', 'all'].forEach(f => {
         const btn = document.getElementById(`filter-${f}`);
-        if (f === filter) {
-          btn.style.background = 'rgba(56,189,248,0.2)';
-          btn.style.color = 'var(--accent-cyan)';
-        } else {
-          btn.style.background = 'rgba(255,255,255,0.05)';
-          btn.style.color = 'var(--text-main)';
+        if(btn) {
+          btn.style.background = f === filter ? 'rgba(56,189,248,0.2)' : '';
+          btn.style.color = f === filter ? 'var(--accent-cyan)' : '';
         }
       });
       renderSalesHistoryDrawer();
@@ -708,130 +720,158 @@
       const container = document.getElementById('sales-history-container');
       const now = new Date();
 
-      const filteredSales = salesHistory.filter(sale => {
-        const sDate = new Date(sale.sale_date || sale.created_at || now);
+      const filtered = salesHistory.filter(sale => {
+        if (!sale.sale_date) return currentSalesFilter === 'all';
+        const saleDate = new Date(sale.sale_date);
+        
         if (currentSalesFilter === 'week') {
           const oneWeekAgo = new Date();
           oneWeekAgo.setDate(now.getDate() - 7);
-          return sDate >= oneWeekAgo;
+          return saleDate >= oneWeekAgo && saleDate <= now;
         } else if (currentSalesFilter === 'month') {
-          return sDate.getMonth() === now.getMonth() && sDate.getFullYear() === now.getFullYear();
+          return saleDate.getMonth() === now.getMonth() && saleDate.getFullYear() === now.getFullYear();
         } else if (currentSalesFilter === 'year') {
-          return sDate.getFullYear() === now.getFullYear();
+          return saleDate.getFullYear() === now.getFullYear();
         }
         return true;
       });
 
-      if (!filteredSales.length) {
-        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13px; padding:20px;">No sales records found for this timeframe.</div>`;
+      if (!filtered.length) {
+        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13px; padding:20px;">No sales history found for this period.</div>`;
         return;
       }
 
-      container.innerHTML = filteredSales.map((sale) => `
+      container.innerHTML = filtered.map(sale => `
         <div class="sale-msg-card" onclick="this.classList.toggle('expanded')">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <strong style="color:var(--text-main); font-size:13px;"><i class="fa-solid fa-comment-dots" style="color:var(--accent-emerald); margin-right:5px;"></i> ${sale.item_name || 'Item Sale'}</strong>
-            <span style="font-size:11px; padding:2px 6px; background:rgba(16,185,129,0.15); color:var(--accent-emerald); border-radius:4px;">${sale.sale_type || 'Paid'}</span>
+            <strong>${sale.item_name}</strong>
+            <span style="color:var(--accent-emerald); font-weight:700;">${formatCurrency(sale.total_price)}</span>
           </div>
-          <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">Client: <span style="color:white;">${sale.destination || 'N/A'}</span></div>
-          <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:11px; color:var(--text-muted);">
-            <span>${sale.sale_date || 'Recent'}</span>
-            <strong style="color:var(--accent-cyan);">${formatCurrency(sale.total_price)}</strong>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">
+            Client: ${sale.client_name || 'N/A'} | Qty: ${sale.quantity} | Date: ${sale.sale_date || 'N/A'}
           </div>
           <div class="sale-msg-body">
-            <div><strong>Detailed Retail Breakdown:</strong></div>
-            <div>Quantity Sold: ${sale.quantity_sold || 1} Pcs</div>
-            <div>Unit Price: ${formatCurrency(sale.unit_price)}</div>
-            <div>Destination / Client: ${sale.destination || 'Direct Client'}</div>
-            <div style="color: var(--accent-cyan); margin-top: 4px; font-style: italic;">Tap card to collapse message view</div>
+            <div><strong>Sale Type:</strong> ${sale.sale_type || 'Standard'}</div>
+            <div><strong>Unit Price:</strong> ${formatCurrency(sale.unit_price)}</div>
           </div>
         </div>
       `).join('');
     }
 
-    function openExportModal() { document.getElementById('export-modal').classList.add('active'); }
-    function closeExportModal() { document.getElementById('export-modal').classList.remove('active'); }
+    function openExportModal() {
+      document.getElementById('export-modal').classList.add('active');
+      toggleExportTimeFilter();
+    }
+
+    function closeExportModal() {
+      document.getElementById('export-modal').classList.remove('active');
+    }
+
+    function toggleExportTimeFilter() {
+      const target = document.getElementById('export-target').value;
+      const timeGroup = document.getElementById('export-time-group');
+      // Only show time-period filter options if exporting sales data
+      timeGroup.style.display = target === 'sales' ? 'block' : 'none';
+    }
 
     function processExportRequest() {
       const target = document.getElementById('export-target').value;
+      const timeRange = document.getElementById('export-time-range').value;
+      
+      let csvContent = "data:text/csv;charset=utf-8,";
+      let filename = "";
+
       if (target === 'inventory') {
-        exportCSV(enterpriseItems, "Inventory_Report.csv");
+        filename = "inventory_export.csv";
+        csvContent += "ID,Category,Item Name,Brand,Model,Quantity,Price (ETB),Unit\r\n";
+        enterpriseItems.forEach(i => {
+          csvContent += `"${i.id}","${i.category}","${i.item_name}","${i.brand || ''}","${i.model || ''}",${i.quantity},${i.price},"${i.unit_of_measure || ''}"\r\n`;
+        });
       } else {
-        exportCSV(salesHistory, "Sales_History_Report.csv");
+        filename = `sales_export_${timeRange}.csv`;
+        csvContent += "Item Name,Sale Type,Client Name,Quantity,Unit Price,Total Price,Date\r\n";
+        
+        const now = new Date();
+        const filteredSales = salesHistory.filter(sale => {
+          if (!sale.sale_date || timeRange === 'all') return true;
+          const saleDate = new Date(sale.sale_date);
+          if (timeRange === 'week') {
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(now.getDate() - 7);
+            return saleDate >= oneWeekAgo && saleDate <= now;
+          } else if (timeRange === 'month') {
+            return saleDate.getMonth() === now.getMonth() && saleDate.getFullYear() === now.getFullYear();
+          } else if (timeRange === 'year') {
+            return saleDate.getFullYear() === now.getFullYear();
+          }
+          return true;
+        });
+
+        filteredSales.forEach(s => {
+          csvContent += `"${s.item_name}","${s.sale_type || ''}","${s.client_name || ''}",${s.quantity},${s.unit_price},${s.total_price},"${s.sale_date || ''}"\r\n`;
+        });
       }
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       closeExportModal();
     }
 
-    function exportCSV(data, filename) {
-      if (!data || !data.length) { alert("No data available to export!"); return; }
-      const keys = Object.keys(data[0]);
-      const csvContent = [
-        keys.join(','),
-        ...data.map(row => keys.map(k => `"${(row[k] || '').toString().replace(/"/g, '""')}"`).join(','))
-      ].join('\n');
-
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = filename;
-      link.click();
+    // TOUR GUIDE LOGIC ENGINE
+    function startTourGuide() {
+      currentTourStep = 0;
+      document.getElementById('tour-popover').style.display = 'block';
+      showTourStep();
     }
 
-    let tourStep = 0;
-    const tourSteps = [
-      { elementId: 'tour-reg-form', title: '1. Register Inventory & Chemicals', desc: 'Enter product parameters and toggle category forms.' },
-      { elementId: 'tour-view-tabs', title: '2. Directory Category Switcher', desc: 'Filter between standard equipment and chemical supplies.' },
-      { elementId: 'tour-table', title: '3. Inventory Directory Table', desc: 'Manage stock levels, pricing, and PDF specifications.' },
-      { elementId: 'tour-sales-btn', title: '4. Sales History Menu', desc: 'Filter past sales by week/month/year and click message cards for details.' },
-      { elementId: 'tour-export-btn', title: '5. Export Data Center', desc: 'Download CSV spreadsheets for inventories or historical sales.' }
-    ];
-
-    function startTourGuide() { 
-      tourStep = 0; 
-      renderTourStep(); 
-    }
-
-    function renderTourStep() {
+    function showTourStep() {
+      // Remove highlight from previous steps
       document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
-      if (tourStep >= tourSteps.length) { 
-        endTour(); 
-        return; 
+
+      if (currentTourStep >= tourSteps.length) {
+        endTour();
+        return;
       }
-      const step = tourSteps[tourStep];
-      const targetEl = document.getElementById(step.elementId) || document.querySelector(step.elementId);
-      if (!targetEl) { 
-        tourStep++;
-        renderTourStep(); 
-        return; 
+
+      const step = tourSteps[currentTourStep];
+      const targetEl = document.getElementById(step.elementId);
+      
+      if (!targetEl) {
+        nextTourStep();
+        return;
       }
+
       targetEl.classList.add('tour-highlight');
-      const rect = targetEl.getBoundingClientRect();
-      const popover = document.getElementById('tour-popover');
-      document.getElementById('tour-title').innerText = step.title;
-      document.getElementById('tour-desc').innerText = step.desc;
-      document.getElementById('tour-progress').innerText = `Step ${tourStep + 1} of ${tourSteps.length}`;
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      document.getElementById('tour-title').textContent = step.title;
+      document.getElementById('tour-desc').textContent = step.desc;
+      document.getElementById('tour-progress').textContent = `Step ${currentTourStep + 1} of ${tourSteps.length}`;
       
       const nextBtn = document.getElementById('tour-next-btn');
-      if (tourStep === tourSteps.length - 1) {
-        nextBtn.innerText = 'Finish';
-      } else {
-        nextBtn.innerText = 'Next';
-      }
+      nextBtn.textContent = currentTourStep === tourSteps.length - 1 ? 'Finish' : 'Next';
 
-      popover.style.display = 'block';
-      popover.style.top = `${Math.max(10, rect.bottom + 10)}px`;
-      popover.style.left = `${Math.max(10, Math.min(window.innerWidth - 340, rect.left))}px`;
+      // Position popover near highlighted element
+      const popover = document.getElementById('tour-popover');
+      const rect = targetEl.getBoundingClientRect();
+      popover.style.top = `${Math.min(window.innerHeight - 250, Math.max(20, rect.top))}px`;
+      popover.style.left = `${Math.min(window.innerWidth - 350, rect.right + 20)}px`;
     }
 
-    function nextTourStep() { 
-      tourStep++; 
-      renderTourStep(); 
+    function nextTourStep() {
+      currentTourStep++;
+      showTourStep();
     }
 
     function endTour() {
       document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
       document.getElementById('tour-popover').style.display = 'none';
-      tourStep = 0;
+      currentTourStep = 0;
     }
   </script>
 </body>
