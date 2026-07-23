@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Labaid Trading PLC - Laboratory & Educational Supplies Portal</title>
+  <title>Labaid Trading PLC - Laboratory & Chemical Supplies Portal</title>
   
   <!-- Supabase Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -19,9 +19,7 @@
         --border:rgba(255,255,255,0.15);
     }
 
-    *{
-        box-sizing:border-box;
-    }
+    *{ box-sizing:border-box; }
 
     body {
         font-family: 'Times New Roman', Times, serif;
@@ -35,554 +33,136 @@
         overflow-x:hidden;
     }
 
-    body::before,
-    body::after {
-        content:"";
-        position:fixed;
-        width:350px;
-        height:350px;
-        border-radius:50%;
-        filter:blur(100px);
-        opacity:.5;
-        z-index:-1;
+    body::before, body::after {
+        content:""; position:fixed; width:350px; height:350px; border-radius:50%; filter:blur(100px); opacity:.5; z-index:-1;
     }
+    body::before { background:#06b6d4; top:10%; left:5%; }
+    body::after { background:#a855f7; bottom:10%; right:5%; }
 
-    body::before {
-        background:#06b6d4;
-        top:10%;
-        left:5%;
-    }
-
-    body::after {
-        background:#a855f7;
-        bottom:10%;
-        right:5%;
-    }
-
-    /* HEADER */
     header {
         padding:20px 8%;
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        background:rgba(255,255,255,.08);
-        backdrop-filter:blur(15px);
-        border-bottom:1px solid var(--border);
-        box-shadow:0 10px 30px rgba(0,0,0,.3);
-        position: relative;
-        z-index: 10;
+        display:flex; justify-content:space-between; align-items:center;
+        background:rgba(255,255,255,.08); backdrop-filter:blur(15px);
+        border-bottom:1px solid var(--border); box-shadow:0 10px 30px rgba(0,0,0,.3);
+        position: relative; z-index: 10;
     }
 
-    header h1 {
-        margin:0;
-        font-size:24px;
-        letter-spacing:-0.5px;
-    }
-
-    header h1 span {
-        margin-left:10px;
-        color:#22d3ee;
-        font-size:14px;
-        border:1px solid #22d3ee;
-        padding:5px 12px;
-        border-radius:20px;
-    }
+    header h1 { margin:0; font-size:24px; letter-spacing:-0.5px; }
+    header h1 span { margin-left:10px; color:#22d3ee; font-size:14px; border:1px solid #22d3ee; padding:5px 12px; border-radius:20px; }
 
     .top-menu-btn {
-        background: rgba(255,255,255,0.12);
-        border: 1px solid var(--border);
-        color: white;
-        padding: 10px 18px;
-        border-radius: 20px;
-        cursor: pointer;
-        font-family: 'Times New Roman', Times, serif;
-        font-size: 15px;
-        transition: 0.3s;
-        margin-left: 8px;
+        background: rgba(255,255,255,0.12); border: 1px solid var(--border); color: white;
+        padding: 10px 18px; border-radius: 20px; cursor: pointer;
+        font-family: 'Times New Roman', Times, serif; font-size: 15px; transition: 0.3s; margin-left: 8px;
     }
+    .top-menu-btn:hover { background: #06b6d4; color: #020617; }
 
-    .top-menu-btn:hover {
-        background: #06b6d4;
-        color: #020617;
-    }
+    .container { max-width:1500px; margin:40px auto; padding:0 25px; }
+    .grid { display:grid; grid-template-columns:380px 1fr; gap:30px; }
 
-    /* CONTAINER */
-    .container {
-        max-width:1450px;
-        margin:40px auto;
-        padding:0 25px;
-    }
+    @media(max-width:1000px){ .grid{ grid-template-columns:1fr; } }
 
-    .grid {
-        display:grid;
-        grid-template-columns:350px 1fr;
-        gap:35px;
-    }
-
-    @media(max-width:950px){
-      .grid{
-        grid-template-columns:1fr;
-      }
-    }
-
-    /* GLASS CARD */
     .card {
-        background:var(--card);
-        backdrop-filter:blur(20px);
-        border-radius:25px;
-        padding:30px;
-        border:1px solid var(--border);
-        box-shadow: 0 20px 50px rgba(0,0,0,.4);
-        transition:.4s;
+        background:var(--card); backdrop-filter:blur(20px); border-radius:25px; padding:30px;
+        border:1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,.4); transition:.4s;
     }
+    .card:hover { transform:translateY(-4px); box-shadow: 0 30px 70px rgba(0,0,0,.6); }
+    .card h2 { color:#67e8f9; margin-top:0; font-size:24px; }
 
-    .card:hover {
-        transform:translateY(-4px);
-        box-shadow: 0 30px 70px rgba(0,0,0,.6);
-    }
-
-    .card h2 {
-        color:#67e8f9;
-        margin-top:0;
-        font-size:24px;
-    }
-
-    /* INPUTS */
-    label {
-        color:#cbd5e1;
-        font-size:14px;
-        letter-spacing:0.5px;
-    }
-
+    label { color:#cbd5e1; font-size:13px; letter-spacing:0.5px; }
     input, select {
-        width:100%;
-        padding:12px;
-        margin:8px 0 16px;
-        border-radius:12px;
-        border:1px solid rgba(255,255,255,.2);
-        background:rgba(255,255,255,.1);
-        color:white;
-        outline:none;
-        font-family: 'Times New Roman', Times, serif;
-        font-size:15px;
+        width:100%; padding:10px 12px; margin:6px 0 14px; border-radius:12px;
+        border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.1);
+        color:white; outline:none; font-family: 'Times New Roman', Times, serif; font-size:14px;
     }
+    select option { color:black; }
+    input:focus, select:focus { border-color:#22d3ee; box-shadow:0 0 20px rgba(34,211,238,.5); }
 
-    select option {
-        color:black;
-    }
-
-    input:focus, select:focus {
-        border-color:#22d3ee;
-        box-shadow:0 0 20px rgba(34,211,238,.5);
-    }
-
-    /* BUTTONS */
     .btn-primary {
-        width:100%;
-        padding:15px;
-        border:none;
-        border-radius:30px;
-        color:white;
-        font-size:16px;
-        font-weight:bold;
-        cursor:pointer;
-        background: linear-gradient(90deg,#06b6d4,#a855f7);
-        transition:.3s;
+        width:100%; padding:14px; border:none; border-radius:30px; color:white;
+        font-size:15px; font-weight:bold; cursor:pointer;
+        background: linear-gradient(90deg,#06b6d4,#a855f7); transition:.3s;
         font-family: 'Times New Roman', Times, serif;
     }
-
-    .btn-primary:hover {
-        transform:scale(1.02);
-        box-shadow:0 0 25px #06b6d4;
-    }
+    .btn-primary:hover { transform:scale(1.02); box-shadow:0 0 25px #06b6d4; }
 
     .btn-secondary {
-        background: rgba(255,255,255,0.1);
-        border: 1px solid var(--border);
-        color: white;
-        padding: 12px 20px;
-        border-radius: 20px;
-        cursor: pointer;
-        font-family: 'Times New Roman', Times, serif;
+        background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: white;
+        padding: 10px 18px; border-radius: 20px; cursor: pointer; font-family: 'Times New Roman', Times, serif;
     }
 
-    .btn-secondary:hover {
-        background: rgba(255,255,255,0.25);
+    /* MAIN SECTION SWITCH TABS */
+    .view-switch-nav {
+        display: flex; gap: 10px; margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 18px; border: 1px solid var(--border);
     }
-
-    /* SEARCH */
-    .search-bar input {
-        background:rgba(255,255,255,.12);
+    .view-tab-btn {
+        flex: 1; padding: 12px; border: none; background: transparent; color: #94a3b8;
+        border-radius: 12px; cursor: pointer; font-family: 'Times New Roman', Times, serif; font-size: 15px; transition: 0.3s;
+    }
+    .view-tab-btn.active {
+        background: #06b6d4; color: #020617; font-weight: bold; box-shadow: 0 0 15px rgba(6,182,212,0.4);
     }
 
     /* TABLE */
-    table {
-        width:100%;
-        border-collapse:collapse;
-    }
+    table { width:100%; border-collapse:collapse; }
+    th { background:rgba(255,255,255,.1); padding:12px; color:#67e8f9; text-align:left; font-size:14px; }
+    td { padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.1); color:#e2e8f0; font-size:13px; }
+    tr:hover { background:rgba(255,255,255,.08); }
 
-    th {
-        background:rgba(255,255,255,.1);
-        padding:15px;
-        color:#67e8f9;
-        text-align:left;
-        font-size:15px;
-    }
-
-    td {
-        padding:12px 15px;
-        border-bottom:1px solid rgba(255,255,255,.1);
-        color:#e2e8f0;
-        font-size:14px;
-    }
-
-    tr {
-        transition:.3s;
-    }
-
-    tr:hover {
-        background:rgba(255,255,255,.08);
-    }
-
-    /* PDF CONTROLS */
-    .pdf-actions {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .btn-pdf {
-        color:#22d3ee;
-        text-decoration:none;
-        font-size:13px;
-        font-weight:600;
-        border:1px solid #22d3ee;
-        padding:4px 8px;
-        border-radius:12px;
-        transition:.3s;
-        display:inline-block;
-    }
-
-    .btn-pdf:hover {
-        background:#22d3ee;
-        color:#020617;
-    }
-
-    .btn-pdf-remove {
-        background: rgba(239, 68, 68, 0.2);
-        color: #ef4444;
-        border: 1px solid #ef4444;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-    }
-
-    .btn-pdf-add {
-        background: rgba(6, 182, 212, 0.2);
-        color: #06b6d4;
-        border: 1px solid #06b6d4;
-        padding: 3px 8px;
-        border-radius: 12px;
-        cursor: pointer;
-        font-size: 12px;
-    }
+    .pdf-actions { display: flex; align-items: center; gap: 4px; }
+    .btn-pdf { color:#22d3ee; text-decoration:none; font-size:12px; font-weight:600; border:1px solid #22d3ee; padding:3px 6px; border-radius:10px; }
+    .btn-pdf-remove { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; }
+    .btn-pdf-add { background: rgba(6, 182, 212, 0.2); color: #06b6d4; border: 1px solid #06b6d4; padding: 2px 6px; border-radius: 10px; cursor: pointer; font-size: 11px; }
 
     /* ACTION BUTTONS */
-    .btn-sell {
-        background:#10b981;
-        border:none;
-        padding:6px 12px;
-        border-radius:15px;
-        color:white;
-        cursor:pointer;
-        transition:.3s;
-        font-family: 'Times New Roman', Times, serif;
-        font-size:13px;
-        margin-right:4px;
-    }
-
-    .btn-sell:hover:not(:disabled) {
-        transform:scale(1.05);
-        box-shadow:0 0 12px #10b981;
-    }
-
-    .btn-sell:disabled {
-        background:#64748b;
-        cursor:not-allowed;
-        opacity:0.5;
-    }
-
-    .btn-add-stock {
-        background:#3b82f6;
-        border:none;
-        padding:6px 12px;
-        border-radius:15px;
-        color:white;
-        cursor:pointer;
-        transition:.3s;
-        font-family: 'Times New Roman', Times, serif;
-        font-size:13px;
-    }
-
-    .btn-add-stock:hover {
-        transform:scale(1.05);
-        box-shadow:0 0 12px #3b82f6;
-    }
-
-    .badge-out-of-stock {
-        background: rgba(239, 68, 68, 0.2);
-        color: #ef4444;
-        border: 1px solid #ef4444;
-        padding: 2px 6px;
-        border-radius: 10px;
-        font-size: 12px;
-    }
+    .btn-sell { background:#10b981; border:none; padding:5px 10px; border-radius:12px; color:white; cursor:pointer; font-family: 'Times New Roman', Times, serif; font-size:12px; margin-right:2px; }
+    .btn-edit { background:#f59e0b; border:none; padding:5px 10px; border-radius:12px; color:white; cursor:pointer; font-family: 'Times New Roman', Times, serif; font-size:12px; margin-right:2px; }
+    .btn-add-stock { background:#3b82f6; border:none; padding:5px 10px; border-radius:12px; color:white; cursor:pointer; font-family: 'Times New Roman', Times, serif; font-size:12px; }
+    .badge-out-of-stock { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; padding: 2px 6px; border-radius: 10px; font-size: 11px; }
 
     /* MODAL SYSTEM */
-    .modal-overlay {
-        position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0,0,0,0.8);
-        backdrop-filter: blur(8px);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.3s ease;
-    }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal { background: #0f172a; border: 1px solid var(--border); border-radius: 20px; width: 90%; max-width: 580px; max-height: 90vh; overflow-y: auto; padding: 25px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); position: relative; }
+    .modal h3 { margin-top: 0; color: #67e8f9; font-size: 20px; }
+    .close-modal { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; }
 
-    .modal-overlay.active {
-        opacity: 1;
-        pointer-events: auto;
-    }
+    /* DRAWER */
+    .drawer { position: fixed; top: 0; right: -500px; width: 480px; max-width: 100vw; height: 100vh; background: #090d16; border-left: 1px solid var(--border); box-shadow: -10px 0 30px rgba(0,0,0,0.5); z-index: 900; transition: right 0.3s ease; padding: 25px 20px; overflow-y: auto; }
+    .drawer.open { right: 0; }
+    .menu-main-nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+    .menu-tab-btn { flex: 1; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: white; border-radius: 12px; cursor: pointer; font-family: 'Times New Roman', Times, serif; font-size: 14px; }
+    .menu-tab-btn.active { background: linear-gradient(90deg,#06b6d4,#a855f7); border-color: transparent; font-weight: bold; }
+    .history-card-item { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; cursor: pointer; }
 
-    .modal {
-        background: #0f172a;
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        width: 90%;
-        max-width: 550px;
-        padding: 30px;
-        box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-        position: relative;
-    }
-
-    .modal h3 {
-        margin-top: 0;
-        color: #67e8f9;
-        font-size: 22px;
-    }
-
-    .close-modal {
-        position: absolute;
-        top: 15px;
-        right: 20px;
-        background: none;
-        border: none;
-        color: #94a3b8;
-        font-size: 24px;
-        cursor: pointer;
-    }
-
-    .close-modal:hover { color: white; }
-
-    /* DRAWER / PAST TRANSACTIONS PANEL */
-    .drawer {
-        position: fixed;
-        top: 0; right: -500px;
-        width: 480px;
-        max-width: 100vw;
-        height: 100vh;
-        background: #090d16;
-        border-left: 1px solid var(--border);
-        box-shadow: -10px 0 30px rgba(0,0,0,0.5);
-        z-index: 900;
-        transition: right 0.3s ease;
-        padding: 25px 20px;
-        overflow-y: auto;
-    }
-
-    .drawer.open {
-        right: 0;
-    }
-
-    .menu-main-nav {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
-        border-bottom: 1px solid var(--border);
-        padding-bottom: 15px;
-    }
-
-    .menu-tab-btn {
-        flex: 1;
-        padding: 10px;
-        background: rgba(255,255,255,0.05);
-        border: 1px solid var(--border);
-        color: white;
-        border-radius: 12px;
-        cursor: pointer;
-        font-family: 'Times New Roman', Times, serif;
-        font-size: 14px;
-        transition: 0.3s;
-    }
-
-    .menu-tab-btn.active {
-        background: linear-gradient(90deg,#06b6d4,#a855f7);
-        border-color: transparent;
-        font-weight: bold;
-    }
-
-    .filter-btn-group {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 20px;
-    }
-
-    .filter-btn {
-        flex: 1;
-        background: rgba(255,255,255,0.08);
-        border: 1px solid var(--border);
-        color: white;
-        padding: 8px;
-        border-radius: 12px;
-        cursor: pointer;
-        font-size: 13px;
-        font-family: 'Times New Roman', Times, serif;
-    }
-
-    .filter-btn.active {
-        background: #06b6d4;
-        color: #020617;
-        font-weight: bold;
-    }
-
-    .history-card-item {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 12px;
-        padding: 12px 15px;
-        margin-bottom: 10px;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    .history-card-item:hover {
-        background: rgba(255,255,255,0.12);
-        border-color: #06b6d4;
-    }
-
-    /* STEP-BY-STEP INTERACTIVE TOUR SYSTEM */
-    .tour-spotlight-highlight {
-        position: relative !important;
-        z-index: 2001 !important;
-        box-shadow: 0 0 0 9999px rgba(2, 6, 23, 0.85), 0 0 25px #06b6d4 !important;
-        border-radius: 16px;
-        transition: all 0.3s ease-in-out;
-    }
-
-    .tour-tooltip {
-        position: fixed;
-        z-index: 2002;
-        background: #0f172a;
-        border: 2px solid #06b6d4;
-        border-radius: 18px;
-        padding: 22px;
-        width: 320px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-        display: none;
-        transition: all 0.2s ease-in-out;
-    }
-
-    .tour-tooltip h4 {
-        margin: 0 0 8px 0;
-        color: #67e8f9;
-        font-size: 18px;
-    }
-
-    .tour-tooltip p {
-        margin: 0 0 18px 0;
-        font-size: 14px;
-        color: #cbd5e1;
-        line-height: 1.4;
-    }
-
-    .tour-nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .tour-btn {
-        background: #06b6d4;
-        color: #020617;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-weight: bold;
-        cursor: pointer;
-        font-family: 'Times New Roman', Times, serif;
-    }
-
-    .tour-btn-skip {
-        background: transparent;
-        color: #94a3b8;
-        border: none;
-        cursor: pointer;
-        font-size: 13px;
-        font-family: 'Times New Roman', Times, serif;
-    }
-
-    .tour-btn-skip:hover { color: white; }
-
-    .price-box {
-        background: rgba(6, 182, 212, 0.1);
-        border: 1px solid #06b6d4;
-        border-radius: 12px;
-        padding: 10px 15px;
-        margin: 10px 0;
-    }
+    .price-box { background: rgba(6, 182, 212, 0.1); border: 1px solid #06b6d4; border-radius: 12px; padding: 10px 15px; margin: 10px 0; }
   </style>
 </head>
 <body>
 
-  <!-- WELCOME / SKIT SELECTION MODAL -->
-  <div class="modal-overlay" id="welcome-modal">
-    <div class="modal" style="text-align: center; max-width: 500px;">
-      <h2 style="color: #67e8f9; margin-top: 0;">Welcome to Labaid Trading PLC</h2>
-      <h4 style="color: #cbd5e1; font-weight: normal; margin-bottom: 20px;">Inventory & Supply Portal</h4>
-      <p style="color: #94a3b8; font-size: 15px; line-height: 1.5; margin-bottom: 25px;">
-        Would you like to take a guided interactive tour of the platform features, or dive straight into your stock management system?
-      </p>
-      <div style="display: flex; gap: 12px; justify-content: center;">
-        <button class="btn-primary" onclick="startTourFromModal()">🚀 Take Guided Tour</button>
-        <button class="btn-secondary" onclick="skipTourFromModal()">Skip to Inventory</button>
-      </div>
-    </div>
-  </div>
-
   <header>
     <h1>Labaid Trading PLC <span>Inventory Portal</span></h1>
     <div>
-      <button class="top-menu-btn" onclick="openWelcomeModal()">❓ Help Tour</button>
-      <button class="top-menu-btn" id="tour-step-menu" onclick="toggleDrawer()">📋 Menu & Past Transactions</button>
+      <button class="top-menu-btn" onclick="toggleDrawer()">📋 Menu & Past Sales</button>
     </div>
   </header>
 
   <div class="container">
+    
+    <!-- MAIN INVENTORY SECTION NAV SWITCH -->
+    <div class="view-switch-nav">
+      <button class="view-tab-btn active" id="tab-equipment" onclick="switchInventoryView('equipment')">🔬 General Equipment & Supplies</button>
+      <button class="view-tab-btn" id="tab-chemicals" onclick="switchInventoryView('chemicals')">🧪 Chemicals & Reagents</button>
+    </div>
+
     <div class="grid">
       
       <!-- ADD ITEM FORM -->
-      <div class="card" id="tour-step-add">
-        <h2>Add Inventory Item</h2>
+      <div class="card">
+        <h2 id="form-section-title">Add Equipment / Supply</h2>
         <form id="add-form">
+          <input type="hidden" id="form_is_chemical" value="false">
+
           <label>Category</label>
           <select id="category">
             <option value="Laboratory Equipment">Laboratory Equipment</option>
@@ -592,25 +172,37 @@
             <option value="Industrial Equipment">Industrial Equipment</option>
           </select>
 
-          <label>Item Description / Name</label>
+          <label id="lbl_item_name">Item Description / Name</label>
           <input type="text" id="item_name" placeholder="e.g. Water Distiller 5L/hr" required>
 
-          <label>Brand / Manufacturer</label>
-          <input type="text" id="brand" placeholder="e.g. Pyrex (or leave empty)">
+          <label id="lbl_brand">Brand / Manufacturer</label>
+          <input type="text" id="brand" placeholder="e.g. Pyrex / Sigma Aldrich">
 
-          <label>Model / Specifications</label>
-          <input type="text" id="model" placeholder="e.g. YZD-5 (or leave empty)">
+          <label id="lbl_model">Model / Specifications</label>
+          <input type="text" id="model" placeholder="e.g. YZD-5">
+
+          <!-- CHEMICAL SPECIFIC FIELDS -->
+          <div id="chemical-fields" style="display: none;">
+            <label>Purity Grade (Chemicals)</label>
+            <input type="text" id="purity" placeholder="e.g. AR Grade (≥99.5%), HPLC Grade">
+
+            <label>CAS Number</label>
+            <input type="text" id="cas_number" placeholder="e.g. 7647-01-0">
+
+            <label>Storage Conditions & Hazard Warning</label>
+            <input type="text" id="storage_conditions" placeholder="e.g. Store 2-8°C, Corrosive Liquid">
+          </div>
 
           <label>Unit of Measure</label>
-          <input type="text" id="unit_of_measure" placeholder="e.g. Pcs, Box, Pack">
+          <input type="text" id="unit_of_measure" placeholder="e.g. Pcs, 2.5L Bottle, 500g Pack">
 
-          <label>Quantity</label>
+          <label>Quantity in Stock</label>
           <input type="number" id="quantity" placeholder="0" required min="0">
 
           <label>Unit Price (ETB)</label>
           <input type="number" id="price" step="0.01" placeholder="e.g. 15000.00">
 
-          <label>Technical Sheet / Specification (PDF)</label>
+          <label id="lbl_pdf">Technical / Safety Sheet (PDF/MSDS)</label>
           <input type="file" id="pdf_file" accept="application/pdf">
 
           <button type="submit" id="submit-btn" class="btn-primary">Save to Inventory</button>
@@ -619,141 +211,158 @@
 
       <!-- INVENTORY DISPLAY TABLE -->
       <div class="card">
-        <h2>Current Stock Directory</h2>
+        <h2 id="table-section-title">General Equipment Directory</h2>
         
-        <div class="search-bar">
-          <input type="text" id="search" placeholder="🔍 Search items, models, or brands..." onkeyup="filterItems()">
+        <div style="margin-bottom: 15px;">
+          <input type="text" id="search" placeholder="🔍 Search items, models, purity, or brands..." onkeyup="filterItems()">
         </div>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Item Name</th>
-              <th>Category</th>
-              <th>Brand</th>
-              <th>Model</th>
-              <th>Unit</th>
-              <th>Qty</th>
-              <th>Unit Price</th>
-              <th id="tour-step-pdf">Spec Sheet</th>
-              <th id="tour-step-actions">Action</th>
-            </tr>
-          </thead>
-          <tbody id="inventory-rows">
-            <tr><td colspan="9">Loading records...</td></tr>
-          </tbody>
-        </table>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead id="table-head">
+              <!-- Dynamically generated based on mode -->
+            </thead>
+            <tbody id="inventory-rows">
+              <tr><td colspan="9">Loading records...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
     </div>
   </div>
 
-  <!-- OUTGOING TRANSACTION / RECORD TRANSACTION MODAL -->
+  <!-- EDIT ITEM MODAL -->
+  <div class="modal-overlay" id="edit-modal">
+    <div class="modal">
+      <button class="close-modal" onclick="closeEditModal()">&times;</button>
+      <h3>✏️ Edit Inventory Record</h3>
+      <form id="edit-form">
+        <input type="hidden" id="edit-item-id">
+
+        <label>Item Description / Name</label>
+        <input type="text" id="edit-item-name" required>
+
+        <label>Category</label>
+        <select id="edit-category">
+          <option value="Laboratory Equipment">Laboratory Equipment</option>
+          <option value="Chemicals & Reagents">Chemicals & Reagents</option>
+          <option value="Educational & Lab Supplies">Educational & Lab Supplies</option>
+          <option value="Electrical Supplies">Electrical Supplies</option>
+          <option value="Agricultural Equipment">Agricultural Equipment</option>
+          <option value="Industrial Equipment">Industrial Equipment</option>
+        </select>
+
+        <label>Brand / Manufacturer</label>
+        <input type="text" id="edit-brand">
+
+        <label>Model / Specifications</label>
+        <input type="text" id="edit-model">
+
+        <label>Purity Grade</label>
+        <input type="text" id="edit-purity">
+
+        <label>CAS Number</label>
+        <input type="text" id="edit-cas-number">
+
+        <label>Storage Conditions</label>
+        <input type="text" id="edit-storage-conditions">
+
+        <label>Unit of Measure</label>
+        <input type="text" id="edit-unit-of-measure">
+
+        <label>Quantity in Stock</label>
+        <input type="number" id="edit-quantity" min="0" required>
+
+        <label>Unit Price (ETB)</label>
+        <input type="number" id="edit-price" step="0.01">
+
+        <button type="submit" class="btn-primary" style="margin-top: 10px;">Save Changes</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- RECORD SALE MODAL -->
   <div class="modal-overlay" id="sell-modal">
     <div class="modal">
       <button class="close-modal" onclick="closeSellModal()">&times;</button>
-      <h3 id="modal-item-title">Record Outgoing Transaction</h3>
+      <h3 id="modal-item-title">Record Sale</h3>
       <form id="sell-form">
         <input type="hidden" id="modal-item-id">
         <input type="hidden" id="modal-item-max-qty">
-        <input type="hidden" id="modal-item-price-val">
 
-        <label>Transaction Type</label>
+        <label>Sale Type</label>
         <select id="modal-sale-type" required>
           <option value="Direct Sale">Direct Sale (Standard)</option>
           <option value="Credit / Tender">Credit Issue</option>
           <option value="Sample / Demo">Sample / Demo</option>
         </select>
 
-        <label>Organization / Recipient Client Name</label>
+        <label>Organization / Client Name</label>
         <input type="text" id="modal-org" placeholder="e.g. Ministry of Innovation / Client Name" required>
 
-        <label>Date of Transaction</label>
+        <label>Date of Sale</label>
         <input type="date" id="modal-date" required>
 
-        <label>Quantity Outgoing</label>
+        <label>Quantity Sold</label>
         <input type="number" id="modal-qty" min="1" required placeholder="1" oninput="calculateTransactionTotal()">
 
-        <!-- Selling Price & Total Display -->
+        <label>Unit Selling Price (ETB)</label>
+        <input type="number" id="modal-unit-price" step="0.01" required placeholder="0.00" oninput="calculateTransactionTotal()">
+
         <div class="price-box">
-          <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-            <span style="color:#cbd5e1; font-size:13px;">Unit Selling Price:</span>
-            <strong id="modal-unit-price-disp" style="color:#67e8f9;">0.00 ETB</strong>
-          </div>
-          <div style="display:flex; justify-content:space-between;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
             <span style="color:#cbd5e1; font-size:14px; font-weight:bold;">Total Sale Value:</span>
             <strong id="modal-total-price-disp" style="color:#10b981; font-size:16px;">0.00 ETB</strong>
           </div>
         </div>
 
-        <button type="submit" class="btn-primary" style="margin-top: 10px;">Confirm & Save Transaction</button>
+        <button type="submit" class="btn-primary" style="margin-top: 10px;">Confirm & Save Sale</button>
       </form>
     </div>
   </div>
 
-  <!-- TRANSACTION DETAIL INSPECTOR MODAL (EMAIL STYLE) -->
+  <!-- DETAIL INSPECTOR MODAL -->
   <div class="modal-overlay" id="detail-modal">
     <div class="modal">
       <button class="close-modal" onclick="closeDetailModal()">&times;</button>
       <h3 style="color:#67e8f9; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px;">
-        📄 Transaction Receipt Record
+        📄 Sale Record Receipt
       </h3>
-      <div id="detail-modal-body" style="line-height: 1.8; font-size: 15px; color:#cbd5e1;">
-        <!-- Filled dynamically -->
-      </div>
+      <div id="detail-modal-body" style="line-height: 1.8; font-size: 15px; color:#cbd5e1;"></div>
       <div style="margin-top: 20px; text-align: right;">
-        <button class="btn-secondary" onclick="closeDetailModal()">Close Detail</button>
+        <button class="btn-secondary" onclick="closeDetailModal()">Close</button>
       </div>
     </div>
   </div>
 
-  <!-- RIGHT DRAWER: MENU & PAST TRANSACTIONS -->
+  <!-- RIGHT DRAWER: PAST SALES -->
   <div class="drawer" id="transactions-drawer">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
       <h3 style="margin:0; color:#67e8f9;">Portal Drawer</h3>
       <button onclick="toggleDrawer()" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">&times;</button>
     </div>
 
-    <!-- MAIN TWO NAVIGATION BUTTONS -->
     <div class="menu-main-nav">
-      <button class="menu-tab-btn active" id="tab-btn-history" onclick="switchDrawerTab('history')">📋 Past Transactions</button>
+      <button class="menu-tab-btn active" id="tab-btn-history" onclick="switchDrawerTab('history')">📋 Past Sales</button>
       <button class="menu-tab-btn" id="tab-btn-summary" onclick="switchDrawerTab('summary')">📊 Summary Analytics</button>
     </div>
 
-    <!-- TAB 1: HISTORY VIEW -->
     <div id="drawer-tab-history">
-      <div class="filter-btn-group">
-        <button class="filter-btn active" id="btn-filter-week" onclick="setSalesFilter('week')">This Week</button>
-        <button class="filter-btn" id="btn-filter-month" onclick="setSalesFilter('month')">This Month</button>
-        <button class="filter-btn" id="btn-filter-year" onclick="setSalesFilter('year')">This Year</button>
-      </div>
-
       <div id="sales-history-cards">
         <p style="color:#cbd5e1;">Loading history...</p>
       </div>
     </div>
 
-    <!-- TAB 2: SUMMARY ANALYTICS VIEW -->
     <div id="drawer-tab-summary" style="display: none;">
       <div class="card" style="padding: 20px; margin-bottom: 15px; background: rgba(255,255,255,0.04);">
-        <h4 style="margin-top:0; color:#67e8f9;">Total Outgoing Sales</h4>
+        <h4 style="margin-top:0; color:#67e8f9;">Total Revenue</h4>
         <h2 id="summary-total-sales" style="margin: 5px 0; color:#10b981;">0.00 ETB</h2>
-        <p style="font-size:12px; color:#94a3b8; margin:0;">Calculated from logged transactions</p>
       </div>
       <div class="card" style="padding: 20px; background: rgba(255,255,255,0.04);">
-        <h4 style="margin-top:0; color:#a855f7;">Logged Units Dispatched</h4>
+        <h4 style="margin-top:0; color:#a855f7;">Units Sold</h4>
         <h2 id="summary-total-qty" style="margin: 5px 0; color:#a855f7;">0 Units</h2>
       </div>
-    </div>
-  </div>
-
-  <!-- TOUR TOOLTIP POPUP -->
-  <div class="tour-tooltip" id="tour-tooltip">
-    <h4 id="tour-title">Welcome</h4>
-    <p id="tour-desc">Tour description...</p>
-    <div class="tour-nav">
-      <button class="tour-btn-skip" onclick="endTour()">Skip Tour</button>
-      <button class="tour-btn" id="tour-next-btn" onclick="nextTourStep()">Next &rarr;</button>
     </div>
   </div>
 
@@ -761,7 +370,6 @@
   <input type="file" id="inline-pdf-input" accept="application/pdf" style="display:none;">
 
   <script>
-    // 1. SUPABASE CONFIGURATION
     const SUPABASE_URL = "https://cbmvbbfbgauqusibdnup.supabase.co";
     const SUPABASE_KEY = "sb_publishable_gq0-KFzH8Ru9-etDSZ_Cwg_pQrHCYcY";
 
@@ -769,94 +377,275 @@
     let allItems = [];
     let allSales = [];
     let activePdfItemId = null;
-    let currentFilter = 'week';
+    let currentViewMode = 'equipment'; // 'equipment' or 'chemicals'
 
-    // Helper functions
-    function cleanValue(val) {
-      return (val && val.toString().trim() !== "") ? val : "None";
-    }
-
+    function cleanValue(val) { return (val && val.toString().trim() !== "") ? val : "None"; }
     function formatPrice(val) {
       if (val === null || val === undefined || val === "" || isNaN(val)) return "N/A";
       return parseFloat(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ETB";
     }
 
-    // Modal Control for Welcome Skit
-    function openWelcomeModal() {
-      document.getElementById('welcome-modal').classList.add('active');
-    }
-
-    function closeWelcomeModal() {
-      document.getElementById('welcome-modal').classList.remove('active');
-    }
-
-    function startTourFromModal() {
-      closeWelcomeModal();
-      currentTourStep = 0;
-      showTourStep(currentTourStep);
-    }
-
-    function skipTourFromModal() {
-      closeWelcomeModal();
-      localStorage.setItem('labaid_welcome_seen', 'true');
-    }
-
-    // Auto trigger on initial load if not seen
     window.addEventListener('DOMContentLoaded', () => {
       loadInventory();
-      if (!localStorage.getItem('labaid_welcome_seen')) {
-        openWelcomeModal();
-      }
     });
 
-    // 2. FETCH ITEMS FROM SUPABASE
-    async function loadInventory() {
-      const { data, error } = await db.from('items').select('*').order('id', { ascending: false });
-      
-      if (error) {
-        document.getElementById('inventory-rows').innerHTML = `<tr><td colspan="9">Error loading data. Verify table setup.</td></tr>`;
-        console.error(error);
-        return;
+    // SWITCH BETWEEN GENERAL EQUIPMENT AND CHEMICALS
+    function switchInventoryView(mode) {
+      currentViewMode = mode;
+      document.getElementById('tab-equipment').classList.remove('active');
+      document.getElementById('tab-chemicals').classList.remove('active');
+
+      const chemFields = document.getElementById('chemical-fields');
+      const catSelect = document.getElementById('category');
+
+      if (mode === 'equipment') {
+        document.getElementById('tab-equipment').classList.add('active');
+        document.getElementById('form-section-title').innerText = "Add Equipment / Supply";
+        document.getElementById('table-section-title').innerText = "General Equipment Directory";
+        document.getElementById('form_is_chemical').value = "false";
+        chemFields.style.display = 'none';
+
+        catSelect.innerHTML = `
+          <option value="Laboratory Equipment">Laboratory Equipment</option>
+          <option value="Educational & Lab Supplies">Educational & Lab Supplies</option>
+          <option value="Electrical Supplies">Electrical Supplies</option>
+          <option value="Agricultural Equipment">Agricultural Equipment</option>
+          <option value="Industrial Equipment">Industrial Equipment</option>
+        `;
+      } else {
+        document.getElementById('tab-chemicals').classList.add('active');
+        document.getElementById('form-section-title').innerText = "Add Chemical / Reagent";
+        document.getElementById('table-section-title').innerText = "Chemicals & Reagents Directory";
+        document.getElementById('form_is_chemical').value = "true";
+        chemFields.style.display = 'block';
+
+        catSelect.innerHTML = `<option value="Chemicals & Reagents">Chemicals & Reagents</option>`;
       }
 
+      renderTable(allItems);
+    }
+
+    // FETCH ITEMS
+    async function loadInventory() {
+      const { data, error } = await db.from('items').select('*').order('id', { ascending: false });
+      if (error) {
+        document.getElementById('inventory-rows').innerHTML = `<tr><td colspan="9">Error loading data.</td></tr>`;
+        return;
+      }
       allItems = data;
       renderTable(allItems);
     }
 
-    // 3. RENDER INVENTORY TABLE
+    // RENDER TABLE ACCORDING TO VIEW MODE
     function renderTable(items) {
+      const thead = document.getElementById('table-head');
       const tbody = document.getElementById('inventory-rows');
-      if (items.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No inventory records found.</td></tr>`;
-        return;
-      }
 
-      tbody.innerHTML = items.map(item => `
-        <tr>
-          <td><strong>${item.item_name}</strong></td>
-          <td><span style="font-size:13px; color:#94a3b8;">${cleanValue(item.category)}</span></td>
-          <td>${cleanValue(item.brand)}</td>
-          <td>${cleanValue(item.model)}</td>
-          <td>${cleanValue(item.unit_of_measure)}</td>
-          <td>${item.quantity > 0 ? item.quantity : '<span class="badge-out-of-stock">Out of Stock</span>'}</td>
-          <td><strong style="color:#67e8f9;">${formatPrice(item.price)}</strong></td>
-          <td>
-            <div class="pdf-actions">
-              ${item.pdf_url 
-                ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">📄 View</a>
-                   <button class="btn-pdf-remove" onclick="removePdf(${item.id})" title="Remove PDF">&times;</button>` 
-                : `<button class="btn-pdf-add" onclick="triggerInlinePdfUpload(${item.id})">+ Attach PDF</button>`}
-            </div>
-          </td>
-          <td style="white-space: nowrap;">
-            <button class="btn-sell" ${item.quantity <= 0 ? 'disabled' : ''} onclick="openSellModal(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}', ${item.price || 0})">Record Issue</button>
-            <button class="btn-add-stock" onclick="addStock(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}')">+ Stock</button>
-          </td>
-        </tr>
-      `).join('');
+      const filtered = items.filter(item => {
+        const isChemCategory = item.category === "Chemicals & Reagents";
+        return currentViewMode === 'chemicals' ? isChemCategory : !isChemCategory;
+      });
+
+      if (currentViewMode === 'chemicals') {
+        thead.innerHTML = `
+          <tr>
+            <th>Chemical / Reagent Name</th>
+            <th>Brand</th>
+            <th>Purity</th>
+            <th>CAS No.</th>
+            <th>Unit</th>
+            <th>Qty</th>
+            <th>Unit Price</th>
+            <th>MSDS</th>
+            <th>Actions</th>
+          </tr>
+        `;
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No chemical/reagent records found.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = filtered.map(item => `
+          <tr>
+            <td><strong>${item.item_name}</strong></td>
+            <td>${cleanValue(item.brand)}</td>
+            <td><span style="color:#a855f7; font-weight:bold;">${cleanValue(item.purity)}</span></td>
+            <td>${cleanValue(item.cas_number)}</td>
+            <td>${cleanValue(item.unit_of_measure)}</td>
+            <td>${item.quantity > 0 ? item.quantity : '<span class="badge-out-of-stock">Out of Stock</span>'}</td>
+            <td><strong style="color:#67e8f9;">${formatPrice(item.price)}</strong></td>
+            <td>
+              <div class="pdf-actions">
+                ${item.pdf_url 
+                  ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">📄 MSDS</a>
+                     <button class="btn-pdf-remove" onclick="removePdf(${item.id})">&times;</button>` 
+                  : `<button class="btn-pdf-add" onclick="triggerInlinePdfUpload(${item.id})">+ MSDS</button>`}
+              </div>
+            </td>
+            <td style="white-space: nowrap;">
+              <button class="btn-sell" ${item.quantity <= 0 ? 'disabled' : ''} onclick="openSellModal(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}', ${item.price || 0})">Sold</button>
+              <button class="btn-edit" onclick="openEditModal(${item.id})">Edit</button>
+              <button class="btn-add-stock" onclick="addStock(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}')">+ Stock</button>
+            </td>
+          </tr>
+        `).join('');
+
+      } else {
+        thead.innerHTML = `
+          <tr>
+            <th>Item Name</th>
+            <th>Category</th>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Unit</th>
+            <th>Qty</th>
+            <th>Unit Price</th>
+            <th>Spec Sheet</th>
+            <th>Actions</th>
+          </tr>
+        `;
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No general equipment records found.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = filtered.map(item => `
+          <tr>
+            <td><strong>${item.item_name}</strong></td>
+            <td><span style="font-size:12px; color:#94a3b8;">${cleanValue(item.category)}</span></td>
+            <td>${cleanValue(item.brand)}</td>
+            <td>${cleanValue(item.model)}</td>
+            <td>${cleanValue(item.unit_of_measure)}</td>
+            <td>${item.quantity > 0 ? item.quantity : '<span class="badge-out-of-stock">Out of Stock</span>'}</td>
+            <td><strong style="color:#67e8f9;">${formatPrice(item.price)}</strong></td>
+            <td>
+              <div class="pdf-actions">
+                ${item.pdf_url 
+                  ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">📄 Spec</a>
+                     <button class="btn-pdf-remove" onclick="removePdf(${item.id})">&times;</button>` 
+                  : `<button class="btn-pdf-add" onclick="triggerInlinePdfUpload(${item.id})">+ PDF</button>`}
+              </div>
+            </td>
+            <td style="white-space: nowrap;">
+              <button class="btn-sell" ${item.quantity <= 0 ? 'disabled' : ''} onclick="openSellModal(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}', ${item.price || 0})">Sold</button>
+              <button class="btn-edit" onclick="openEditModal(${item.id})">Edit</button>
+              <button class="btn-add-stock" onclick="addStock(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}')">+ Stock</button>
+            </td>
+          </tr>
+        `).join('');
+      }
     }
 
-    // 4. PDF ATTACHMENT
+    // EDIT ITEM MODAL LOGIC
+    function openEditModal(itemId) {
+      const item = allItems.find(i => i.id === itemId);
+      if (!item) return;
+
+      document.getElementById('edit-item-id').value = item.id;
+      document.getElementById('edit-item-name').value = item.item_name || '';
+      document.getElementById('edit-category').value = item.category || 'Laboratory Equipment';
+      document.getElementById('edit-brand').value = item.brand === 'None' ? '' : (item.brand || '');
+      document.getElementById('edit-model').value = item.model === 'None' ? '' : (item.model || '');
+      document.getElementById('edit-purity').value = item.purity === 'None' ? '' : (item.purity || '');
+      document.getElementById('edit-cas-number').value = item.cas_number === 'None' ? '' : (item.cas_number || '');
+      document.getElementById('edit-storage-conditions').value = item.storage_conditions === 'None' ? '' : (item.storage_conditions || '');
+      document.getElementById('edit-unit-of-measure').value = item.unit_of_measure === 'None' ? '' : (item.unit_of_measure || '');
+      document.getElementById('edit-quantity').value = item.quantity || 0;
+      document.getElementById('edit-price').value = item.price || '';
+
+      document.getElementById('edit-modal').classList.add('active');
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal').classList.remove('active');
+    }
+
+    document.getElementById('edit-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const id = parseInt(document.getElementById('edit-item-id').value);
+      const updatedItem = {
+        item_name: document.getElementById('edit-item-name').value,
+        category: document.getElementById('edit-category').value,
+        brand: cleanValue(document.getElementById('edit-brand').value),
+        model: cleanValue(document.getElementById('edit-model').value),
+        purity: cleanValue(document.getElementById('edit-purity').value),
+        cas_number: cleanValue(document.getElementById('edit-cas-number').value),
+        storage_conditions: cleanValue(document.getElementById('edit-storage-conditions').value),
+        unit_of_measure: cleanValue(document.getElementById('edit-unit-of-measure').value),
+        quantity: parseInt(document.getElementById('edit-quantity').value) || 0,
+        price: document.getElementById('edit-price').value !== "" ? parseFloat(document.getElementById('edit-price').value) : null
+      };
+
+      const { error } = await db.from('items').update(updatedItem).eq('id', id);
+
+      if (error) {
+        alert("Error updating item: " + error.message);
+      } else {
+        closeEditModal();
+        loadInventory();
+      }
+    });
+
+    // ADD ITEM FORM SUBMISSION
+    document.getElementById('add-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Saving Item...";
+
+      const pdfInput = document.getElementById('pdf_file');
+      let pdf_url = null;
+
+      if (pdfInput.files.length > 0) {
+        const file = pdfInput.files[0];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `specs/${fileName}`;
+
+        const { data: uploadData, error: uploadError } = await db.storage.from('item-docs').upload(filePath, file);
+
+        if (uploadError) {
+          alert("PDF Upload failed: " + uploadError.message);
+          submitBtn.disabled = false;
+          submitBtn.innerText = "Save to Inventory";
+          return;
+        }
+
+        const { data: publicUrlData } = db.storage.from('item-docs').getPublicUrl(filePath);
+        pdf_url = publicUrlData.publicUrl;
+      }
+
+      const newItem = {
+        category: document.getElementById('category').value,
+        item_name: document.getElementById('item_name').value,
+        brand: cleanValue(document.getElementById('brand').value),
+        model: cleanValue(document.getElementById('model').value),
+        purity: cleanValue(document.getElementById('purity').value),
+        cas_number: cleanValue(document.getElementById('cas_number').value),
+        storage_conditions: cleanValue(document.getElementById('storage_conditions').value),
+        unit_of_measure: cleanValue(document.getElementById('unit_of_measure').value),
+        quantity: parseInt(document.getElementById('quantity').value) || 0,
+        price: document.getElementById('price').value !== "" ? parseFloat(document.getElementById('price').value) : null,
+        pdf_url: pdf_url
+      };
+
+      const { error } = await db.from('items').insert([newItem]);
+
+      if (error) alert("Could not save item: " + error.message);
+      else {
+        document.getElementById('add-form').reset();
+        loadInventory();
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Save to Inventory";
+    });
+
+    // PDF ATTACH & REMOVE
     function triggerInlinePdfUpload(itemId) {
       activePdfItemId = itemId;
       document.getElementById('inline-pdf-input').click();
@@ -864,62 +653,39 @@
 
     document.getElementById('inline-pdf-input').addEventListener('change', async (e) => {
       if (!e.target.files.length || !activePdfItemId) return;
-      
       const file = e.target.files[0];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const filePath = `specs/${fileName}`;
-
-      const { data: uploadData, error: uploadError } = await db.storage
-        .from('item-docs')
-        .upload(filePath, file);
-
-      if (uploadError) {
-        alert("PDF Upload failed: " + uploadError.message);
-        return;
-      }
-
-      const { data: publicUrlData } = db.storage
-        .from('item-docs')
-        .getPublicUrl(filePath);
-
-      const pdf_url = publicUrlData.publicUrl;
-
-      const { error } = await db.from('items').update({ pdf_url }).eq('id', activePdfItemId);
-      if (error) alert("Could not attach PDF: " + error.message);
-      else loadInventory();
-      
+      const filePath = `specs/${Date.now()}_${file.name}`;
+      const { error: uploadError } = await db.storage.from('item-docs').upload(filePath, file);
+      if (uploadError) { alert("PDF Upload failed: " + uploadError.message); return; }
+      const { data } = db.storage.from('item-docs').getPublicUrl(filePath);
+      await db.from('items').update({ pdf_url: data.publicUrl }).eq('id', activePdfItemId);
+      loadInventory();
       e.target.value = ""; 
     });
 
     async function removePdf(itemId) {
-      if (!confirm("Are you sure you want to remove this PDF catalog?")) return;
-      const { error } = await db.from('items').update({ pdf_url: null }).eq('id', itemId);
-      if (error) alert("Could not remove PDF: " + error.message);
-      else loadInventory();
+      if (!confirm("Remove this document?")) return;
+      await db.from('items').update({ pdf_url: null }).eq('id', itemId);
+      loadInventory();
     }
 
-    // 5. OUTGOING TRANSACTION MODAL & CALCULATION
-    function openSellModal(id, maxQty, name, price) {
+    // SALE MODAL
+    function openSellModal(id, maxQty, name, defaultUnitPrice) {
       document.getElementById('modal-item-id').value = id;
       document.getElementById('modal-item-max-qty').value = maxQty;
-      document.getElementById('modal-item-price-val').value = price;
-      document.getElementById('modal-item-title').innerText = `Record Outgoing: ${name}`;
+      document.getElementById('modal-item-title').innerText = `Record Sale: ${name}`;
       document.getElementById('modal-date').value = new Date().toISOString().split('T')[0];
       document.getElementById('modal-qty').max = maxQty;
       document.getElementById('modal-qty').value = 1;
-      
-      document.getElementById('modal-unit-price-disp').innerText = formatPrice(price);
+      document.getElementById('modal-unit-price').value = defaultUnitPrice || 0;
       calculateTransactionTotal();
-
       document.getElementById('sell-modal').classList.add('active');
     }
 
     function calculateTransactionTotal() {
       const qty = parseInt(document.getElementById('modal-qty').value) || 0;
-      const unitPrice = parseFloat(document.getElementById('modal-item-price-val').value) || 0;
-      const total = qty * unitPrice;
-      document.getElementById('modal-total-price-disp').innerText = formatPrice(total);
+      const unitPrice = parseFloat(document.getElementById('modal-unit-price').value) || 0;
+      document.getElementById('modal-total-price-disp').innerText = formatPrice(qty * unitPrice);
     }
 
     function closeSellModal() {
@@ -929,69 +695,57 @@
 
     document.getElementById('sell-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      
       const id = parseInt(document.getElementById('modal-item-id').value);
       const maxQty = parseInt(document.getElementById('modal-item-max-qty').value);
-      const unitPrice = parseFloat(document.getElementById('modal-item-price-val').value) || 0;
-      const saleType = document.getElementById('modal-sale-type').value;
-      const org = document.getElementById('modal-org').value;
-      const date = document.getElementById('modal-date').value;
+      const unitPrice = parseFloat(document.getElementById('modal-unit-price').value) || 0;
       const soldQty = parseInt(document.getElementById('modal-qty').value);
-      const totalPrice = soldQty * unitPrice;
 
-      if (soldQty > maxQty) {
-        alert(`Cannot complete transaction. Only ${maxQty} units available.`);
-        return;
-      }
+      if (soldQty > maxQty) { alert(`Only ${maxQty} available.`); return; }
 
       const item = allItems.find(i => i.id === id);
-      const newQty = maxQty - soldQty;
-
-      // Update stock
-      const { error: stockErr } = await db.from('items').update({ quantity: newQty }).eq('id', id);
-      if (stockErr) { alert("Error updating stock: " + stockErr.message); return; }
-
-      // Log Transaction with unit price and total price
-      const { error: saleErr } = await db.from('sales').insert([{
+      await db.from('items').update({ quantity: maxQty - soldQty }).eq('id', id);
+      await db.from('sales').insert([{
         item_id: id,
         item_name: item ? item.item_name : "Item",
         quantity: soldQty,
-        sale_type: saleType,
-        organization: org,
-        sale_date: date,
-        unit_price: unitPrice,
-        total_price: totalPrice
+        sale_type: document.getElementById('modal-sale-type').value,
+        organization: document.getElementById('modal-org').value,
+        sale_date: document.getElementById('modal-date').value,
+        unit_price: unitPrice
       }]);
-
-      if (saleErr) alert("Stock updated, but transaction log notice: " + saleErr.message);
 
       closeSellModal();
       loadInventory();
       loadSalesHistory();
     });
 
-    // 6. ADD STOCK
+    // ADD STOCK
     async function addStock(id, currentQty, name) {
-      const addQtyInput = prompt(`How many units of "${name}" are you adding to stock?`, "1");
-      if (addQtyInput === null) return;
-
-      const addQty = parseInt(addQtyInput, 10);
-      if (isNaN(addQty) || addQty <= 0) {
-        alert("Please enter a valid number greater than 0.");
-        return;
-      }
-
-      const { error } = await db.from('items').update({ quantity: currentQty + addQty }).eq('id', id);
-      if (error) alert("Could not update quantity: " + error.message);
-      else loadInventory();
+      const input = prompt(`How many units of "${name}" to add?`, "1");
+      if (!input) return;
+      const addQty = parseInt(input, 10);
+      if (isNaN(addQty) || addQty <= 0) return;
+      await db.from('items').update({ quantity: currentQty + addQty }).eq('id', id);
+      loadInventory();
     }
 
-    // 7. DRAWER TAB NAVIGATION & PAST TRANSACTIONS
+    // SEARCH FILTER
+    function filterItems() {
+      const query = document.getElementById('search').value.toLowerCase();
+      const filtered = allItems.filter(i => 
+        i.item_name.toLowerCase().includes(query) ||
+        (i.brand && i.brand.toLowerCase().includes(query)) ||
+        (i.model && i.model.toLowerCase().includes(query)) ||
+        (i.purity && i.purity.toLowerCase().includes(query)) ||
+        (i.cas_number && i.cas_number.toLowerCase().includes(query))
+      );
+      renderTable(filtered);
+    }
+
+    // DRAWER & HISTORY
     function toggleDrawer() {
       document.getElementById('transactions-drawer').classList.toggle('open');
-      if (document.getElementById('transactions-drawer').classList.contains('open')) {
-        loadSalesHistory();
-      }
+      if (document.getElementById('transactions-drawer').classList.contains('open')) loadSalesHistory();
     }
 
     function switchDrawerTab(tab) {
@@ -1011,257 +765,52 @@
     }
 
     async function loadSalesHistory() {
-      // Fetch sorted strictly by date/created order (time order)
-      const { data, error } = await db.from('sales').select('*').order('sale_date', { ascending: false });
-      if (error) {
-        console.error(error);
-        document.getElementById('sales-history-cards').innerHTML = `<p style="color:#ef4444;">No sales records found or error reading table.</p>`;
-        return;
-      }
-      allSales = data;
-      renderSalesHistory();
-    }
-
-    function setSalesFilter(period) {
-      currentFilter = period;
-      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(`btn-filter-${period}`).classList.add('active');
-      renderSalesHistory();
-    }
-
-    function renderSalesHistory() {
+      const { data } = await db.from('sales').select('*').order('sale_date', { ascending: false });
+      allSales = data || [];
       const container = document.getElementById('sales-history-cards');
-      const now = new Date();
-
-      const filtered = allSales.filter(s => {
-        const saleDate = new Date(s.sale_date);
-        if (currentFilter === 'week') {
-          const diffDays = (now - saleDate) / (1000 * 3600 * 24);
-          return diffDays <= 7;
-        } else if (currentFilter === 'month') {
-          return saleDate.getMonth() === now.getMonth() && saleDate.getFullYear() === now.getFullYear();
-        } else if (currentFilter === 'year') {
-          return saleDate.getFullYear() === now.getFullYear();
-        }
-        return true;
-      });
-
-      if (filtered.length === 0) {
-        container.innerHTML = `<p style="text-align:center; color:#94a3b8; margin-top:20px;">No records found for this time period.</p>`;
+      if (allSales.length === 0) {
+        container.innerHTML = `<p style="text-align:center; color:#94a3b8;">No sales found.</p>`;
         return;
       }
-
-      container.innerHTML = filtered.map((s, idx) => `
+      container.innerHTML = allSales.map(s => `
         <div class="history-card-item" onclick="openDetailModal(${s.id})">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <strong style="color:#67e8f9; font-size:15px;">${s.item_name}</strong>
-            <span style="font-size:12px; color:#10b981; font-weight:bold;">${formatPrice(s.total_price || (s.quantity * (s.unit_price || 0)))}</span>
+          <div style="display:flex; justify-content:space-between;">
+            <strong style="color:#67e8f9;">${s.item_name}</strong>
+            <span style="color:#10b981; font-weight:bold;">${formatPrice(s.quantity * (s.unit_price || 0))}</span>
           </div>
-          <div style="display:flex; justify-content:space-between; margin-top:6px; font-size:13px; color:#cbd5e1;">
-            <span>To: <strong>${s.organization || 'N/A'}</strong></span>
-            <span>Qty: <strong>${s.quantity}</strong></span>
-          </div>
-          <div style="display:flex; justify-content:space-between; margin-top:4px; font-size:11px; color:#94a3b8;">
-            <span>Type: ${s.sale_type || 'Standard'}</span>
-            <span>Date: ${s.sale_date}</span>
+          <div style="display:flex; justify-content:space-between; margin-top:4px; font-size:12px; color:#cbd5e1;">
+            <span>To: ${s.organization || 'N/A'}</span>
+            <span>Qty: ${s.quantity}</span>
           </div>
         </div>
       `).join('');
     }
 
     function calculateSummaryAnalytics() {
-      let grandTotal = 0;
-      let totalQty = 0;
-
+      let grandTotal = 0, totalQty = 0;
       allSales.forEach(s => {
-        const price = s.total_price || (s.quantity * (s.unit_price || 0));
-        grandTotal += parseFloat(price) || 0;
+        grandTotal += (s.quantity || 0) * (s.unit_price || 0);
         totalQty += parseInt(s.quantity) || 0;
       });
-
       document.getElementById('summary-total-sales').innerText = formatPrice(grandTotal);
       document.getElementById('summary-total-qty').innerText = `${totalQty} Units`;
     }
 
-    // 8. TRANSACTION DETAIL INSPECTOR (EMAIL STYLE MODAL)
     function openDetailModal(saleId) {
       const sale = allSales.find(s => s.id === saleId);
       if (!sale) return;
-
-      const totalVal = sale.total_price || (sale.quantity * (sale.unit_price || 0));
-
-      const bodyHtml = `
-        <p><strong>Transaction Record ID:</strong> #${sale.id}</p>
-        <p><strong>Item Dispatched:</strong> ${sale.item_name}</p>
-        <p><strong>Recipient / Client Organization:</strong> ${sale.organization || 'N/A'}</p>
-        <p><strong>Transaction Type:</strong> ${sale.sale_type || 'Standard'}</p>
-        <p><strong>Quantity Dispatched:</strong> ${sale.quantity} units</p>
-        <p><strong>Unit Selling Price:</strong> ${formatPrice(sale.unit_price)}</p>
-        <p style="font-size: 17px; color: #10b981;"><strong>Total Amount:</strong> ${formatPrice(totalVal)}</p>
-        <p><strong>Date Recorded:</strong> ${sale.sale_date}</p>
+      document.getElementById('detail-modal-body').innerHTML = `
+        <p><strong>Receipt #:</strong> #${sale.id}</p>
+        <p><strong>Item Sold:</strong> ${sale.item_name}</p>
+        <p><strong>Client:</strong> ${sale.organization || 'N/A'}</p>
+        <p><strong>Quantity:</strong> ${sale.quantity} units</p>
+        <p><strong>Unit Price:</strong> ${formatPrice(sale.unit_price)}</p>
+        <p style="color:#10b981; font-size:16px;"><strong>Total Amount:</strong> ${formatPrice(sale.quantity * (sale.unit_price || 0))}</p>
+        <p><strong>Date:</strong> ${sale.sale_date}</p>
       `;
-
-      document.getElementById('detail-modal-body').innerHTML = bodyHtml;
       document.getElementById('detail-modal').classList.add('active');
     }
-
-    function closeDetailModal() {
-      document.getElementById('detail-modal').classList.remove('active');
-    }
-
-    // 9. SEARCH / FILTER FUNCTION
-    function filterItems() {
-      const query = document.getElementById('search').value.toLowerCase();
-      const filtered = allItems.filter(i => 
-        i.item_name.toLowerCase().includes(query) ||
-        (i.brand && i.brand.toLowerCase().includes(query)) ||
-        (i.model && i.model.toLowerCase().includes(query))
-      );
-      renderTable(filtered);
-    }
-
-    // 10. INTERACTIVE STEP-BY-STEP GUIDED TOUR ENGINE
-    const tourSteps = [
-      {
-        elementId: 'tour-step-add',
-        title: '1. Add New Items Here',
-        desc: 'This form registers items into stock. Input category, item name, model, quantity, unit price, and optionally upload a PDF specification sheet.',
-        position: 'right'
-      },
-      {
-        elementId: 'tour-step-pdf',
-        title: '2. Catalog PDF Controls',
-        desc: 'In this column, you can view PDF datasheets, remove old ones, or attach new specification PDFs dynamically.',
-        position: 'bottom'
-      },
-      {
-        elementId: 'tour-step-actions',
-        title: '3. Record Issues & Restock',
-        desc: 'Click "Record Issue" to log an outgoing transaction (with client details and calculated price) or "+ Stock" to restock.',
-        position: 'left'
-      },
-      {
-        elementId: 'tour-step-menu',
-        title: '4. Menu & Past Transactions',
-        desc: 'Open this drawer anytime to access past sales transactions sorted by date, view complete invoice records, or see summary analytics.',
-        position: 'bottom'
-      }
-    ];
-
-    let currentTourStep = 0;
-
-    function showTourStep(index) {
-      document.querySelectorAll('.tour-spotlight-highlight').forEach(el => el.classList.remove('tour-spotlight-highlight'));
-
-      if (index >= tourSteps.length) {
-        endTour();
-        return;
-      }
-
-      const step = tourSteps[index];
-      const targetEl = document.getElementById(step.elementId);
-      const tooltip = document.getElementById('tour-tooltip');
-
-      if (!targetEl) return;
-
-      targetEl.classList.add('tour-spotlight-highlight');
-      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-      document.getElementById('tour-title').innerText = step.title;
-      document.getElementById('tour-desc').innerText = step.desc;
-      
-      const nextBtn = document.getElementById('tour-next-btn');
-      nextBtn.innerText = index === tourSteps.length - 1 ? 'Finish Tour' : 'Next →';
-
-      tooltip.style.display = 'block';
-
-      setTimeout(() => {
-        const rect = targetEl.getBoundingClientRect();
-        
-        if (step.position === 'right') {
-          tooltip.style.top = `${rect.top}px`;
-          tooltip.style.left = `${rect.right + 20}px`;
-        } else if (step.position === 'left') {
-          tooltip.style.top = `${rect.top}px`;
-          tooltip.style.left = `${rect.left - 340}px`;
-        } else {
-          tooltip.style.top = `${rect.bottom + 15}px`;
-          tooltip.style.left = `${rect.left}px`;
-        }
-      }, 350);
-    }
-
-    function nextTourStep() {
-      currentTourStep++;
-      showTourStep(currentTourStep);
-    }
-
-    function endTour() {
-      document.querySelectorAll('.tour-spotlight-highlight').forEach(el => el.classList.remove('tour-spotlight-highlight'));
-      document.getElementById('tour-tooltip').style.display = 'none';
-      localStorage.setItem('labaid_welcome_seen', 'true');
-    }
-
-    // 11. ADD ITEM FORM SUBMISSION
-    document.getElementById('add-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const submitBtn = document.getElementById('submit-btn');
-      submitBtn.disabled = true;
-      submitBtn.innerText = "Saving Item...";
-
-      const pdfInput = document.getElementById('pdf_file');
-      let pdf_url = null;
-
-      if (pdfInput.files.length > 0) {
-        const file = pdfInput.files[0];
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const filePath = `specs/${fileName}`;
-
-        const { data: uploadData, error: uploadError } = await db.storage
-          .from('item-docs')
-          .upload(filePath, file);
-
-        if (uploadError) {
-          alert("PDF Upload failed: " + uploadError.message);
-          submitBtn.disabled = false;
-          submitBtn.innerText = "Save to Inventory";
-          return;
-        }
-
-        const { data: publicUrlData } = db.storage
-          .from('item-docs')
-          .getPublicUrl(filePath);
-
-        pdf_url = publicUrlData.publicUrl;
-      }
-
-      const rawPrice = document.getElementById('price').value;
-
-      const newItem = {
-        category: document.getElementById('category').value,
-        item_name: document.getElementById('item_name').value,
-        brand: cleanValue(document.getElementById('brand').value),
-        model: cleanValue(document.getElementById('model').value),
-        unit_of_measure: cleanValue(document.getElementById('unit_of_measure').value),
-        quantity: parseInt(document.getElementById('quantity').value) || 0,
-        price: rawPrice !== "" ? parseFloat(rawPrice) : null,
-        pdf_url: pdf_url
-      };
-
-      const { error } = await db.from('items').insert([newItem]);
-
-      if (error) {
-        alert("Could not save item: " + error.message);
-      } else {
-        document.getElementById('add-form').reset();
-        loadInventory();
-      }
-
-      submitBtn.disabled = false;
-      submitBtn.innerText = "Save to Inventory";
-    });
+    function closeDetailModal() { document.getElementById('detail-modal').classList.remove('active'); }
   </script>
 </body>
 </html>
