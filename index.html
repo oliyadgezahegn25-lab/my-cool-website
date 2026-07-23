@@ -107,11 +107,19 @@
     }
     .form-control:focus { border-color: var(--accent-cyan); box-shadow: 0 0 15px rgba(6, 182, 212, 0.25); }
 
-    /* FIX FOR DROPDOWN LIST VISIBILITY AND BRIGHTNESS */
+    /* CRITICAL FIX FOR DROPDOWN LIST VISIBILITY AND BRIGHTNESS */
+    select.form-control, select {
+      background-color: #0f172a !important;
+      color: #f8fafc !important;
+    }
     select.form-control option, select option {
       background-color: #0f172a !important;
       color: #f8fafc !important;
       padding: 10px;
+    }
+    select.form-control option:hover, select.form-control option:focus {
+      background-color: #1e293b !important;
+      color: #06b6d4 !important;
     }
 
     /* MODERN TABLE STYLING */
@@ -142,6 +150,7 @@
       background: #090d16; border-left: 1px solid var(--border-light); box-shadow: -10px 0 30px rgba(0,0,0,0.8);
       z-index: 2500; transition: right 0.3s ease; padding: 25px; overflow-y: auto;
     }
+    .side-drawer.open { right: 0; }
   </style>
 </head>
 <body>
@@ -211,7 +220,7 @@
           <i class="fa-solid fa-plus-circle"></i> Register New Item
         </h3>
 
-        <form id="enterprise-form">
+        <form id="enterprise-form" onsubmit="handleItemSubmit(event)">
           <div class="form-group">
             <label>Category</label>
             <select class="form-control" id="ent-category">
@@ -310,13 +319,12 @@
 
     </div>
   </div>
-
   <!-- EDIT ITEM MODAL -->
   <div class="modal-overlay" id="edit-modal">
     <div class="modal-box">
       <h3 style="color: var(--accent-cyan); margin-bottom: 15px;"><i class="fa-solid fa-pen-to-square"></i> Edit Inventory Item</h3>
       
-      <form id="edit-form">
+      <form id="edit-form" onsubmit="handleEditSubmit(event)">
         <input type="hidden" id="edit-id">
         
         <div class="form-group">
@@ -377,8 +385,9 @@
       <h3 style="color: var(--accent-emerald); margin-bottom: 15px;"><i class="fa-solid fa-cart-shopping"></i> Record Item Sale</h3>
       <div id="sale-item-summary" style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;"></div>
 
-      <form id="sale-form">
+      <form id="sale-form" onsubmit="handleSaleSubmit(event)">
         <input type="hidden" id="sale-item-id">
+        <input type="hidden" id="sale-item-name">
         
         <div class="form-group">
           <label>Buyer / Client Name</label>
@@ -497,6 +506,7 @@
     // GLOBAL STATE
     let enterpriseItems = [];
     let salesHistory = [];
+    let auditLogs = [];
     let currentView = 'equipment';
 
     // INITIALIZATION
@@ -504,11 +514,34 @@
       loadEnterpriseData();
     });
 
-    /* -------------------------------------------------------------
-       1. DATA FETCHING & KPI LOGIC
-    ------------------------------------------------------------- */
+    function addAuditEntry(action, details) {
+      const entry = {
+        time: new Date().toLocaleTimeString(),
+        action: action,
+        details: details
+      };
+      auditLogs.unshift(entry);
+      renderAuditLogs();
+    }
+
+    function renderAuditLogs() {
+      const container = document.getElementById('audit-log-container');
+      if (auditLogs.length === 0) {
+        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13px;">No actions logged yet.</div>`;
+        return;
+      }
+      container.innerHTML = auditLogs.map(log => `
+        <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); border-radius: 12px; padding: 12px; margin-bottom: 10px;">
+          <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom: 4px;">
+            <span style="color:var(--accent-cyan); font-weight:700;">${log.action}</span>
+            <span>${log.time}</span>
+          </div>
+          <div style="font-size:13px; color:var(--text-main);">${log.details}</div>
+        </div>
+      `).join('');
+    }
+
     async function loadEnterpriseData() {
-      // Fetch Items
       const { data: itemsData, error: itemsErr } = await db.from('items').select('*').order('id', { ascending: false });
       if (itemsErr) {
         console.error("Error loading items:", itemsErr);
@@ -520,7 +553,6 @@
       calculateKPIs(enterpriseItems);
       renderEnterpriseTable(enterpriseItems);
 
-      // Fetch Sales Log
       const { data: salesData } = await db.from('sales_log').select('*').order('created_at', { ascending: false });
       salesHistory = salesData || [];
       renderSalesHistoryDrawer();
@@ -543,9 +575,6 @@
       document.getElementById('kpi-expiring').innerText = expiringCount;
     }
 
-    /* -------------------------------------------------------------
-       2. VIEW SWITCHING & TABLE RENDER
-    ------------------------------------------------------------- */
     function switchEnterpriseView(viewMode) {
       currentView = viewMode;
       
@@ -580,6 +609,28 @@
       renderEnterpriseTable(enterpriseItems);
     }
 
+    function filterEnterpriseTable() {
+      const search = document.getElementById('global-search').value.toLowerCase();
+      const stockFilter = document.getElementById('stock-filter').value;
+
+      const filtered = enterpriseItems.filter(item => {
+        const matchesSearch = (item.item_name || '').toLowerCase().includes(search) ||
+                              (item.brand || '').toLowerCase().includes(search) ||
+                              (item.cas_number || '').toLowerCase().includes(search);
+        
+        const qty = parseInt(item.quantity) || 0;
+        let matchesStock = true;
+
+        if (stockFilter === 'instock') matchesStock = qty > 0;
+        else if (stockFilter === 'low') matchesStock = qty > 0 && qty <= 5;
+        else if (stockFilter === 'outofstock') matchesStock = qty === 0;
+
+        return matchesSearch && matchesStock;
+      });
+
+      renderEnterpriseTable(filtered);
+    }
+
     function renderEnterpriseTable(items) {
       const thead = document.getElementById('ent-table-head');
       const tbody = document.getElementById('ent-table-body');
@@ -611,7 +662,7 @@
 
         tbody.innerHTML = filtered.map(item => {
           const qty = parseInt(item.quantity) || 0;
-          const catUrl = item.pdf_url || item.catalog_url;
+          const catUrl = item.catalog_url || item.pdf_url;
           return `
             <tr>
               <td>
@@ -624,58 +675,55 @@
               <td><strong style="color:var(--accent-cyan);">${formatCurrency(item.price)}</strong></td>
               <td>
                 ${catUrl 
-                  ? `<a href="${catUrl}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> Catalogue</a>` 
+                  ? `<a href="${catUrl}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> Spec</a>` 
                   : `<span style="font-size:11px; color:var(--text-muted);">None</span>`}
               </td>
               <td>
                 <div style="display:flex; gap:6px;">
-                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald);" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
-                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-amber);" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i> Edit</button>
-                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-rose);" onclick="deleteItemRecord(${item.id})"><i class="fa-solid fa-trash"></i></button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i> Edit</button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
                 </div>
               </td>
             </tr>
           `;
         }).join('');
-
       } else {
         thead.innerHTML = `
           <tr>
-            <th>Equipment Description</th>
+            <th>Item / Specification</th>
             <th>Category</th>
-            <th>Model / Brand</th>
+            <th>Brand & Model</th>
             <th>Stock Level</th>
             <th>Unit Price</th>
-            <th>Catalogue / Spec</th>
+            <th>Catalogue</th>
             <th>Actions</th>
           </tr>
         `;
 
         if (filtered.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">No equipment records found.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">No equipment/supply records found.</td></tr>`;
           return;
         }
 
         tbody.innerHTML = filtered.map(item => {
           const qty = parseInt(item.quantity) || 0;
-          const catUrl = item.pdf_url || item.catalog_url;
+          const catUrl = item.catalog_url || item.pdf_url;
           return `
             <tr>
               <td><strong>${item.item_name}</strong></td>
-              <td><span style="font-size:12px; color:var(--text-muted);">${item.category || 'General'}</span></td>
-              <td>${item.model || 'N/A'} <span style="font-size:11px; color:var(--text-muted);">(${item.brand || 'Generic'})</span></td>
+              <td><span style="font-size:11px; padding:3px 8px; background:rgba(255,255,255,0.06); border-radius:6px;">${item.category}</span></td>
+              <td><div style="font-size:12px;">${item.brand || '-'} / ${item.model || '-'}</div></td>
               <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
               <td><strong style="color:var(--accent-cyan);">${formatCurrency(item.price)}</strong></td>
               <td>
                 ${catUrl 
-                  ? `<a href="${catUrl}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> Catalogue</a>` 
+                  ? `<a href="${catUrl}" target="_blank" class="btn-action" style="padding:4px 8px; font-size:11px;"><i class="fa-solid fa-link"></i> Link</a>` 
                   : `<span style="font-size:11px; color:var(--text-muted);">None</span>`}
               </td>
               <td>
                 <div style="display:flex; gap:6px;">
-                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald);" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
-                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-amber);" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i> Edit</button>
-                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-rose);" onclick="deleteItemRecord(${item.id})"><i class="fa-solid fa-trash"></i></button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${item.id})"><i class="fa-solid fa-pen"></i> Edit</button>
+                  <button class="btn-action" style="padding:4px 8px; font-size:11px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${item.id})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
                 </div>
               </td>
             </tr>
@@ -684,50 +732,45 @@
       }
     }
 
-    /* -------------------------------------------------------------
-       3. FORM SUBMISSION, EDIT & SALE MODALS
-    ------------------------------------------------------------- */
-    document.getElementById('enterprise-form').addEventListener('submit', async (e) => {
+    /* CRUD ACTIONS */
+    async function handleItemSubmit(e) {
       e.preventDefault();
-
       const newItem = {
         category: document.getElementById('ent-category').value,
         item_name: document.getElementById('ent-name').value,
-        brand: document.getElementById('ent-brand').value || null,
-        model: document.getElementById('ent-model').value || null,
-        pdf_url: document.getElementById('ent-catalog').value || null,
-        cas_number: document.getElementById('ent-cas').value || null,
-        purity: document.getElementById('ent-purity').value || null,
+        brand: document.getElementById('ent-brand').value,
+        model: document.getElementById('ent-model').value,
+        catalog_url: document.getElementById('ent-catalog').value,
+        cas_number: document.getElementById('ent-cas').value,
+        purity: document.getElementById('ent-purity').value,
         expiry_date: document.getElementById('ent-expiry').value || null,
-        unit_of_measure: document.getElementById('ent-unit').value || null,
+        unit_of_measure: document.getElementById('ent-unit').value,
         quantity: parseInt(document.getElementById('ent-qty').value) || 0,
         price: parseFloat(document.getElementById('ent-price').value) || 0
       };
 
-      const { error } = await db.from('items').insert([newItem]);
-
+      const { data, error } = await db.from('items').insert([newItem]).select();
       if (error) {
-        alert("Failed to save entry: " + error.message);
+        alert("Error creating item: " + error.message);
       } else {
-        logAuditEvent("Item Created", `Added ${newItem.item_name} (${newItem.quantity} units)`);
+        addAuditEntry("Item Added", `Registered ${newItem.item_name} (${newItem.quantity} ${newItem.unit_of_measure})`);
         document.getElementById('enterprise-form').reset();
         loadEnterpriseData();
       }
-    });
+    }
 
-    // EDIT MODAL LOGIC
     function openEditModal(id) {
       const item = enterpriseItems.find(i => i.id === id);
       if (!item) return;
 
       document.getElementById('edit-id').value = item.id;
-      document.getElementById('edit-category').value = item.category || 'Laboratory Equipment';
-      document.getElementById('edit-name').value = item.item_name || '';
+      document.getElementById('edit-category').value = item.category;
+      document.getElementById('edit-name').value = item.item_name;
       document.getElementById('edit-brand').value = item.brand || '';
       document.getElementById('edit-model').value = item.model || '';
-      document.getElementById('edit-catalog').value = item.pdf_url || item.catalog_url || '';
-      document.getElementById('edit-qty').value = item.quantity || 0;
-      document.getElementById('edit-price').value = item.price || 0;
+      document.getElementById('edit-catalog').value = item.catalog_url || item.pdf_url || '';
+      document.getElementById('edit-qty').value = item.quantity;
+      document.getElementById('edit-price').value = item.price;
 
       document.getElementById('edit-modal').classList.add('active');
     }
@@ -736,44 +779,43 @@
       document.getElementById('edit-modal').classList.remove('active');
     }
 
-    document.getElementById('edit-form').addEventListener('submit', async (e) => {
+    async function handleEditSubmit(e) {
       e.preventDefault();
       const id = document.getElementById('edit-id').value;
-
-      const updatedFields = {
+      const updated = {
         category: document.getElementById('edit-category').value,
         item_name: document.getElementById('edit-name').value,
-        brand: document.getElementById('edit-brand').value || null,
-        model: document.getElementById('edit-model').value || null,
-        pdf_url: document.getElementById('edit-catalog').value || null,
+        brand: document.getElementById('edit-brand').value,
+        model: document.getElementById('edit-model').value,
+        catalog_url: document.getElementById('edit-catalog').value,
         quantity: parseInt(document.getElementById('edit-qty').value) || 0,
         price: parseFloat(document.getElementById('edit-price').value) || 0
       };
 
-      const { error } = await db.from('items').update(updatedFields).eq('id', id);
-
+      const { error } = await db.from('items').update(updated).eq('id', id);
       if (error) {
-        alert("Update failed: " + error.message);
+        alert("Error updating item: " + error.message);
       } else {
-        logAuditEvent("Item Updated", `Updated properties for item ID ${id}`);
+        addAuditEntry("Item Updated", `Updated details for ${updated.item_name}`);
         closeEditModal();
         loadEnterpriseData();
       }
-    });
+    }
 
-    // SALE MODAL LOGIC
+    /* SALES SYSTEM */
     function openSaleModal(id) {
       const item = enterpriseItems.find(i => i.id === id);
-      if (!item || item.quantity <= 0) return;
+      if (!item) return;
 
       document.getElementById('sale-item-id').value = item.id;
-      document.getElementById('sale-item-summary').innerHTML = `Selling: <strong>${item.item_name}</strong> | Available Stock: <strong>${item.quantity}</strong>`;
+      document.getElementById('sale-item-name').value = item.item_name;
+      document.getElementById('sale-item-summary').innerHTML = `
+        <strong>${item.item_name}</strong> | Available Stock: <span style="color:var(--accent-cyan);">${item.quantity}</span>
+      `;
+      document.getElementById('sale-unit-price').value = item.price;
       document.getElementById('sale-qty').value = 1;
-      document.getElementById('sale-qty').max = item.quantity;
-      document.getElementById('sale-unit-price').value = item.price || 0;
-      document.getElementById('sale-client').value = '';
       document.getElementById('sale-date').value = new Date().toISOString().split('T')[0];
-
+      
       calculateSaleTotal();
       document.getElementById('sale-modal').classList.add('active');
     }
@@ -783,168 +825,147 @@
     }
 
     function calculateSaleTotal() {
-      const qty = parseInt(document.getElementById('sale-qty').value) || 0;
+      const qty = parseFloat(document.getElementById('sale-qty').value) || 0;
       const unitPrice = parseFloat(document.getElementById('sale-unit-price').value) || 0;
       const total = qty * unitPrice;
       document.getElementById('sale-total-display').innerText = formatCurrency(total);
     }
 
-    document.getElementById('sale-form').addEventListener('submit', async (e) => {
+    async function handleSaleSubmit(e) {
       e.preventDefault();
-
-      const id = parseInt(document.getElementById('sale-item-id').value);
-      const item = enterpriseItems.find(i => i.id === id);
-      const sellQty = parseInt(document.getElementById('sale-qty').value);
-      const unitPrice = parseFloat(document.getElementById('sale-unit-price').value);
-      const clientName = document.getElementById('sale-client').value;
+      const itemId = document.getElementById('sale-item-id').value;
+      const itemName = document.getElementById('sale-item-name').value;
+      const client = document.getElementById('sale-client').value;
+      const qtySold = parseInt(document.getElementById('sale-qty').value) || 0;
+      const unitPrice = parseFloat(document.getElementById('sale-unit-price').value) || 0;
       const saleDate = document.getElementById('sale-date').value;
+      const totalVal = qtySold * unitPrice;
 
-      if (!item || sellQty > item.quantity) {
-        alert("Error: Sale quantity exceeds available inventory stock!");
+      const item = enterpriseItems.find(i => i.id == itemId);
+      if (item && item.quantity < qtySold) {
+        alert("Cannot sell more than available stock!");
         return;
       }
 
-      const newQty = item.quantity - sellQty;
-
-      // Update Inventory Qty
-      const { error: updateErr } = await db.from('items').update({ quantity: newQty }).eq('id', id);
-      if (updateErr) {
-        alert("Transaction failed: " + updateErr.message);
-        return;
-      }
-
-      // Record Sales Transaction
-      const salesRecord = {
-        item_id: item.id,
-        item_name: item.item_name,
-        category: item.category,
-        client_name: clientName,
-        quantity_sold: sellQty,
+      // Record Sale Log
+      const { error: saleErr } = await db.from('sales_log').insert([{
+        item_id: itemId,
+        item_name: itemName,
+        client_name: client,
+        quantity_sold: qtySold,
         unit_price: unitPrice,
-        total_sales_value: sellQty * unitPrice,
-        created_at: new Date(saleDate).toISOString()
-      };
+        total_price: totalVal,
+        sale_date: saleDate
+      }]);
 
-      await db.from('sales_log').insert([salesRecord]);
-      logAuditEvent("Sale Executed", `Sold ${sellQty}x ${item.item_name} to "${clientName}" for total ${(sellQty * unitPrice).toFixed(2)} ETB`);
-      
+      if (saleErr) {
+        alert("Error logging sale: " + saleErr.message);
+        return;
+      }
+
+      // Deduct Quantity
+      const newQty = item.quantity - qtySold;
+      await db.from('items').update({ quantity: newQty }).eq('id', itemId);
+
+      addAuditEntry("Sale Executed", `Sold ${qtySold}x ${itemName} to ${client} for ${formatCurrency(totalVal)}`);
       closeSaleModal();
+      document.getElementById('sale-form').reset();
       loadEnterpriseData();
-    });
-
-    /* -------------------------------------------------------------
-       4. SALES HISTORY DRAWER & TIMELINE EXPORT
-    ------------------------------------------------------------- */
-    function toggleSalesDrawer() {
-      const drawer = document.getElementById('sales-drawer');
-      drawer.style.right = drawer.style.right === '0px' ? '-500px' : '0px';
     }
 
     function renderSalesHistoryDrawer() {
       const container = document.getElementById('sales-history-container');
       if (salesHistory.length === 0) {
-        container.innerHTML = `<div style="text-align: center; color: var(--text-muted);">No sales recorded yet.</div>`;
+        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 13px;">No past sales recorded yet.</div>`;
         return;
       }
 
-      container.innerHTML = salesHistory.map(s => `
-        <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); border-radius: 12px; padding: 14px; margin-bottom: 12px;">
-          <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom: 6px;">
-            <span><i class="fa-solid fa-calendar"></i> ${new Date(s.created_at).toLocaleDateString()}</span>
-            <span>ID: #${s.id}</span>
+      container.innerHTML = salesHistory.map(sale => `
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-light); border-radius: 12px; padding: 14px; margin-bottom: 10px;">
+          <div style="display:flex; justify-content:space-between; font-weight:700; color:var(--accent-emerald);">
+            <span>${sale.item_name}</span>
+            <span>${formatCurrency(sale.total_price)}</span>
           </div>
-          <div style="font-size:14px; font-weight:700; color:var(--accent-emerald);">${s.item_name}</div>
-          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Client: <strong style="color:white;">${s.client_name || 'Walk-in / Direct'}</strong></div>
-          <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:12px; background:rgba(0,0,0,0.3); padding:8px; border-radius:8px;">
-            <span>Qty: <strong>${s.quantity_sold}</strong> @ ${formatCurrency(s.unit_price)}</span>
-            <span style="color:var(--accent-cyan); font-weight:700;">Total: ${formatCurrency(s.total_sales_value)}</span>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+            <div>Client: <strong style="color:var(--text-main);">${sale.client_name}</strong></div>
+            <div>Qty: ${sale.quantity_sold} | Unit Price: ${formatCurrency(sale.unit_price)}</div>
+            <div>Date: ${sale.sale_date || sale.created_at?.split('T')[0]}</div>
           </div>
         </div>
       `).join('');
     }
 
-    function openExportModal() { document.getElementById('export-modal').classList.add('active'); }
-    function closeExportModal() { document.getElementById('export-modal').classList.remove('active'); }
+    /* EXPORT CENTER */
+    function openExportModal() {
+      document.getElementById('export-modal').classList.add('active');
+    }
+
+    function closeExportModal() {
+      document.getElementById('export-modal').classList.remove('active');
+    }
 
     function toggleExportTimelineOptions() {
       const target = document.getElementById('export-target').value;
-      document.getElementById('timeline-group').style.display = target === 'sales' ? 'block' : 'none';
-      if (target === 'inventory') document.getElementById('custom-date-group').style.display = 'none';
+      const timelineGroup = document.getElementById('timeline-group');
+      timelineGroup.style.display = target === 'sales' ? 'block' : 'none';
+      toggleCustomDateGroup();
     }
 
     function toggleCustomDateGroup() {
       const timeline = document.getElementById('export-timeline').value;
-      document.getElementById('custom-date-group').style.display = timeline === 'custom' ? 'grid' : 'none';
+      const customGroup = document.getElementById('custom-date-group');
+      customGroup.style.display = (document.getElementById('export-target').value === 'sales' && timeline === 'custom') ? 'grid' : 'none';
     }
 
     function processExportRequest() {
       const target = document.getElementById('export-target').value;
-      if (target === 'inventory') exportInventoryCSV();
-      else exportSalesCSV();
+
+      if (target === 'inventory') {
+        exportCSV(enterpriseItems, 'Labaid_Inventory_Report.csv');
+      } else {
+        const timeline = document.getElementById('export-timeline').value;
+        let filteredSales = [...salesHistory];
+        const now = new Date();
+
+        if (timeline === 'today') {
+          const todayStr = now.toISOString().split('T')[0];
+          filteredSales = filteredSales.filter(s => (s.sale_date || s.created_at)?.startsWith(todayStr));
+        } else if (timeline === '7days') {
+          const past = new Date(); past.setDate(now.getDate() - 7);
+          filteredSales = filteredSales.filter(s => new Date(s.sale_date || s.created_at) >= past);
+        } else if (timeline === '30days') {
+          const past = new Date(); past.setDate(now.getDate() - 30);
+          filteredSales = filteredSales.filter(s => new Date(s.sale_date || s.created_at) >= past);
+        } else if (timeline === '1year') {
+          const past = new Date(); past.setDate(now.getDate() - 365);
+          filteredSales = filteredSales.filter(s => new Date(s.sale_date || s.created_at) >= past);
+        } else if (timeline === 'custom') {
+          const start = new Date(document.getElementById('export-start-date').value);
+          const end = new Date(document.getElementById('export-end-date').value);
+          filteredSales = filteredSales.filter(s => {
+            const d = new Date(s.sale_date || s.created_at);
+            return d >= start && d <= end;
+          });
+        }
+
+        exportCSV(filteredSales, `Labaid_Sales_Report_${timeline}.csv`);
+      }
       closeExportModal();
     }
 
-    function exportInventoryCSV() {
-      if (enterpriseItems.length === 0) { alert("No inventory data to export."); return; }
-      let csv = "data:text/csv;charset=utf-8,ID,Item Name,Category,Brand,Model,Catalogue URL,Quantity,Unit Price (ETB)\n";
+    function exportCSV(arrData, filename) {
+      if (!arrData || !arrData.length) {
+        alert("No data available to export!");
+        return;
+      }
+      const keys = Object.keys(arrData[0]);
+      let csvContent = "data:text/csv;charset=utf-8," + keys.join(",") + "\n";
 
-      enterpriseItems.forEach(item => {
-        csv += [
-          item.id,
-          `"${(item.item_name || '').replace(/"/g, '""')}"`,
-          `"${item.category || ''}"`,
-          `"${item.brand || ''}"`,
-          `"${item.model || ''}"`,
-          `"${item.pdf_url || item.catalog_url || ''}"`,
-          item.quantity || 0,
-          item.price || 0
-        ].join(",") + "\n";
+      arrData.forEach(row => {
+        let rowArr = keys.map(k => `"${(row[k] || '').toString().replace(/"/g, '""')}"`);
+        csvContent += rowArr.join(",") + "\n";
       });
 
-      downloadCSVFile(csv, `Labaid_Inventory_${new Date().toISOString().split('T')[0]}.csv`);
-    }
-
-    function exportSalesCSV() {
-      if (salesHistory.length === 0) { alert("No sales history to export."); return; }
-      const timeline = document.getElementById('export-timeline').value;
-      const now = new Date();
-
-      const filteredSales = salesHistory.filter(sale => {
-        const saleDate = new Date(sale.created_at);
-        if (timeline === 'today') return saleDate.toDateString() === now.toDateString();
-        if (timeline === '7days') { const p = new Date(); p.setDate(now.getDate() - 7); return saleDate >= p; }
-        if (timeline === '30days') { const p = new Date(); p.setDate(now.getDate() - 30); return saleDate >= p; }
-        if (timeline === '1year') { const p = new Date(); p.setDate(now.getDate() - 365); return saleDate >= p; }
-        if (timeline === 'custom') {
-          const start = document.getElementById('export-start-date').value ? new Date(document.getElementById('export-start-date').value) : new Date(0);
-          const end = document.getElementById('export-end-date').value ? new Date(document.getElementById('export-end-date').value) : new Date();
-          end.setHours(23, 59, 59);
-          return saleDate >= start && saleDate <= end;
-        }
-        return true;
-      });
-
-      if (filteredSales.length === 0) { alert("No sales records found for this timeline."); return; }
-
-      let csv = "data:text/csv;charset=utf-8,Transaction ID,Item Name,Category,Buyer Client,Quantity Sold,Unit Price (ETB),Total Sales Value (ETB),Date Time\n";
-
-      filteredSales.forEach(s => {
-        csv += [
-          s.id,
-          `"${(s.item_name || '').replace(/"/g, '""')}"`,
-          `"${s.category || ''}"`,
-          `"${s.client_name || 'N/A'}"`,
-          s.quantity_sold || 0,
-          s.unit_price || 0,
-          s.total_sales_value || 0,
-          `"${new Date(s.created_at).toLocaleString()}"`
-        ].join(",") + "\n";
-      });
-
-      downloadCSVFile(csv, `Labaid_Sales_${timeline}_${new Date().toISOString().split('T')[0]}.csv`);
-    }
-
-    function downloadCSVFile(csvContent, filename) {
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
@@ -954,83 +975,23 @@
       document.body.removeChild(link);
     }
 
-    /* -------------------------------------------------------------
-       5. UTILITY & TOUR GUIDE ENGINE
-    ------------------------------------------------------------- */
-    function filterEnterpriseTable() {
-      const query = document.getElementById('global-search').value.toLowerCase();
-      const stockStatus = document.getElementById('stock-filter').value;
-
-      const filtered = enterpriseItems.filter(item => {
-        const matchesQuery = 
-          (item.item_name && item.item_name.toLowerCase().includes(query)) ||
-          (item.cas_number && item.cas_number.toLowerCase().includes(query)) ||
-          (item.brand && item.brand.toLowerCase().includes(query)) ||
-          (item.model && item.model.toLowerCase().includes(query));
-
-        const qty = parseInt(item.quantity) || 0;
-        let matchesStock = true;
-
-        if (stockStatus === 'instock') matchesStock = qty > 0;
-        else if (stockStatus === 'low') matchesStock = qty > 0 && qty <= 5;
-        else if (stockStatus === 'outofstock') matchesStock = qty === 0;
-
-        return matchesQuery && matchesStock;
-      });
-
-      renderEnterpriseTable(filtered);
-    }
-
+    /* DRAWER CONTROLS */
     function toggleAuditDrawer() {
-      const drawer = document.getElementById('audit-drawer');
-      drawer.style.right = drawer.style.right === '0px' ? '-500px' : '0px';
+      document.getElementById('audit-drawer').classList.toggle('open');
     }
 
-    function logAuditEvent(title, details) {
-      const container = document.getElementById('audit-log-container');
-      const logEntry = document.createElement('div');
-      logEntry.style.cssText = "background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); border-radius: 12px; padding: 12px; margin-bottom: 10px;";
-      
-      logEntry.innerHTML = `
-        <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom: 4px;">
-          <span>${new Date().toLocaleTimeString()}</span>
-          <span>Action Logged</span>
-        </div>
-        <div style="font-size:13px; font-weight:600; color:var(--accent-cyan);">${title}</div>
-        <div style="font-size:11px; color:var(--text-muted);">${details}</div>
-      `;
-      container.prepend(logEntry);
+    function toggleSalesDrawer() {
+      document.getElementById('sales-drawer').classList.toggle('open');
     }
 
+    /* UTILITY HELPERS */
     function formatCurrency(val) {
-      if (!val || isNaN(val)) return "0.00 ETB";
-      return parseFloat(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ETB";
+      return (parseFloat(val) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ETB';
     }
 
-    async function deleteItemRecord(id) {
-      const item = enterpriseItems.find(i => i.id === id);
-      if (!confirm(`Permanently delete "${item ? item.item_name : 'this item'}"?`)) return;
-
-      const { error } = await db.from('items').delete().eq('id', id);
-      if (error) {
-        alert("Delete failed: " + error.message);
-      } else {
-        logAuditEvent("Item Deleted", `Removed ID ${id}`);
-        loadEnterpriseData();
-      }
-    }
-
-    // TOUR GUIDE INTERACTIVE STEPPER
+    /* TOUR GUIDE LOGIC */
     function startTourGuide() {
-      const steps = [
-        "Welcome to Labaid Trading PLC System Tour!\n\n1. Registration Panel: Register new equipment or chemicals and attach catalogue URLs.",
-        "2. Table Actions: Use 'Sell' to log buyers and custom dates, 'Edit' to update any column/catalogue link, or 'Delete'.",
-        "3. Top Menu Actions:\n- 'Sales Log': View detailed past sales history.\n- 'Export Center': Export complete inventory or filtered sales reports by timeline (week, month, year).",
-        "4. Navigation Tabs: Switch easily between General Equipment and Chemical/Reagent directories."
-      ];
-      for (let i = 0; i < steps.length; i++) {
-        alert(steps[i]);
-      }
+      alert("Welcome to Labaid Trading PLC System Tour!\n\n1. Quick Metrics: Key active stock counts.\n2. Tabs: Switch between Supplies and Chemical directory views.\n3. Search/Filter: Find items by brand, name, or CAS.\n4. Registration Panel: Fill details and submit to DB.\n5. Table Actions: Edit details or complete sales directly!\n6. Top Action Menu: Export CSV logs and review sales/audit records.");
     }
   </script>
 </body>
