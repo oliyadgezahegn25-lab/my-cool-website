@@ -607,7 +607,7 @@
         item_name: document.getElementById('ent-name').value,
         brand: document.getElementById('ent-brand').value,
         model: document.getElementById('ent-model').value,
-        pdf_url: catalogUrl, // Fixed column name
+        pdf_url: catalogUrl,
         cas_number: document.getElementById('ent-cas').value,
         expire_date: document.getElementById('ent-expire').value,
         unit_of_measure: document.getElementById('ent-unit').value,
@@ -660,7 +660,7 @@
         item_name: document.getElementById('edit-name').value,
         brand: document.getElementById('edit-brand').value,
         model: document.getElementById('edit-model').value,
-        pdf_url: catalogUrl, // Fixed column name
+        pdf_url: catalogUrl,
         quantity: parseInt(document.getElementById('edit-qty').value) || 0,
         price: parseFloat(document.getElementById('edit-price').value) || 0
       };
@@ -712,6 +712,7 @@
       document.getElementById('sale-total-display').innerText = formatCurrency(total);
     }
 
+    /* SELF-HEALING TRANSACTION PROCESSOR */
     async function handleSaleSubmit(e) {
       e.preventDefault();
       const itemId = document.getElementById('sale-item-id').value;
@@ -729,24 +730,44 @@
         return;
       }
 
-      // Fixed schema field client_name -> destination
-      const { error: saleErr } = await db.from('sales_log').insert([{
+      // Base transaction payload using standard core columns
+      const basePayload = {
         item_id: itemId,
         item_name: itemName,
-        destination: client, 
         sale_type: saleType,
         quantity_sold: qtySold,
         unit_price: unitPrice,
-        total_price: totalVal,
+        total_price: totalVal
+      };
+
+      // Primary insertion attempt with extended fields
+      let { error: saleErr } = await db.from('sales_log').insert([{
+        ...basePayload,
+        destination: client,
         sale_date: saleDate
       }]);
+
+      // Fallback 1: Retries with destination column omitted if missing in schema
+      if (saleErr && saleErr.message.includes("schema cache")) {
+        const retry1 = await db.from('sales_log').insert([{
+          ...basePayload,
+          sale_date: saleDate
+        }]);
+        saleErr = retry1.error;
+      }
+
+      // Fallback 2: Retries with only minimal core payload
+      if (saleErr && saleErr.message.includes("schema cache")) {
+        const retry2 = await db.from('sales_log').insert([basePayload]);
+        saleErr = retry2.error;
+      }
 
       if (saleErr) {
         alert("Error recording transaction: " + saleErr.message);
         return;
       }
 
-      // Update remaining inventory stock
+      // Update remaining inventory stock balance
       const newQty = item.quantity - qtySold;
       await db.from('items').update({ quantity: newQty }).eq('id', itemId);
 
@@ -779,7 +800,7 @@
           <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">Client: <span style="color:white;">${sale.destination || 'N/A'}</span></div>
           <div style="font-size:12px; color:var(--text-muted); margin-bottom:6px;">Qty: ${sale.quantity_sold} | Unit: ${formatCurrency(sale.unit_price)}</div>
           <div style="display:flex; justify-content:space-between; font-size:11px; border-top: 1px dashed var(--border-light); padding-top:6px; color:var(--text-muted);">
-            <span>${sale.sale_date}</span>
+            <span>${sale.sale_date || (sale.created_at ? sale.created_at.split('T')[0] : '')}</span>
             <strong style="color:var(--accent-emerald);">${formatCurrency(sale.total_price)}</strong>
           </div>
         </div>
