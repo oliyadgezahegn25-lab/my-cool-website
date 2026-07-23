@@ -387,298 +387,368 @@
       </div>
     </div>
   </div><script>
-    const SUPABASE_URL = "https://cbmvbbfbgauqusibdnup.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_gq0-KFzH8Ru9-etDSZ_Cwg_pQrHCYcY";
+  const SUPABASE_URL = "https://cbmvbbfbgauqusibdnup.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_gq0-KFzH8Ru9-etDSZ_Cwg_pQrHCYcY";
 
-    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    let allItems = [];
-    let currentViewMode = 'equipment';
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  let allItems = [];
+  let currentViewMode = 'equipment';
 
-    function cleanValue(val) { return (val && val.toString().trim() !== "") ? val : "None"; }
-    function formatPrice(val) {
-      if (val === null || val === undefined || val === "" || isNaN(val)) return "N/A";
-      return parseFloat(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ETB";
+  function cleanValue(val) { return (val && val.toString().trim() !== "") ? val : "None"; }
+  function formatPrice(val) {
+    if (val === null || val === undefined || val === "" || isNaN(val)) return "N/A";
+    return parseFloat(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ETB";
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    loadInventory();
+    if (!localStorage.getItem('labaid_tour_completed')) {
+      document.getElementById('welcome-modal').classList.add('active');
+    }
+  });
+
+  /* TOUR SYSTEM LOGIC */
+  let currentTourStep = 0;
+  const tourSteps = [
+    { elementId: 'tour-step-switch', title: '1. Switch Inventory Mode', body: 'Use these tabs to switch between General Equipment/Supplies and Chemical/Reagents.' },
+    { elementId: 'tour-step-form', title: '2. Add Items', body: 'Fill out this form to add new products or chemicals into your live database.' },
+    { elementId: 'tour-step-table', title: '3. Inventory Directory & Actions', body: 'View, edit, attach tech specs/MSDS, record sales ("Sold"), and add stock directly from this table.' }
+  ];
+
+  function startGuidedTourFromWelcome() {
+    document.getElementById('welcome-modal').classList.remove('active');
+    startGuidedTour();
+  }
+
+  function skipTour() {
+    document.getElementById('welcome-modal').classList.remove('active');
+    localStorage.setItem('labaid_tour_completed', 'true');
+  }
+
+  function startGuidedTour() {
+    currentTourStep = 0;
+    showTourStep();
+  }
+
+  function showTourStep() {
+    document.querySelectorAll('.tour-spotlight').forEach(el => el.classList.remove('tour-spotlight'));
+
+    const step = tourSteps[currentTourStep];
+    const targetEl = document.getElementById(step.elementId);
+
+    if (targetEl) {
+      targetEl.classList.add('tour-spotlight');
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      loadInventory();
-      if (!localStorage.getItem('labaid_tour_completed')) {
-        document.getElementById('welcome-modal').classList.add('active');
-      }
-    });
+    document.getElementById('tour-step-title').innerText = step.title;
+    document.getElementById('tour-step-body').innerText = step.body;
+    document.getElementById('tour-step-modal').classList.add('active');
+  }
 
-    /* TOUR SYSTEM LOGIC WITH DYNAMIC HIGHLIGHTING */
-    let currentTourStep = 0;
-    const tourSteps = [
-      { elementId: 'tour-step-switch', title: '1. Switch Inventory Mode', body: 'Use these tabs to switch between General Equipment/Supplies and Chemical/Reagents.' },
-      { elementId: 'tour-step-form', title: '2. Add Items', body: 'Fill out this form to add new products or chemicals into your live database.' },
-      { elementId: 'tour-step-table', title: '3. Inventory Directory & Actions', body: 'View, edit, attach tech specs/MSDS, record sales ("Sold"), and add stock directly from this table.' }
-    ];
-
-    function startGuidedTourFromWelcome() {
-      document.getElementById('welcome-modal').classList.remove('active');
-      startGuidedTour();
-    }
-
-    function skipTour() {
-      document.getElementById('welcome-modal').classList.remove('active');
-      localStorage.setItem('labaid_tour_completed', 'true');
-    }
-
-    function startGuidedTour() {
-      currentTourStep = 0;
+  function nextTourStep() {
+    currentTourStep++;
+    if (currentTourStep >= tourSteps.length) {
+      closeTour();
+    } else {
       showTourStep();
     }
+  }
 
-    function showTourStep() {
-      document.querySelectorAll('.tour-spotlight').forEach(el => el.classList.remove('tour-spotlight'));
+  function closeTour() {
+    document.querySelectorAll('.tour-spotlight').forEach(el => el.classList.remove('tour-spotlight'));
+    document.getElementById('tour-step-modal').classList.remove('active');
+    localStorage.setItem('labaid_tour_completed', 'true');
+  }
 
-      const step = tourSteps[currentTourStep];
-      const targetEl = document.getElementById(step.elementId);
+  /* PDF ADD & DELETE FUNCTIONS */
+  async function uploadPdf(itemId) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/pdf';
 
-      if (targetEl) {
-        targetEl.classList.add('tour-spotlight');
-        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
 
-      document.getElementById('tour-step-title').innerText = step.title;
-      document.getElementById('tour-step-body').innerText = step.body;
-      document.getElementById('tour-step-modal').classList.add('active');
-    }
+      const fileName = `specs_${itemId}_${Date.now()}.pdf`;
 
-    function nextTourStep() {
-      currentTourStep++;
-      if (currentTourStep >= tourSteps.length) {
-        closeTour();
-      } else {
-        showTourStep();
-      }
-    }
+      // Upload file to Supabase Storage Bucket 'item-specs'
+      const { data: storageData, error: storageError } = await db.storage
+        .from('item-specs')
+        .upload(fileName, file, { upsert: true });
 
-    function closeTour() {
-      document.querySelectorAll('.tour-spotlight').forEach(el => el.classList.remove('tour-spotlight'));
-      document.getElementById('tour-step-modal').classList.remove('active');
-      localStorage.setItem('labaid_tour_completed', 'true');
-    }
-
-    /* EDIT MODAL LOGIC */
-    function toggleEditChemicalFields() {
-      const cat = document.getElementById('edit-category').value;
-      const chemFields = document.getElementById('edit-chemical-fields');
-      if (cat === "Chemicals & Reagents") {
-        chemFields.style.display = "block";
-      } else {
-        chemFields.style.display = "none";
-      }
-    }
-
-    function openEditModal(itemId) {
-      const item = allItems.find(i => i.id === itemId);
-      if (!item) return;
-
-      document.getElementById('edit-item-id').value = item.id;
-      document.getElementById('edit-item-name').value = item.item_name || '';
-      document.getElementById('edit-category').value = item.category || 'Laboratory Equipment';
-      document.getElementById('edit-brand').value = item.brand === 'None' ? '' : (item.brand || '');
-      document.getElementById('edit-model').value = item.model === 'None' ? '' : (item.model || '');
-      document.getElementById('edit-purity').value = item.purity === 'None' ? '' : (item.purity || '');
-      document.getElementById('edit-cas-number').value = item.cas_number === 'None' ? '' : (item.cas_number || '');
-      document.getElementById('edit-storage-conditions').value = item.storage_conditions === 'None' ? '' : (item.storage_conditions || '');
-      document.getElementById('edit-unit-of-measure').value = item.unit_of_measure === 'None' ? '' : (item.unit_of_measure || '');
-      document.getElementById('edit-quantity').value = item.quantity || 0;
-      document.getElementById('edit-price').value = item.price || '';
-
-      toggleEditChemicalFields();
-      document.getElementById('edit-modal').classList.add('active');
-    }
-
-    function closeEditModal() {
-      document.getElementById('edit-modal').classList.remove('active');
-    }
-
-    document.getElementById('edit-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = parseInt(document.getElementById('edit-item-id').value);
-      const isChem = document.getElementById('edit-category').value === "Chemicals & Reagents";
-
-      const updatedItem = {
-        item_name: document.getElementById('edit-item-name').value,
-        category: document.getElementById('edit-category').value,
-        brand: cleanValue(document.getElementById('edit-brand').value),
-        model: cleanValue(document.getElementById('edit-model').value),
-        purity: isChem ? cleanValue(document.getElementById('edit-purity').value) : null,
-        cas_number: isChem ? cleanValue(document.getElementById('edit-cas-number').value) : null,
-        storage_conditions: isChem ? cleanValue(document.getElementById('edit-storage-conditions').value) : null,
-        unit_of_measure: cleanValue(document.getElementById('edit-unit-of-measure').value),
-        quantity: parseInt(document.getElementById('edit-quantity').value) || 0,
-        price: document.getElementById('edit-price').value !== "" ? parseFloat(document.getElementById('edit-price').value) : null
-      };
-
-      const { error } = await db.from('items').update(updatedItem).eq('id', id);
-      if (error) {
-        alert("Error updating item: " + error.message);
-      } else {
-        closeEditModal();
-        loadInventory();
-      }
-    });
-
-    /* VIEW SWITCHING & INVENTORY LOAD */
-    function switchInventoryView(mode) {
-      currentViewMode = mode;
-      document.getElementById('tab-equipment').classList.remove('active');
-      document.getElementById('tab-chemicals').classList.remove('active');
-      const chemFields = document.getElementById('chemical-fields');
-      const catSelect = document.getElementById('category');
-
-      if (mode === 'equipment') {
-        document.getElementById('tab-equipment').classList.add('active');
-        document.getElementById('form-section-title').innerText = "Add Equipment / Supply";
-        document.getElementById('table-section-title').innerText = "General Equipment Directory";
-        document.getElementById('form_is_chemical').value = "false";
-        chemFields.style.display = 'none';
-
-        catSelect.innerHTML = `
-          <option value="Laboratory Equipment">Laboratory Equipment</option>
-          <option value="Educational & Lab Supplies">Educational & Lab Supplies</option>
-          <option value="Educational & Electrical Supplies">Educational & Electrical Supplies</option>
-          <option value="Agricultural Equipment">Agricultural Equipment</option>
-          <option value="Industrial Equipment">Industrial Equipment</option>
-        `;
-      } else {
-        document.getElementById('tab-chemicals').classList.add('active');
-        document.getElementById('form-section-title').innerText = "Add Chemical / Reagent";
-        document.getElementById('table-section-title').innerText = "Chemicals & Reagents Directory";
-        document.getElementById('form_is_chemical').value = "true";
-        chemFields.style.display = 'block';
-        catSelect.innerHTML = `<option value="Chemicals & Reagents">Chemicals & Reagents</option>`;
-      }
-      renderTable(allItems);
-    }
-
-    async function loadInventory() {
-      const { data, error } = await db.from('items').select('*').order('id', { ascending: false });
-      if (error) {
-        document.getElementById('inventory-rows').innerHTML = `<tr><td colspan="9">Error loading data.</td></tr>`;
+      if (storageError) {
+        alert("Upload failed: " + storageError.message);
         return;
       }
-      allItems = data;
-      renderTable(allItems);
-    }
 
-    function renderTable(items) {
-      const thead = document.getElementById('table-head');
-      const tbody = document.getElementById('inventory-rows');
+      // Get Public URL
+      const { data: publicUrlData } = db.storage
+        .from('item-specs')
+        .getPublicUrl(fileName);
 
-      const filtered = items.filter(item => {
-        const isChemCategory = item.category === "Chemicals & Reagents";
-        return currentViewMode === 'chemicals' ? isChemCategory : !isChemCategory;
-      });
+      const publicUrl = publicUrlData.publicUrl;
 
-      if (currentViewMode === 'chemicals') {
-        thead.innerHTML = `
-          <tr>
-            <th>Chemical / Reagent Name</th>
-            <th>Brand</th>
-            <th>Purity</th>
-            <th>CAS No.</th>
-            <th>Unit</th>
-            <th>Qty</th>
-            <th>Unit Price</th>
-            <th>MSDS</th>
-            <th>Actions</th>
-          </tr>
-        `;
+      // Update Database Entry
+      const { error: dbError } = await db
+        .from('items')
+        .update({ pdf_url: publicUrl })
+        .eq('id', itemId);
 
-        if (filtered.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No chemical/reagent records found.</td></tr>`;
-          return;
-        }
-
-        tbody.innerHTML = filtered.map(item => `
-          <tr>
-            <td><strong>${item.item_name}</strong></td>
-            <td>${cleanValue(item.brand)}</td>
-            <td><span style="color:#a855f7; font-weight:bold;">${cleanValue(item.purity)}</span></td>
-            <td>${cleanValue(item.cas_number)}</td>
-            <td>${cleanValue(item.unit_of_measure)}</td>
-            <td>${item.quantity > 0 ? item.quantity : '<span class="badge-out-of-stock">Out of Stock</span>'}</td>
-            <td><strong style="color:#67e8f9;">${formatPrice(item.price)}</strong></td>
-            <td>
-              <div class="pdf-actions">
-                ${item.pdf_url 
-                  ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">📄 MSDS</a>` 
-                  : `<span style="font-size:11px; color:#64748b;">None</span>`}
-              </div>
-            </td>
-            <td style="white-space: nowrap;">
-              <button class="btn-sell" ${item.quantity <= 0 ? 'disabled' : ''} onclick="openSellModal(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}', ${item.price || 0})">Sold</button>
-              <button class="btn-edit" onclick="openEditModal(${item.id})">Edit</button>
-              <button class="btn-add-stock" onclick="addStock(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}')">+ Stock</button>
-            </td>
-          </tr>
-        `).join('');
-
+      if (dbError) {
+        alert("Failed to update item record: " + dbError.message);
       } else {
-        thead.innerHTML = `
-          <tr>
-            <th>Item Name</th>
-            <th>Category</th>
-            <th>Brand</th>
-            <th>Model</th>
-            <th>Unit</th>
-            <th>Qty</th>
-            <th>Unit Price</th>
-            <th>Spec Sheet</th>
-            <th>Actions</th>
-          </tr>
-        `;
-
-        if (filtered.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No general equipment records found.</td></tr>`;
-          return;
-        }
-
-        tbody.innerHTML = filtered.map(item => `
-          <tr>
-            <td><strong>${item.item_name}</strong></td>
-            <td><span style="font-size:12px; color:#94a3b8;">${cleanValue(item.category)}</span></td>
-            <td>${cleanValue(item.brand)}</td>
-            <td>${cleanValue(item.model)}</td>
-            <td>${cleanValue(item.unit_of_measure)}</td>
-            <td>${item.quantity > 0 ? item.quantity : '<span class="badge-out-of-stock">Out of Stock</span>'}</td>
-            <td><strong style="color:#67e8f9;">${formatPrice(item.price)}</strong></td>
-            <td>
-              <div class="pdf-actions">
-                ${item.pdf_url 
-                  ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">📄 Spec</a>` 
-                  : `<span style="font-size:11px; color:#64748b;">None</span>`}
-              </div>
-            </td>
-            <td style="white-space: nowrap;">
-              <button class="btn-sell" ${item.quantity <= 0 ? 'disabled' : ''} onclick="openSellModal(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}', ${item.price || 0})">Sold</button>
-              <button class="btn-edit" onclick="openEditModal(${item.id})">Edit</button>
-              <button class="btn-add-stock" onclick="addStock(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}')">+ Stock</button>
-            </td>
-          </tr>
-        `).join('');
+        loadInventory();
       }
+    };
+
+    input.click();
+  }
+
+  async function deletePdf(itemId, pdfUrl) {
+    if (!confirm("Are you sure you want to remove this PDF document?")) return;
+
+    try {
+      // Extract file path from URL if hosted in Supabase Storage
+      const urlParts = pdfUrl.split('/item-specs/');
+      if (urlParts.length > 1) {
+        const filePath = urlParts[1];
+        await db.storage.from('item-specs').remove([filePath]);
+      }
+    } catch (e) {
+      console.warn("Storage deletion skipped or failed:", e);
     }
 
-    function toggleDrawer() {
-      document.getElementById('transactions-drawer').classList.toggle('open');
-    }
+    // Clear reference in database
+    const { error } = await db
+      .from('items')
+      .update({ pdf_url: null })
+      .eq('id', itemId);
 
-    function filterItems() {
-      const query = document.getElementById('search').value.toLowerCase();
-      const filtered = allItems.filter(i => 
-        (i.item_name && i.item_name.toLowerCase().includes(query)) ||
-        (i.brand && i.brand.toLowerCase().includes(query)) ||
-        (i.model && i.model.toLowerCase().includes(query)) ||
-        (i.purity && i.purity.toLowerCase().includes(query))
-      );
-      renderTable(filtered);
+    if (error) {
+      alert("Error removing PDF link: " + error.message);
+    } else {
+      loadInventory();
     }
-  </script>
+  }
+
+  /* EDIT MODAL LOGIC */
+  function toggleEditChemicalFields() {
+    const cat = document.getElementById('edit-category').value;
+    const chemFields = document.getElementById('edit-chemical-fields');
+    chemFields.style.display = (cat === "Chemicals & Reagents") ? "block" : "none";
+  }
+
+  function openEditModal(itemId) {
+    const item = allItems.find(i => i.id === itemId);
+    if (!item) return;
+
+    document.getElementById('edit-item-id').value = item.id;
+    document.getElementById('edit-item-name').value = item.item_name || '';
+    document.getElementById('edit-category').value = item.category || 'Laboratory Equipment';
+    document.getElementById('edit-brand').value = item.brand === 'None' ? '' : (item.brand || '');
+    document.getElementById('edit-model').value = item.model === 'None' ? '' : (item.model || '');
+    document.getElementById('edit-purity').value = item.purity === 'None' ? '' : (item.purity || '');
+    document.getElementById('edit-cas-number').value = item.cas_number === 'None' ? '' : (item.cas_number || '');
+    document.getElementById('edit-storage-conditions').value = item.storage_conditions === 'None' ? '' : (item.storage_conditions || '');
+    document.getElementById('edit-unit-of-measure').value = item.unit_of_measure === 'None' ? '' : (item.unit_of_measure || '');
+    document.getElementById('edit-quantity').value = item.quantity || 0;
+    document.getElementById('edit-price').value = item.price || '';
+
+    toggleEditChemicalFields();
+    document.getElementById('edit-modal').classList.add('active');
+  }
+
+  function closeEditModal() {
+    document.getElementById('edit-modal').classList.remove('active');
+  }
+
+  document.getElementById('edit-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = parseInt(document.getElementById('edit-item-id').value);
+    const isChem = document.getElementById('edit-category').value === "Chemicals & Reagents";
+
+    const updatedItem = {
+      item_name: document.getElementById('edit-item-name').value,
+      category: document.getElementById('edit-category').value,
+      brand: cleanValue(document.getElementById('edit-brand').value),
+      model: cleanValue(document.getElementById('edit-model').value),
+      purity: isChem ? cleanValue(document.getElementById('edit-purity').value) : null,
+      cas_number: isChem ? cleanValue(document.getElementById('edit-cas-number').value) : null,
+      storage_conditions: isChem ? cleanValue(document.getElementById('edit-storage-conditions').value) : null,
+      unit_of_measure: cleanValue(document.getElementById('edit-unit-of-measure').value),
+      quantity: parseInt(document.getElementById('edit-quantity').value) || 0,
+      price: document.getElementById('edit-price').value !== "" ? parseFloat(document.getElementById('edit-price').value) : null
+    };
+
+    const { error } = await db.from('items').update(updatedItem).eq('id', id);
+    if (error) {
+      alert("Error updating item: " + error.message);
+    } else {
+      closeEditModal();
+      loadInventory();
+    }
+  });
+
+  /* VIEW SWITCHING & INVENTORY LOAD */
+  function switchInventoryView(mode) {
+    currentViewMode = mode;
+    document.getElementById('tab-equipment').classList.remove('active');
+    document.getElementById('tab-chemicals').classList.remove('active');
+    const chemFields = document.getElementById('chemical-fields');
+    const catSelect = document.getElementById('category');
+
+    if (mode === 'equipment') {
+      document.getElementById('tab-equipment').classList.add('active');
+      document.getElementById('form-section-title').innerText = "Add Equipment / Supply";
+      document.getElementById('table-section-title').innerText = "General Equipment Directory";
+      document.getElementById('form_is_chemical').value = "false";
+      chemFields.style.display = 'none';
+
+      catSelect.innerHTML = `
+        <option value="Laboratory Equipment">Laboratory Equipment</option>
+        <option value="Educational & Lab Supplies">Educational & Lab Supplies</option>
+        <option value="Educational & Electrical Supplies">Educational & Electrical Supplies</option>
+        <option value="Agricultural Equipment">Agricultural Equipment</option>
+        <option value="Industrial Equipment">Industrial Equipment</option>
+      `;
+    } else {
+      document.getElementById('tab-chemicals').classList.add('active');
+      document.getElementById('form-section-title').innerText = "Add Chemical / Reagent";
+      document.getElementById('table-section-title').innerText = "Chemicals & Reagents Directory";
+      document.getElementById('form_is_chemical').value = "true";
+      chemFields.style.display = 'block';
+      catSelect.innerHTML = `<option value="Chemicals & Reagents">Chemicals & Reagents</option>`;
+    }
+    renderTable(allItems);
+  }
+
+  async function loadInventory() {
+    const { data, error } = await db.from('items').select('*').order('id', { ascending: false });
+    if (error) {
+      document.getElementById('inventory-rows').innerHTML = `<tr><td colspan="9">Error loading data.</td></tr>`;
+      return;
+    }
+    allItems = data;
+    renderTable(allItems);
+  }
+
+  function renderTable(items) {
+    const thead = document.getElementById('table-head');
+    const tbody = document.getElementById('inventory-rows');
+
+    const filtered = items.filter(item => {
+      const isChemCategory = item.category === "Chemicals & Reagents";
+      return currentViewMode === 'chemicals' ? isChemCategory : !isChemCategory;
+    });
+
+    if (currentViewMode === 'chemicals') {
+      thead.innerHTML = `
+        <tr>
+          <th>Chemical / Reagent Name</th>
+          <th>Brand</th>
+          <th>Purity</th>
+          <th>CAS No.</th>
+          <th>Unit</th>
+          <th>Qty</th>
+          <th>Unit Price</th>
+          <th>MSDS Sheet</th>
+          <th>Actions</th>
+        </tr>
+      `;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No chemical/reagent records found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => `
+        <tr>
+          <td><strong>${item.item_name}</strong></td>
+          <td>${cleanValue(item.brand)}</td>
+          <td><span style="color:#a855f7; font-weight:bold;">${cleanValue(item.purity)}</span></td>
+          <td>${cleanValue(item.cas_number)}</td>
+          <td>${cleanValue(item.unit_of_measure)}</td>
+          <td>${item.quantity > 0 ? item.quantity : '<span class="badge-out-of-stock">Out of Stock</span>'}</td>
+          <td><strong style="color:#67e8f9;">${formatPrice(item.price)}</strong></td>
+          <td>
+            <div class="pdf-actions">
+              ${item.pdf_url 
+                ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">📄 View</a>
+                   <button onclick="deletePdf(${item.id}, '${item.pdf_url}')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;" title="Delete MSDS">🗑️</button>` 
+                : `<button onclick="uploadPdf(${item.id})" class="btn-pdf" style="cursor:pointer;">📤 Upload</button>`}
+            </div>
+          </td>
+          <td style="white-space: nowrap;">
+            <button class="btn-sell" ${item.quantity <= 0 ? 'disabled' : ''} onclick="openSellModal(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}', ${item.price || 0})">Sold</button>
+            <button class="btn-edit" onclick="openEditModal(${item.id})">Edit</button>
+            <button class="btn-add-stock" onclick="addStock(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}')">+ Stock</button>
+          </td>
+        </tr>
+      `).join('');
+
+    } else {
+      thead.innerHTML = `
+        <tr>
+          <th>Item Name</th>
+          <th>Category</th>
+          <th>Brand</th>
+          <th>Model</th>
+          <th>Unit</th>
+          <th>Qty</th>
+          <th>Unit Price</th>
+          <th>Spec Sheet</th>
+          <th>Actions</th>
+        </tr>
+      `;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No general equipment records found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => `
+        <tr>
+          <td><strong>${item.item_name}</strong></td>
+          <td><span style="font-size:12px; color:#94a3b8;">${cleanValue(item.category)}</span></td>
+          <td>${cleanValue(item.brand)}</td>
+          <td>${cleanValue(item.model)}</td>
+          <td>${cleanValue(item.unit_of_measure)}</td>
+          <td>${item.quantity > 0 ? item.quantity : '<span class="badge-out-of-stock">Out of Stock</span>'}</td>
+          <td><strong style="color:#67e8f9;">${formatPrice(item.price)}</strong></td>
+          <td>
+            <div class="pdf-actions">
+              ${item.pdf_url 
+                ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">📄 View</a>
+                   <button onclick="deletePdf(${item.id}, '${item.pdf_url}')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:12px;" title="Delete Spec Sheet">🗑️</button>` 
+                : `<button onclick="uploadPdf(${item.id})" class="btn-pdf" style="cursor:pointer;">📤 Upload</button>`}
+            </div>
+          </td>
+          <td style="white-space: nowrap;">
+            <button class="btn-sell" ${item.quantity <= 0 ? 'disabled' : ''} onclick="openSellModal(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}', ${item.price || 0})">Sold</button>
+            <button class="btn-edit" onclick="openEditModal(${item.id})">Edit</button>
+            <button class="btn-add-stock" onclick="addStock(${item.id}, ${item.quantity}, '${item.item_name.replace(/'/g, "\\'")}')">+ Stock</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+  }
+
+  function toggleDrawer() {
+    document.getElementById('transactions-drawer').classList.toggle('open');
+  }
+
+  function filterItems() {
+    const query = document.getElementById('search').value.toLowerCase();
+    const filtered = allItems.filter(i => 
+      (i.item_name && i.item_name.toLowerCase().includes(query)) ||
+      (i.brand && i.brand.toLowerCase().includes(query)) ||
+      (i.model && i.model.toLowerCase().includes(query)) ||
+      (i.purity && i.purity.toLowerCase().includes(query))
+    );
+    renderTable(filtered);
+  }
+</script>
 </body>
 </html>
