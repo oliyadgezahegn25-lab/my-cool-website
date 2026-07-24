@@ -336,13 +336,10 @@
           <div class="form-group"><label>Upload Catalogue Spec PDF</label><input type="file" class="form-control" id="ent-pdf-file" accept=".pdf"></div>
         </div>
         <div id="chem-special-fields" style="display: none;">
-          <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
             <div class="form-group"><label>CAS Number</label><input type="text" class="form-control" id="ent-cas" placeholder="7647-14-5"></div>
+            <div class="form-group"><label>Expiry Date</label><input type="date" class="form-control" id="ent-expire"></div>
           </div>
-        </div>
-        <div class="form-group">
-          <label>Expiry State Number (Days/Batch ID)</label>
-          <input type="number" class="form-control" id="ent-expiry-state-number" placeholder="e.g. 365" min="0">
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
           <div class="form-group"><label>Unit</label><input type="text" class="form-control" id="ent-unit" placeholder="Pcs" required></div>
@@ -515,11 +512,11 @@
           <div class="form-group"><label>Model</label><input type="text" class="form-control" id="edit-model"></div>
         </div>
         <div id="edit-chem-fields" style="display: none;">
-          <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
             <div class="form-group"><label>CAS Number</label><input type="text" class="form-control" id="edit-cas"></div>
+            <div class="form-group"><label>Expiry Date</label><input type="date" class="form-control" id="edit-expire"></div>
           </div>
         </div>
-        <div class="form-group"><label>Expiry State Number</label><input type="number" class="form-control" id="edit-expiry-state-number" placeholder="e.g. 365" min="0"></div>
         <div class="form-group" id="edit-pdf-group"><label>Update PDF Catalog</label><input type="file" class="form-control" id="edit-pdf-file" accept=".pdf"></div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
           <div class="form-group"><label>Stock Qty</label><input type="number" class="form-control" id="edit-qty" required></div>
@@ -785,7 +782,7 @@
         return `
           <div class="expiry-timeline-row">
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px;">
-              <div><strong>${chem.item_name}</strong> <span style="font-size:11px; color:var(--text-muted); font-family:monospace;">(CAS: ${chem.cas_number || 'N/A'} | Expiry No: ${chem.expiry_state_number || 'N/A'})</span></div>
+              <div><strong>${chem.item_name}</strong> <span style="font-size:11px; color:var(--text-muted); font-family:monospace;">(CAS: ${chem.cas_number || 'N/A'})</span></div>
               <div>${statusBadge}</div>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted);">
@@ -907,28 +904,27 @@
       
       if (currentView === 'equipment') {
         document.getElementById('table-record-count').textContent = `Showing ${equipmentItems.length} records`;
-        thead.innerHTML = `<tr><th>#</th><th>Item Description</th><th>Category</th><th>Brand / Model</th><th>Expiry State No.</th><th>Stock Qty</th><th>Unit Price</th><th>Catalogue Spec</th><th>Actions</th></tr>`;
+        thead.innerHTML = `<tr><th>#</th><th>Item Description</th><th>Category</th><th>Brand / Model</th><th>Stock Qty</th><th>Unit Price</th><th>Catalogue Spec</th><th>Actions</th></tr>`;
         if (!equipmentItems.length) {
-          tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color: var(--text-muted); padding:20px;">No equipment records found.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color: var(--text-muted); padding:20px;">No equipment records found.</td></tr>`;
         } else {
           tbody.innerHTML = equipmentItems.map((item, index) => {
             const qty = parseInt(item.quantity) || 0;
             const pdfUrl = item.pdf_url;
-            const recordId = item.id;
+            const recordId = item.id || index;
             return `
               <tr>
                 <td><strong>${index + 1}</strong></td>
                 <td><strong>${item.item_name}</strong></td>
                 <td><span style="font-size:11px; padding:2px 6px; background:rgba(255,255,255,0.05); border-radius:4px;">${item.category}</span></td>
                 <td><span style="font-size:12px; color:var(--text-muted);">${item.brand || '-'} / ${item.model || '-'}</span></td>
-                <td><span style="font-size:12px; color:var(--accent-amber);">${item.expiry_state_number || '-'}</span></td>
                 <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
                 <td><strong style="color:var(--accent-cyan);">${item.price} ETB</strong></td>
-                <td>${pdfUrl ? `<div style="display:flex; gap:4px; align-items:center;"><a href="${pdfUrl}" target="_blank" class="btn-action" style="padding:4px 7px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> View</a><button class="btn-action" style="padding:4px 7px; background:rgba(244,63,94,0.15); color:var(--accent-rose); border-color:var(--accent-rose);" onclick="deleteItemPdf('${recordId}')"><i class="fa-solid fa-trash"></i></button></div>` : `<span style="color:var(--text-muted); font-size:11px;">None</span>`}</td>
+                <td>${pdfUrl ? `<div style="display:flex; gap:4px; align-items:center;"><a href="${pdfUrl}" target="_blank" class="btn-action" style="padding:4px 7px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> View</a><button class="btn-action" style="padding:4px 7px; background:rgba(244,63,94,0.15); color:var(--accent-rose); border-color:var(--accent-rose);" onclick="deleteItemPdf(${recordId})"><i class="fa-solid fa-trash"></i></button></div>` : `<span style="color:var(--text-muted); font-size:11px;">None</span>`}</td>
                 <td>
                   <div style="display:flex; gap:5px;">
-                    <button class="btn-action" style="padding:4px 7px; background:var(--accent-amber); color:#020617;" onclick="openEditModal('${recordId}')"><i class="fa-solid fa-pen"></i></button>
-                    <button class="btn-action" style="padding:4px 7px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal('${recordId}')" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
+                    <button class="btn-action" style="padding:4px 7px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${recordId})"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-action" style="padding:4px 7px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${recordId})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
                   </div>
                 </td>
               </tr>`;
@@ -936,26 +932,26 @@
         }
       } else if (currentView === 'chemicals') {
         document.getElementById('table-record-count').textContent = `Showing ${chemicalItems.length} records`;
-        chemThead.innerHTML = `<tr><th>#</th><th>Chemical Name</th><th>Category</th><th>CAS Number</th><th>Expiry State No.</th><th>Stock Qty</th><th>Unit Price</th><th>Actions</th></tr>`;
+        chemThead.innerHTML = `<tr><th>#</th><th>Chemical Name</th><th>Category</th><th>CAS Number</th><th>Stock Qty</th><th>Unit Price</th><th>Expiry Date</th><th>Actions</th></tr>`;
         if (!chemicalItems.length) {
           chemTbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color: var(--text-muted); padding:20px;">No chemical records found.</td></tr>`;
         } else {
           chemTbody.innerHTML = chemicalItems.map((item, index) => {
             const qty = parseInt(item.quantity) || 0;
-            const recordId = item.id;
+            const recordId = item.id || index;
             return `
               <tr>
                 <td><strong>${index + 1}</strong></td>
                 <td><strong>${item.item_name}</strong></td>
                 <td><span style="font-size:11px; padding:2px 6px; background:rgba(255,255,255,0.05); border-radius:4px;">${item.category}</span></td>
                 <td><span style="font-family:monospace; color:var(--accent-purple);">${item.cas_number || 'N/A'}</span></td>
-                <td><span style="font-size:12px; color:var(--accent-amber);">${item.expiry_state_number || '-'}</span></td>
                 <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
                 <td><strong style="color:var(--accent-cyan);">${item.price} ETB</strong></td>
+                <td><span style="color:var(--accent-amber);">${item.expire_date || 'N/A'}</span></td>
                 <td>
                   <div style="display:flex; gap:5px;">
-                    <button class="btn-action" style="padding:4px 7px; background:var(--accent-amber); color:#020617;" onclick="openEditModal('${recordId}')"><i class="fa-solid fa-pen"></i></button>
-                    <button class="btn-action" style="padding:4px 7px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal('${recordId}')" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
+                    <button class="btn-action" style="padding:4px 7px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${recordId})"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-action" style="padding:4px 7px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${recordId})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
                   </div>
                 </td>
               </tr>`;
@@ -969,7 +965,7 @@
         try { await db.from('items').update({ pdf_url: null }).eq('id', id); } catch(err) {}
       }
       let localItems = JSON.parse(localStorage.getItem('local_items_fallback') || '[]');
-      localItems = localItems.map(i => (i.id == id) ? { ...i, pdf_url: null } : i);
+      localItems = localItems.map(i => (i.id === id || i.id == id) ? { ...i, pdf_url: null } : i);
       localStorage.setItem('local_items_fallback', JSON.stringify(localItems));
       addAuditEntry("PDF Deleted", `Removed catalogue PDF from item ID ${id}`);
       loadEnterpriseData();
@@ -988,18 +984,17 @@
       let catalogUrl = pdfFile ? await convertFileToBase64(pdfFile) : null;
       
       const payload = {
-        id: 'id_' + Date.now(),
+        id: Date.now(),
         category: document.getElementById('ent-category').value,
         item_name: document.getElementById('ent-name').value,
         brand: document.getElementById('ent-brand').value,
         model: document.getElementById('ent-model').value,
         pdf_url: catalogUrl,
-        expiry_state_number: document.getElementById('ent-expiry-state-number').value || null,
         unit_of_measure: document.getElementById('ent-unit').value,
         quantity: parseInt(document.getElementById('ent-qty').value) || 0,
         price: parseFloat(document.getElementById('ent-price').value) || 0,
         cas_number: document.getElementById('ent-cas').value || null,
-        expire_date: null
+        expire_date: document.getElementById('ent-expire').value || null
       };
       if (db) {
         try { await db.from('items').insert([payload]); } catch(err) {}
@@ -1012,7 +1007,7 @@
       loadEnterpriseData();
     }
     function openEditModal(id) {
-      const item = enterpriseItems.find(i => i.id == id);
+      const item = enterpriseItems.find(i => i.id === id || i.id == id);
       if (!item) return;
       document.getElementById('edit-id').value = item.id;
       document.getElementById('edit-category').value = item.category;
@@ -1020,7 +1015,7 @@
       document.getElementById('edit-brand').value = item.brand || '';
       document.getElementById('edit-model').value = item.model || '';
       document.getElementById('edit-cas').value = item.cas_number || '';
-      document.getElementById('edit-expiry-state-number').value = item.expiry_state_number || '';
+      document.getElementById('edit-expire').value = item.expire_date || '';
       document.getElementById('edit-qty').value = item.quantity;
       document.getElementById('edit-price').value = item.price;
       toggleEditCategoryFields();
@@ -1029,7 +1024,7 @@
     function closeEditModal() { document.getElementById('edit-modal').classList.remove('active'); }
     async function handleEditSubmit(e) {
       e.preventDefault();
-      const id = document.getElementById('edit-id').value;
+      const id = parseInt(document.getElementById('edit-id').value);
       const category = document.getElementById('edit-category').value;
       const pdfFile = document.getElementById('edit-pdf-file').files[0];
       let catalogUrl = pdfFile ? await convertFileToBase64(pdfFile) : undefined;
@@ -1037,13 +1032,12 @@
       const updated = {
         category: category,
         item_name: document.getElementById('edit-name').value,
-        expiry_state_number: document.getElementById('edit-expiry-state-number').value || null,
         quantity: parseInt(document.getElementById('edit-qty').value) || 0,
         price: parseFloat(document.getElementById('edit-price').value) || 0
       };
       if (category === "Chemicals & Reagents") {
         updated.cas_number = document.getElementById('edit-cas').value || null;
-        updated.expire_date = null;
+        updated.expire_date = document.getElementById('edit-expire').value || null;
         updated.brand = null;
         updated.model = null;
       } else {
@@ -1055,14 +1049,14 @@
         try { await db.from('items').update(updated).eq('id', id); } catch(err) {}
       }
       let localItems = JSON.parse(localStorage.getItem('local_items_fallback') || '[]');
-      localItems = localItems.map(i => (i.id == id) ? { ...i, ...updated } : i);
+      localItems = localItems.map(i => (i.id === id || i.id == id) ? { ...i, ...updated } : i);
       localStorage.setItem('local_items_fallback', JSON.stringify(localItems));
       addAuditEntry("Asset Updated", `Modified "${updated.item_name}"`);
       closeEditModal();
       loadEnterpriseData();
     }
     function openSaleModal(id) {
-      const item = enterpriseItems.find(i => i.id == id);
+      const item = enterpriseItems.find(i => i.id === id || i.id == id);
       if (!item) return;
       document.getElementById('sale-item-id').value = item.id;
       document.getElementById('sale-item-name').value = item.item_name;
@@ -1075,13 +1069,13 @@
     function closeSaleModal() { document.getElementById('sale-modal').classList.remove('active'); }
     async function handleSaleSubmit(e) {
       e.preventDefault();
-      const itemId = document.getElementById('sale-item-id').value;
+      const itemId = parseInt(document.getElementById('sale-item-id').value);
       const qtySold = parseInt(document.getElementById('sale-qty').value);
-      const item = enterpriseItems.find(i => i.id == itemId);
+      const item = enterpriseItems.find(i => i.id === itemId || i.id == itemId);
       
       if (!item || item.quantity < qtySold) { alert("Insufficient stock quantity!"); return; }
       const saleRecord = {
-        id: 'sale_' + Date.now(),
+        id: Date.now(),
         item_id: itemId,
         item_name: document.getElementById('sale-item-name').value,
         sale_type: document.getElementById('sale-type').value,
@@ -1102,7 +1096,7 @@
         try { await db.from('items').update({ quantity: newQty }).eq('id', itemId); } catch(err) {}
       }
       let localItems = JSON.parse(localStorage.getItem('local_items_fallback') || '[]');
-      localItems = localItems.map(i => (i.id == itemId) ? { ...i, quantity: newQty } : i);
+      localItems = localItems.map(i => (i.id === itemId || i.id == itemId) ? { ...i, quantity: newQty } : i);
       localStorage.setItem('local_items_fallback', JSON.stringify(localItems));
       addAuditEntry("Sale Recorded", `Dispatched ${qtySold}x "${saleRecord.item_name}" to ${saleRecord.client_name} (${saleRecord.sale_type})`);
       closeSaleModal();
@@ -1143,8 +1137,8 @@
       let filename = target === 'inventory' ? "inventory_export.csv" : "sales_export.csv";
       
       if (target === 'inventory') {
-        csv += "Category,Item Name,Brand,Model,Expiry State No.,Quantity,Price (ETB)\r\n";
-        enterpriseItems.forEach(i => { csv += `"${i.category}","${i.item_name}","${i.brand || ''}","${i.model || ''}","${i.expiry_state_number || ''}",${i.quantity},${i.price}\r\n`; });
+        csv += "Category,Item Name,Brand,Model,Quantity,Price (ETB)\r\n";
+        enterpriseItems.forEach(i => { csv += `"${i.category}","${i.item_name}","${i.brand || ''}","${i.model || ''}",${i.quantity},${i.price}\r\n`; });
       } else {
         const timeframe = document.getElementById('export-sales-timeframe').value;
         const now = new Date();
