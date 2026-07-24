@@ -31,44 +31,70 @@
       box-shadow: 0 0 0 4px var(--accent-cyan), 0 0 25px rgba(56, 189, 248, 0.6) !important;
       transition: all 0.3s ease;
     }
-    /* AUTH OVERLAY */
+
+    /* ULTRA-MODERN FANCY AUTH OVERLAY */
     #auth-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: radial-gradient(circle at 50% 20%, #1e293b 0%, #07090e 100%);
+      background: radial-gradient(circle at 50% 20%, #1e1b4b 0%, #090d16 60%, #030508 100%);
       display: flex; justify-content: center; align-items: center; z-index: 9999;
+      overflow: hidden;
+    }
+    #auth-overlay::before {
+      content: ''; position: absolute; width: 500px; height: 500px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(168, 85, 247, 0.15));
+      border-radius: 50%; filter: blur(80px); top: -100px; left: -100px; z-index: 1;
+      animation: floatOrb 10s ease-in-out infinite alternate;
+    }
+    #auth-overlay::after {
+      content: ''; position: absolute; width: 400px; height: 400px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(56, 189, 248, 0.1));
+      border-radius: 50%; filter: blur(80px); bottom: -100px; right: -100px; z-index: 1;
+      animation: floatOrb2 12s ease-in-out infinite alternate;
+    }
+    @keyframes floatOrb {
+      0% { transform: translateY(0px) scale(1); }
+      100% { transform: translateY(40px) scale(1.1); }
+    }
+    @keyframes floatOrb2 {
+      0% { transform: translateY(0px) scale(1); }
+      100% { transform: translateY(-50px) scale(1.15); }
     }
     .auth-card {
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(25px);
+      position: relative; z-index: 2;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
       border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 20px;
-      width: 100%; max-width: 440px; padding: 40px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+      border-radius: 24px;
+      width: 100%; max-width: 420px; padding: 45px 40px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
       text-align: center;
     }
     .auth-logo-badge {
-      width: 64px; height: 64px;
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(168, 85, 247, 0.2));
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      border-radius: 16px;
+      width: 68px; height: 68px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(168, 85, 247, 0.25));
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 20px;
       display: flex; align-items: center; justify-content: center;
       font-size: 28px; color: var(--accent-cyan);
-      margin: 0 auto 20px auto;
+      margin: 0 auto 22px auto;
+      box-shadow: 0 10px 25px rgba(56, 189, 248, 0.2);
     }
     .auth-control {
-      width: 100%; background: rgba(0, 0, 0, 0.4);
-      border: 1px solid var(--border-light); border-radius: 10px;
-      padding: 12px 14px 12px 40px; color: white; font-size: 14px;
-      transition: all 0.25s ease;
+      width: 100%; background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;
+      padding: 14px 16px 14px 44px; color: white; font-size: 14px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .auth-control:focus { outline: none; border-color: var(--accent-cyan); box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15); }
+    .auth-control:focus { outline: none; border-color: var(--accent-cyan); box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.2); background: rgba(0, 0, 0, 0.6); }
     .auth-btn {
-      width: 100%; background: linear-gradient(135deg, var(--accent-cyan), #0284c7);
-      color: #020617; border: none; border-radius: 10px; padding: 14px;
-      font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 10px;
-      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3); transition: all 0.25s ease;
+      width: 100%; background: linear-gradient(135deg, #38bdf8, #0284c7);
+      color: #020617; border: none; border-radius: 12px; padding: 15px;
+      font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 14px;
+      box-shadow: 0 8px 20px rgba(56, 189, 248, 0.35); transition: all 0.3s ease;
+      letter-spacing: 0.5px;
     }
-    .auth-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(56, 189, 248, 0.45); }
+    .auth-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(56, 189, 248, 0.5); background: linear-gradient(135deg, #7dd3fc, #0284c7); }
+
     /* NAVBAR */
     .navbar {
       background: var(--panel-bg);
@@ -124,14 +150,12 @@
     .analytics-card.amber::before { background: var(--accent-amber); }
     .analytics-card.emerald::before { background: var(--accent-emerald); }
     .analytics-card.purple::before { background: var(--accent-purple); }
-    /* CHARTS CONTAINER */
+
+    /* CHARTS & VISUAL TIMELINE STYLES */
     .charts-grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: 15px;
-    }
-    @media (max-width: 1024px) {
-      .charts-grid { grid-template-columns: 1fr; }
     }
     .chart-box {
       background: var(--panel-bg);
@@ -143,6 +167,41 @@
       flex-direction: column;
     }
     .chart-wrapper { position: relative; flex: 1; width: 100%; height: 100%; }
+
+    /* EXPIRY INTERPISRE-STYLE TIMELINE CARDS */
+    .expiry-visual-container {
+      background: var(--panel-bg);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .expiry-timeline-row {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .expiry-timeline-row:hover { border-color: rgba(56, 189, 248, 0.4); background: rgba(255, 255, 255, 0.02); }
+    .timeline-bar-bg {
+      width: 100%; height: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 5px;
+      overflow: hidden;
+      position: relative;
+    }
+    .timeline-bar-fill {
+      height: 100%;
+      border-radius: 5px;
+      transition: width 0.6s ease;
+    }
+
     /* FORM STYLES */
     .form-group { margin-bottom: 12px; text-align: left; }
     .form-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; text-transform: uppercase; }
@@ -189,6 +248,7 @@
     .sale-msg-card:hover { background: rgba(255, 255, 255, 0.07); border-color: var(--accent-emerald); }
     .sale-msg-body { display: none; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border-light); font-size: 12px; color: var(--text-muted); }
     .sale-msg-card.expanded .sale-msg-body { display: block; }
+
     /* FLOATING TOUR GUIDE BANNER */
     #tour-floating-box {
       position: fixed; bottom: 25px; right: 25px; width: 340px;
@@ -203,26 +263,27 @@
   <div id="auth-overlay">
     <div class="auth-card">
       <div class="auth-logo-badge">
-        <i class="fa-solid fa-shield-halved"></i>
+        <i class="fa-solid fa-fingerprint"></i>
       </div>
-      <h2>Welcome to Labaid Trading PLC Inventory System</h2>
-      <p style="color: var(--text-muted); font-size: 13px; margin: 10px 0 25px 0;">Enterprise Intelligence System. Authenticate to launch workstation.</p>
+      <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 6px; letter-spacing: 0.3px;">Workstation Portal</h2>
+      <p style="color: var(--text-muted); font-size: 13px; margin: 0 0 24px 0;">Labaid Trading PLC Enterprise Security</p>
       <form onsubmit="handleLogin(event)">
         <div class="form-group" style="text-align: left;">
           <label>Username</label>
-          <div style="position:relative;"><i class="fa-solid fa-user-shield" style="position:absolute; left:14px; top:12px; color:var(--text-muted);"></i>
-          <input type="text" class="auth-control" id="login-user" required placeholder="Labaid" style="padding-left:38px;"></div>
+          <div style="position:relative;"><i class="fa-solid fa-user-shield" style="position:absolute; left:15px; top:14px; color:var(--text-muted); font-size:14px;"></i>
+          <input type="text" class="auth-control" id="login-user" required placeholder="Labaid"></div>
         </div>
-        <div class="form-group" style="text-align: left;">
+        <div class="form-group" style="text-align: left; margin-top: 14px;">
           <label>Password</label>
-          <div style="position:relative;"><i class="fa-solid fa-key" style="position:absolute; left:14px; top:12px; color:var(--text-muted);"></i>
-          <input type="password" class="auth-control" id="login-pass" required placeholder="Abc123" style="padding-left:38px;"></div>
+          <div style="position:relative;"><i class="fa-solid fa-key" style="position:absolute; left:15px; top:14px; color:var(--text-muted); font-size:14px;"></i>
+          <input type="password" class="auth-control" id="login-pass" required placeholder="••••••••"></div>
         </div>
-        <div id="login-error" style="color: var(--accent-rose); font-size: 12px; margin-bottom: 12px; display: none;">Invalid credentials.</div>
-        <button type="submit" class="auth-btn">Authenticate Workstation <i class="fa-solid fa-arrow-right-to-bracket"></i></button>
+        <div id="login-error" style="color: var(--accent-rose); font-size: 12px; margin-top: 10px; display: none;"><i class="fa-solid fa-circle-exclamation"></i> Invalid credentials supplied.</div>
+        <button type="submit" class="auth-btn">Authenticate Session <i class="fa-solid fa-arrow-right-to-bracket" style="margin-left: 6px;"></i></button>
       </form>
     </div>
   </div>
+
   <!-- NAVBAR -->
   <header class="navbar">
     <div class="brand" id="tour-step-1-target">
@@ -249,6 +310,7 @@
       </button>
     </div>
   </header>
+
   <!-- APP CONTAINER -->
   <div class="app-container">
     
@@ -297,6 +359,7 @@
         </button>
       </form>
     </aside>
+
     <!-- CONTENT AREA -->
     <main class="content-area">
       
@@ -310,7 +373,7 @@
             <i class="fa-solid fa-flask"></i> Chemicals & Reagents
           </button>
           <button class="tab-btn" id="tab-visuals" onclick="switchEnterpriseView('visuals')" style="background: rgba(56, 189, 248, 0.2); border: 1px solid var(--accent-cyan); color: var(--accent-cyan);">
-            <i class="fa-solid fa-chart-pie"></i> Visuals
+            <i class="fa-solid fa-chart-pie"></i> Visuals & Expiry Timelines
           </button>
           <button class="tab-btn" id="tab-hub" onclick="switchEnterpriseView('hub')" style="background: rgba(168, 85, 247, 0.2); border: 1px solid var(--accent-purple); color: var(--accent-purple);">
             <i class="fa-solid fa-brain"></i> Intelligence Hub Replenishment
@@ -318,6 +381,7 @@
         </div>
         <div style="font-size: 12px; color: var(--text-muted);" id="table-record-count">Showing 0 records</div>
       </div>
+
       <!-- PAGE CONTAINER 1: EQUIPMENT -->
       <div id="page-equipment" class="page-section">
         <div class="table-container" id="tour-step-12-target">
@@ -327,6 +391,7 @@
           </table>
         </div>
       </div>
+
       <!-- PAGE CONTAINER 2: CHEMICALS -->
       <div id="page-chemicals" class="page-section" style="display: none;">
         <div class="table-container">
@@ -336,7 +401,8 @@
           </table>
         </div>
       </div>
-      <!-- PAGE CONTAINER 3: VISUALS ONLY -->
+
+      <!-- PAGE CONTAINER 3: VISUALS & EXPIRY TIMELINES -->
       <div id="page-visuals-expiry" class="page-section" style="display: none; flex-direction: column; gap: 15px;">
         <div class="dashboard-deck" id="tour-step-8-target">
           <div class="analytics-card">
@@ -355,14 +421,27 @@
             <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"><i class="fa-solid fa-triangle-exclamation"></i> Real-time shelf-life intelligence</div>
           </div>
         </div>
+
         <div class="charts-grid" id="tour-step-9-target">
           <div class="chart-box">
             <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;"><i class="fa-solid fa-chart-pie"></i> Inventory Distribution by Category</h4>
             <div class="chart-wrapper"><canvas id="categoryChart"></canvas></div>
           </div>
         </div>
+
+        <!-- NEW CHEMICAL EXPIRY TIMELINE DIAGRAMS -->
+        <div class="expiry-visual-container">
+          <h4 style="font-size: 14px; color: var(--accent-cyan); display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-timeline"></i> Chemical & Reagent Expiry Lifecycle Diagrams (Interpsire Style)
+          </h4>
+          <p style="font-size: 12px; color: var(--text-muted);">Visual bar timelines showing remaining shelf-life stability per chemical asset.</p>
+          <div id="expiry-timeline-list" style="display: flex; flex-direction: column; gap: 10px; margin-top: 6px;">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
       </div>
-      <!-- PAGE CONTAINER 5: INTELLIGENCE HUB REPLENISHMENT PAGE -->
+
+      <!-- PAGE CONTAINER 4: INTELLIGENCE HUB REPLENISHMENT PAGE -->
       <div id="page-hub" class="page-section" style="display: none; flex-direction: column; gap: 15px;">
         <div class="dashboard-deck">
           <div class="analytics-card purple">
@@ -392,6 +471,7 @@
       </div>
     </main>
   </div>
+
   <!-- FLOATING TOUR GUIDE BOX -->
   <div id="tour-floating-box">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -405,6 +485,7 @@
       <button class="btn-action btn-primary" id="tour-next-btn" onclick="travelTourStep(1)">Next <i class="fa-solid fa-arrow-right"></i></button>
     </div>
   </div>
+
   <!-- PASSWORD MODAL -->
   <div class="modal-overlay" id="password-modal">
     <div class="modal-box" style="max-width: 400px;">
@@ -420,6 +501,7 @@
       </form>
     </div>
   </div>
+
   <!-- EDIT MODAL -->
   <div class="modal-overlay" id="edit-modal">
     <div class="modal-box">
@@ -459,6 +541,7 @@
       </form>
     </div>
   </div>
+
   <!-- SALE MODAL -->
   <div class="modal-overlay" id="sale-modal">
     <div class="modal-box">
@@ -487,6 +570,7 @@
       </form>
     </div>
   </div>
+
   <!-- EXPORT MODAL -->
   <div class="modal-overlay" id="export-modal">
     <div class="modal-box">
@@ -503,6 +587,7 @@
       </div>
     </div>
   </div>
+
   <!-- AUDIT LOG DRAWER -->
   <div id="audit-drawer" class="side-drawer">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
@@ -511,6 +596,7 @@
     </div>
     <div id="audit-log-container"></div>
   </div>
+
   <!-- SALES HISTORY DRAWER -->
   <div id="sales-drawer" class="side-drawer">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
@@ -519,6 +605,7 @@
     </div>
     <div id="sales-history-container"></div>
   </div>
+
   <!-- JAVASCRIPT ENGINE -->
   <script>
     const SUPABASE_URL = "https://cbmvbbfbgauqusibdnup.supabase.co";
@@ -534,74 +621,22 @@
     let currentTourIndex = 0;
     let categoryChartInstance = null;
     
-    // UPDATED TOUR GUIDE DEFINITIONS
     const tourStepsDef = [
-      {
-        targetId: 'tour-step-1-target',
-        title: 'Stage 1: Enterprise Brand Header',
-        desc: 'Core navigation header running the Labaid Trading PLC Inventory with rapid action shortcuts.'
-      },
-      {
-        targetId: 'tour-step-2-target',
-        title: 'Stage 2: Asset Registration Sidebar',
-        desc: 'Register new equipment, supplies, or chemicals directly into cloud storage.'
-      },
-      {
-        targetId: 'tour-step-3-target',
-        title: 'Stage 3: Category Selector',
-        desc: 'Select categories like Laboratory Equipment or Chemicals & Reagents.'
-      },
-      {
-        targetId: 'tour-step-4-target',
-        title: 'Stage 4: Sales History Drawer',
-        desc: 'Track completed university and institutional dispatches with item-level breakdowns.'
-      },
-      {
-        targetId: 'tour-step-5-target',
-        title: 'Stage 5: Data Export Center',
-        desc: 'Download full inventory or sales history datasets as CSV files.'
-      },
-      {
-        targetId: 'tour-step-6-target',
-        title: 'Stage 6: System Audit Logs',
-        desc: 'Monitor workstation activity and administrative changes in real time.'
-      },
-      {
-        targetId: 'tour-step-7-target',
-        title: 'Stage 7: Security Settings',
-        desc: 'Update your account credentials and workstation access keys.'
-      },
-      {
-        targetId: 'tour-step-8-target',
-        title: 'Stage 8: Intelligence Analytics Deck',
-        desc: 'Live cards displaying total volume, active sectors, and chemical expiration warnings.'
-      },
-      {
-        targetId: 'tour-step-9-target',
-        title: 'Stage 9: Visualization Charts',
-        desc: 'Interactive graphical representation of inventory distribution.'
-      },
-      {
-        targetId: 'tour-step-10-target',
-        title: 'Stage 10: Page View Control',
-        desc: 'Quickly access Lab Equipment, Chemicals, Visuals, and Intelligence Hub pages.'
-      },
-      {
-        targetId: 'tour-step-11-target',
-        title: 'Stage 11: Sector Page Switcher',
-        desc: 'Switch between Equipment, Chemicals, Visuals, and Intelligence Hub pages seamlessly.'
-      },
-      {
-        targetId: 'tour-step-12-target',
-        title: 'Stage 12: Item Matrix & Edit/Sell Actions',
-        desc: 'Edit asset records, trigger sales, or manage stock.'
-      },
-      {
-        targetId: 'tab-hub',
-        title: 'Stage 13: Intelligence Hub Replenishment Page',
-        desc: 'Explore portfolio valuation metrics and automated low-stock reorder recommendations.'
-      }
+      { targetId: 'tour-step-1-target', title: 'Stage 1: Enterprise Brand Header', desc: 'Core navigation header running the Labaid Trading PLC Inventory with rapid action shortcuts.' },
+      { targetId: 'tour-step-2-target', title: 'Stage 2: Asset Registration Sidebar', desc: 'Register new equipment, supplies, or chemicals directly into cloud storage.' },
+      { targetId: 'tour-step-3-target', title: 'Stage 3: Category Selector', desc: 'Select categories like Laboratory Equipment or Chemicals & Reagents.' },
+      { targetId: 'tour-step-4-target', title: 'Stage 4: Sales History Drawer', desc: 'Track completed university and institutional dispatches with item-level breakdowns.' },
+      { targetId: 'tour-step-5-target', title: 'Stage 5: Data Export Center', desc: 'Download full inventory or sales history datasets as CSV files.' },
+      { targetId: 'tour-step-6-target', title: 'Stage 6: System Audit Logs', desc: 'Monitor workstation activity and administrative changes in real time.' },
+      { targetId: 'tour-step-7-target', title: 'Stage 7: Security Settings', desc: 'Update your account credentials and workstation access keys.' },
+      { targetId: 'tour-step-8-target', title: 'Stage 8: Intelligence Analytics Deck', desc: 'Live cards displaying total volume, active sectors, and chemical expiration warnings.' },
+      { targetId: 'tour-step-9-target', title: 'Stage 9: Visualization Charts & Timelines', desc: 'Interactive graphical distribution charts and expiry tracking timelines.' },
+      { targetId: 'tour-step-10-target', title: 'Stage 10: Page View Control', desc: 'Quickly access Lab Equipment, Chemicals, Visuals, and Intelligence Hub pages.' },
+      { targetId: 'tour-step-11-target', title: 'Stage 11: Sector Page Switcher', desc: 'Switch between Equipment, Chemicals, Visuals, and Intelligence Hub pages seamlessly.' },
+      { targetId: 'tour-step-12-target', title: 'Stage 12: Item Matrix & Edit/Sell Actions', desc: 'Edit asset records, trigger sales, or manage stock.' },
+      { targetId: 'tab-hub', title: 'Stage 13: Intelligence Hub Replenishment Page', desc: 'Explore portfolio valuation metrics and automated low-stock reorder recommendations.' }
     ];
+
     function startInteractiveTour() {
       currentTourIndex = 0;
       document.getElementById('tour-floating-box').style.display = 'block';
@@ -633,6 +668,7 @@
       nBtn.innerHTML = currentTourIndex === tourStepsDef.length - 1 ? `Finish <i class="fa-solid fa-check"></i>` : `Next <i class="fa-solid fa-arrow-right"></i>`;
       nBtn.onclick = currentTourIndex === tourStepsDef.length - 1 ? closeInteractiveTour : () => travelTourStep(1);
     }
+
     function openPasswordModal() { document.getElementById('password-modal').classList.add('active'); }
     function closePasswordModal() { document.getElementById('password-modal').classList.remove('active'); }
     function handlePasswordChange(e) {
@@ -678,6 +714,7 @@
         </div>
       `).join('');
     }
+
     async function loadEnterpriseData() {
       let itemsData = [];
       if (db) {
@@ -700,10 +737,12 @@
       salesHistory = [...salesData, ...JSON.parse(localStorage.getItem('local_sales_fallback') || '[]')];
       updateAnalyticsDeck();
       renderCharts();
+      renderExpiryTimelines();
       renderHubData();
       renderEnterpriseTable(enterpriseItems);
       renderSalesHistoryDrawer();
     }
+
     function updateAnalyticsDeck() {
       let totalQty = enterpriseItems.reduce((acc, i) => acc + (parseInt(i.quantity) || 0), 0);
       let cats = new Set(enterpriseItems.map(i => i.category)).size;
@@ -720,6 +759,60 @@
       document.getElementById('stat-categories-count').textContent = `${cats} Active`;
       document.getElementById('stat-expiry-alert').textContent = `${expiringSoon} Items`;
     }
+
+    // RENDER INTERPISRE-STYLE CHEMICAL EXPIRY TIMELINE DIAGRAMS
+    function renderExpiryTimelines() {
+      const container = document.getElementById('expiry-timeline-list');
+      const chemicals = enterpriseItems.filter(i => i.category === "Chemicals & Reagents" && i.expire_date);
+      
+      if (!chemicals.length) {
+        container.innerHTML = `<div style="text-align:center; color: var(--text-muted); font-size:12px; padding:15px;">No chemical expiry dates registered. Add chemical assets with expiry dates to view timelines.</div>`;
+        return;
+      }
+
+      const now = new Date();
+      container.innerHTML = chemicals.map(chem => {
+        const expDate = new Date(chem.expire_date);
+        const diffTime = expDate - now;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        // Calculate percentage for progress bar (assuming max 730 days / 2 years total shelf life scale)
+        let maxScaleDays = 730;
+        let percentage = Math.max(0, Math.min(100, (diffDays / maxScaleDays) * 100));
+        
+        let barColor = 'var(--accent-emerald)';
+        let statusBadge = '<span style="color:var(--accent-emerald); font-weight:700;"><i class="fa-solid fa-circle-check"></i> Stable Shelf Life</span>';
+        
+        if (diffDays < 0) {
+          percentage = 0;
+          barColor = 'var(--accent-rose)';
+          statusBadge = '<span style="color:var(--accent-rose); font-weight:700;"><i class="fa-solid fa-triangle-exclamation"></i> EXPIRED</span>';
+        } else if (diffDays <= 180) {
+          barColor = 'var(--accent-rose)';
+          statusBadge = '<span style="color:var(--accent-rose); font-weight:700;"><i class="fa-solid fa-triangle-exclamation"></i> Critical Expiry Approaching</span>';
+        } else if (diffDays <= 365) {
+          barColor = 'var(--accent-amber)';
+          statusBadge = '<span style="color:var(--accent-amber); font-weight:700;"><i class="fa-solid fa-clock"></i> Expires within 1 Year</span>';
+        }
+
+        return `
+          <div class="expiry-timeline-row">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px;">
+              <div><strong>${chem.item_name}</strong> <span style="font-size:11px; color:var(--text-muted); font-family:monospace;">(CAS: ${chem.cas_number || 'N/A'})</span></div>
+              <div>${statusBadge}</div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted);">
+              <span>Expiry Date: <strong style="color:var(--text-main);">${chem.expire_date}</strong></span>
+              <span>Time Remaining: <strong style="color:var(--text-main);">${diffDays > 0 ? diffDays + ' Days' : 'Expired'}</strong></span>
+            </div>
+            <div class="timeline-bar-bg">
+              <div class="timeline-bar-fill" style="width: ${percentage}%; background: ${barColor};"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     function renderHubData() {
       let totalVal = enterpriseItems.reduce((acc, i) => acc + ((parseInt(i.quantity) || 0) * (parseFloat(i.price) || 0)), 0);
       document.getElementById('stat-total-valuation').textContent = totalVal.toLocaleString() + " ETB";
@@ -747,6 +840,7 @@
         `;
       }).join('');
     }
+
     function renderCharts() {
       let catCounts = {};
       enterpriseItems.forEach(i => {
@@ -770,6 +864,7 @@
         }
       });
     }
+
     function toggleCategoryFields() {
       const isChem = document.getElementById('ent-category').value === "Chemicals & Reagents";
       document.getElementById('chem-special-fields').style.display = isChem ? 'block' : 'none';
@@ -781,6 +876,7 @@
       document.getElementById('edit-brand-model-group').style.display = isChem ? 'none' : 'grid';
       document.getElementById('edit-pdf-group').style.display = isChem ? 'none' : 'block';
     }
+
     function switchEnterpriseView(mode) {
       currentView = mode;
       document.getElementById('tab-equipment').classList.toggle('active', mode === 'equipment');
@@ -792,9 +888,11 @@
       document.getElementById('page-chemicals').style.display = mode === 'chemicals' ? 'block' : 'none';
       document.getElementById('page-visuals-expiry').style.display = mode === 'visuals' ? 'flex' : 'none';
       document.getElementById('page-hub').style.display = mode === 'hub' ? 'flex' : 'none';
+      
       if (mode === 'visuals') {
         renderCharts();
-        document.getElementById('table-record-count').textContent = 'Visual Analytics Dashboard Active';
+        renderExpiryTimelines();
+        document.getElementById('table-record-count').textContent = 'Visual Analytics & Expiry Dashboard Active';
       } else if (mode === 'hub') {
         renderHubData();
         document.getElementById('table-record-count').textContent = 'Intelligence & Replenishment Hub Active';
@@ -802,6 +900,7 @@
         renderEnterpriseTable(enterpriseItems);
       }
     }
+
     function renderEnterpriseTable(items) {
       const thead = document.getElementById('ent-table-head');
       const tbody = document.getElementById('ent-table-body');
@@ -809,6 +908,7 @@
       const chemTbody = document.getElementById('chem-table-body');
       const equipmentItems = items.filter(item => item.category !== "Chemicals & Reagents");
       const chemicalItems = items.filter(item => item.category === "Chemicals & Reagents");
+      
       if (currentView === 'equipment') {
         document.getElementById('table-record-count').textContent = `Showing ${equipmentItems.length} records`;
         thead.innerHTML = `<tr><th>#</th><th>Item Description</th><th>Category</th><th>Brand / Model</th><th>Stock Qty</th><th>Unit Price</th><th>Catalogue Spec</th><th>Actions</th></tr>`;
@@ -866,6 +966,7 @@
         }
       }
     }
+
     function convertFileToBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -874,6 +975,7 @@
         reader.onerror = error => reject(error);
       });
     }
+
     async function handleItemSubmit(e) {
       e.preventDefault();
       const pdfFile = document.getElementById('ent-pdf-file').files[0];
@@ -902,6 +1004,7 @@
       document.getElementById('enterprise-form').reset();
       loadEnterpriseData();
     }
+
     function openEditModal(id) {
       const item = enterpriseItems.find(i => i.id === id || i.id == id);
       if (!item) return;
@@ -918,6 +1021,7 @@
       document.getElementById('edit-modal').classList.add('active');
     }
     function closeEditModal() { document.getElementById('edit-modal').classList.remove('active'); }
+
     async function handleEditSubmit(e) {
       e.preventDefault();
       const id = parseInt(document.getElementById('edit-id').value);
@@ -951,6 +1055,7 @@
       closeEditModal();
       loadEnterpriseData();
     }
+
     function openSaleModal(id) {
       const item = enterpriseItems.find(i => i.id === id || i.id == id);
       if (!item) return;
@@ -963,6 +1068,7 @@
       document.getElementById('sale-modal').classList.add('active');
     }
     function closeSaleModal() { document.getElementById('sale-modal').classList.remove('active'); }
+
     async function handleSaleSubmit(e) {
       e.preventDefault();
       const itemId = parseInt(document.getElementById('sale-item-id').value);
@@ -998,8 +1104,10 @@
       closeSaleModal();
       loadEnterpriseData();
     }
+
     function toggleSalesDrawer() { document.getElementById('sales-drawer').classList.toggle('open'); }
     function toggleAuditDrawer() { document.getElementById('audit-drawer').classList.toggle('open'); }
+
     function renderSalesHistoryDrawer() {
       const c = document.getElementById('sales-history-container');
       if (!salesHistory.length) { c.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:12px;">No sales recorded.</div>`; return; }
@@ -1017,8 +1125,10 @@
         </div>
       `).join('');
     }
+
     function openExportModal() { document.getElementById('export-modal').classList.add('active'); }
     function closeExportModal() { document.getElementById('export-modal').classList.remove('active'); }
+
     function processExportRequest() {
       const target = document.getElementById('export-target').value;
       let csv = "data:text/csv;charset=utf-8,";
