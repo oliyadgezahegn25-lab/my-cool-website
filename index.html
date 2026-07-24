@@ -31,7 +31,6 @@
       box-shadow: 0 0 0 4px var(--accent-cyan), 0 0 25px rgba(56, 189, 248, 0.6) !important;
       transition: all 0.3s ease;
     }
-
     /* AUTH OVERLAY */
     #auth-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -70,7 +69,6 @@
       box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3); transition: all 0.25s ease;
     }
     .auth-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(56, 189, 248, 0.45); }
-
     /* NAVBAR */
     .navbar {
       background: var(--panel-bg);
@@ -125,7 +123,6 @@
     }
     .analytics-card.amber::before { background: var(--accent-amber); }
     .analytics-card.emerald::before { background: var(--accent-emerald); }
-
     /* CHARTS CONTAINER */
     .charts-grid {
       display: grid;
@@ -145,7 +142,6 @@
       flex-direction: column;
     }
     .chart-wrapper { position: relative; flex: 1; width: 100%; height: 100%; }
-
     /* FORM STYLES */
     .form-group { margin-bottom: 12px; text-align: left; }
     .form-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; text-transform: uppercase; }
@@ -192,7 +188,6 @@
     .sale-msg-card:hover { background: rgba(255, 255, 255, 0.07); border-color: var(--accent-emerald); }
     .sale-msg-body { display: none; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border-light); font-size: 12px; color: var(--text-muted); }
     .sale-msg-card.expanded .sale-msg-body { display: block; }
-
     /* FLOATING TOUR GUIDE BANNER */
     #tour-floating-box {
       position: fixed; bottom: 25px; right: 25px; width: 340px;
@@ -203,7 +198,6 @@
   </style>
 </head>
 <body>
-
   <!-- AUTH SCREEN -->
   <div id="auth-overlay">
     <div class="auth-card">
@@ -228,7 +222,6 @@
       </form>
     </div>
   </div>
-
   <!-- NAVBAR -->
   <header class="navbar">
     <div class="brand" id="tour-step-1-target">
@@ -241,13 +234,13 @@
       <button class="btn-action" onclick="toggleSalesDrawer()" id="tour-step-4-target">
         <i class="fa-solid fa-receipt"></i> Sales History
       </button>
-      <button class="btn-action" onclick="openExportModal()">
+      <button class="btn-action" onclick="openExportModal()" id="tour-step-5-target">
         <i class="fa-solid fa-file-csv"></i> Export Data
       </button>
-      <button class="btn-action" onclick="toggleAuditDrawer()">
+      <button class="btn-action" onclick="toggleAuditDrawer()" id="tour-step-6-target">
         <i class="fa-solid fa-list-check"></i> Audit Logs
       </button>
-      <button class="btn-action" style="background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); border-color: var(--accent-purple);" onclick="openPasswordModal()">
+      <button class="btn-action" style="background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); border-color: var(--accent-purple);" onclick="openPasswordModal()" id="tour-step-7-target">
         <i class="fa-solid fa-key"></i> Change Password
       </button>
       <button class="btn-action" style="background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); border-color: var(--accent-rose);" onclick="logoutSystem()">
@@ -255,7 +248,6 @@
       </button>
     </div>
   </header>
-
   <!-- APP CONTAINER -->
   <div class="app-container">
     
@@ -266,7 +258,7 @@
       </h3>
       
       <form id="enterprise-form" onsubmit="handleItemSubmit(event)">
-        <div class="form-group">
+        <div class="form-group" id="tour-step-3-target">
           <label>Category</label>
           <select class="form-control" id="ent-category" onchange="toggleCategoryFields()" required>
             <option value="Laboratory Equipment">Laboratory Equipment</option>
@@ -304,12 +296,11 @@
         </button>
       </form>
     </aside>
-
     <!-- CONTENT AREA -->
     <main class="content-area">
       
       <!-- DYNAMIC INTELLIGENCE VISUALIZATION DECK -->
-      <div class="dashboard-deck" id="tour-step-3-target">
+      <div class="dashboard-deck" id="tour-step-8-target">
         <div class="analytics-card">
           <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Total Inventory Volume</div>
           <div style="font-size: 26px; font-weight: 800; color: var(--accent-cyan); margin-top: 4px;" id="stat-total-items">0 Units</div>
@@ -326,9 +317,8 @@
           <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"><i class="fa-solid fa-triangle-exclamation"></i> Real-time shelf-life intelligence</div>
         </div>
       </div>
-
       <!-- CHARTS SECTION -->
-      <div class="charts-grid">
+      <div class="charts-grid" id="tour-step-9-target">
         <div class="chart-box">
           <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;"><i class="fa-solid fa-chart-pie"></i> Inventory Distribution by Category</h4>
           <div class="chart-wrapper"><canvas id="categoryChart"></canvas></div>
@@ -338,21 +328,19 @@
           <div class="chart-wrapper"><canvas id="expiryChart"></canvas></div>
         </div>
       </div>
-
       <!-- VIEW TABS & TABLE -->
-      <div class="view-tabs">
-        <div class="tab-group" id="tour-step-5-target">
+      <div class="view-tabs" id="tour-step-10-target">
+        <div class="tab-group" id="tour-step-11-target">
           <button class="tab-btn active" id="tab-equipment" onclick="switchEnterpriseView('equipment')">
-            <i class="fa-solid fa-microscope"></i> Equipment & Supplies
+            <i class="fa-solid fa-microscope"></i> Equipment & Supplies Page
           </button>
           <button class="tab-btn" id="tab-chemicals" onclick="switchEnterpriseView('chemicals')">
-            <i class="fa-solid fa-flask"></i> Chemicals & Reagents
+            <i class="fa-solid fa-flask"></i> Chemicals & Reagents Page
           </button>
         </div>
         <div style="font-size: 12px; color: var(--text-muted);" id="table-record-count">Showing 0 records</div>
       </div>
-
-      <div class="table-container">
+      <div class="table-container" id="tour-step-12-target">
         <table>
           <thead id="ent-table-head"></thead>
           <tbody id="ent-table-body"></tbody>
@@ -360,11 +348,10 @@
       </div>
     </main>
   </div>
-
   <!-- FLOATING TOUR GUIDE BOX -->
   <div id="tour-floating-box">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-      <span id="tour-step-badge" style="font-size: 10px; background: rgba(56,189,248,0.2); color: var(--accent-cyan); padding: 2px 6px; border-radius: 4px; font-weight: 700;">STEP 1 OF 5</span>
+      <span id="tour-step-badge" style="font-size: 10px; background: rgba(56,189,248,0.2); color: var(--accent-cyan); padding: 2px 6px; border-radius: 4px; font-weight: 700;">STEP 1 OF 12</span>
       <button onclick="closeInteractiveTour()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">&times;</button>
     </div>
     <h4 id="tour-step-title" style="font-size: 14px; margin-bottom: 6px; color: var(--text-main);"></h4>
@@ -374,7 +361,6 @@
       <button class="btn-action btn-primary" id="tour-next-btn" onclick="travelTourStep(1)">Next <i class="fa-solid fa-arrow-right"></i></button>
     </div>
   </div>
-
   <!-- PASSWORD MODAL -->
   <div class="modal-overlay" id="password-modal">
     <div class="modal-box" style="max-width: 400px;">
@@ -390,7 +376,6 @@
       </form>
     </div>
   </div>
-
   <!-- EDIT MODAL -->
   <div class="modal-overlay" id="edit-modal">
     <div class="modal-box">
@@ -424,36 +409,34 @@
       </form>
     </div>
   </div>
-
-  <!-- SALE MODAL -->
+  <!-- SALE MODAL (SHOPPING CART / DISPATCH) -->
   <div class="modal-overlay" id="sale-modal">
     <div class="modal-box">
-      <h3 style="color: var(--accent-emerald); margin-bottom: 12px;"><i class="fa-solid fa-cart-shopping"></i> Process Item Sale / Dispatch</h3>
+      <h3 style="color: var(--accent-emerald); margin-bottom: 12px;"><i class="fa-solid fa-cart-shopping"></i> Shopping Cart & Item Sale / Dispatch</h3>
       <div id="sale-item-summary" style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;"></div>
       <form id="sale-form" onsubmit="handleSaleSubmit(event)">
         <input type="hidden" id="sale-item-id">
         <input type="hidden" id="sale-item-name">
-        <div class="form-group"><label>Sale Type</label>
-          <select class="form-control" id="sale-type">
-            <option value="Cash / Paid">Standard / Cash Sale</option>
-            <option value="Sample">Sample Item (Demo)</option>
-            <option value="Credit">Credit Agreement</option>
-          </select>
-        </div>
-        <div class="form-group"><label>Client & Institution Name</label><input type="text" class="form-control" id="sale-client" placeholder="e.g. Bule Hora University" required></div>
+        <div class="form-group"><label>Destination / Where it is going to be sold</label><input type="text" class="form-control" id="sale-client" placeholder="e.g. Bule Hora University / Regional Hospital" required></div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-          <div class="form-group"><label>Quantity Sold</label><input type="number" class="form-control" id="sale-qty" min="1" required></div>
+          <div class="form-group"><label>Quantity</label><input type="number" class="form-control" id="sale-qty" min="1" required></div>
           <div class="form-group"><label>Unit Price (ETB)</label><input type="number" step="0.01" class="form-control" id="sale-unit-price" required></div>
+        </div>
+        <div class="form-group"><label>Transaction Classification</label>
+          <select class="form-control" id="sale-type">
+            <option value="Sell">Sell (Cash / Paid)</option>
+            <option value="Credit">Credit Agreement</option>
+            <option value="Sample">Sample Item (Demo)</option>
+          </select>
         </div>
         <div class="form-group"><label>Transaction Date</label><input type="date" class="form-control" id="sale-date" required></div>
         <div style="display: flex; gap: 10px; margin-top: 15px;">
           <button type="button" class="btn-action" style="flex:1; justify-content: center;" onclick="closeSaleModal()">Cancel</button>
-          <button type="submit" class="btn-action" style="flex:1; justify-content: center; background: var(--accent-emerald); color: #020617;">Confirm Dispatch</button>
+          <button type="submit" class="btn-action" style="flex:1; justify-content: center; background: var(--accent-emerald); color: #020617;">Complete Cart Checkout</button>
         </div>
       </form>
     </div>
   </div>
-
   <!-- EXPORT MODAL -->
   <div class="modal-overlay" id="export-modal">
     <div class="modal-box">
@@ -470,7 +453,6 @@
       </div>
     </div>
   </div>
-
   <!-- AUDIT LOG DRAWER -->
   <div id="audit-drawer" class="side-drawer">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
@@ -479,7 +461,6 @@
     </div>
     <div id="audit-log-container"></div>
   </div>
-
   <!-- SALES HISTORY DRAWER -->
   <div id="sales-drawer" class="side-drawer">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
@@ -488,7 +469,6 @@
     </div>
     <div id="sales-history-container"></div>
   </div>
-
   <!-- JAVASCRIPT ENGINE -->
   <script>
     const SUPABASE_URL = "https://cbmvbbfbgauqusibdnup.supabase.co";
@@ -497,7 +477,6 @@
     try {
       db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     } catch(err) { db = null; }
-
     let enterpriseItems = [];
     let salesHistory = [];
     let auditLogs = [];
@@ -505,35 +484,70 @@
     let currentTourIndex = 0;
     let categoryChartInstance = null;
     let expiryChartInstance = null;
-
+    
+    // 12-STAGE EXTENDED TOUR GUIDE
     const tourStepsDef = [
       {
         targetId: 'tour-step-1-target',
-        title: 'Enterprise Header & Brand',
+        title: 'Stage 1: Enterprise Brand Header',
         desc: 'Core navigation header running the Labaid Intelligence Engine with rapid action shortcuts.'
       },
       {
         targetId: 'tour-step-2-target',
-        title: 'Asset Registration Sidebar',
-        desc: 'Register new equipment, supplies, or chemicals with CAS numbers and expiry dates directly into cloud storage.'
+        title: 'Stage 2: Asset Registration Sidebar',
+        desc: 'Register new equipment, supplies, or chemicals directly into cloud storage.'
       },
       {
         targetId: 'tour-step-3-target',
-        title: 'Dynamic Intelligence & Analytics Deck',
-        desc: 'Live cards displaying total volume, active sectors, and chemical expiration warnings under 1 year.'
+        title: 'Stage 3: Category Selector',
+        desc: 'Select categories like Laboratory Equipment or Chemicals & Reagents.'
       },
       {
         targetId: 'tour-step-4-target',
-        title: 'Sales & Dispatch History',
+        title: 'Stage 4: Sales History Drawer',
         desc: 'Track completed university and institutional dispatches with item-level breakdowns.'
       },
       {
         targetId: 'tour-step-5-target',
-        title: 'Sector Category Switcher',
-        desc: 'Instantly toggle between General Equipment & Supplies and specialized Chemicals & Reagents views.'
+        title: 'Stage 5: Data Export Center',
+        desc: 'Download full inventory or sales history datasets as CSV files.'
+      },
+      {
+        targetId: 'tour-step-6-target',
+        title: 'Stage 6: System Audit Logs',
+        desc: 'Monitor workstation activity and administrative changes in real time.'
+      },
+      {
+        targetId: 'tour-step-7-target',
+        title: 'Stage 7: Security Settings',
+        desc: 'Update your account credentials and workstation access keys.'
+      },
+      {
+        targetId: 'tour-step-8-target',
+        title: 'Stage 8: Intelligence Analytics Deck',
+        desc: 'Live cards displaying total volume, active sectors, and chemical expiration warnings.'
+      },
+      {
+        targetId: 'tour-step-9-target',
+        title: 'Stage 9: Visualization Charts',
+        desc: 'Interactive graphical representation of inventory distribution and chemical expiry horizons.'
+      },
+      {
+        targetId: 'tour-step-10-target',
+        title: 'Stage 10: Page View Control',
+        desc: 'Manage dataset views and pagination parameters.'
+      },
+      {
+        targetId: 'tour-step-11-target',
+        title: 'Stage 11: Sector Page Switcher (Touch to Jump)',
+        desc: 'Touch these tabs to instantly switch between Laboratory Equipment and Chemicals & Reagents page views.'
+      },
+      {
+        targetId: 'tour-step-12-target',
+        title: 'Stage 12: Item Matrix & Sell/Cart Action',
+        desc: 'View active items, trigger shopping cart sell actions, edit parameters, or delete securely.'
       }
     ];
-
     function startInteractiveTour() {
       currentTourIndex = 0;
       document.getElementById('tour-floating-box').style.display = 'block';
@@ -565,7 +579,6 @@
       nBtn.innerHTML = currentTourIndex === tourStepsDef.length - 1 ? `Finish <i class="fa-solid fa-check"></i>` : `Next <i class="fa-solid fa-arrow-right"></i>`;
       nBtn.onclick = currentTourIndex === tourStepsDef.length - 1 ? closeInteractiveTour : () => travelTourStep(1);
     }
-
     function openPasswordModal() { document.getElementById('password-modal').classList.add('active'); }
     function closePasswordModal() { document.getElementById('password-modal').classList.remove('active'); }
     function handlePasswordChange(e) {
@@ -579,7 +592,6 @@
       closePasswordModal();
       addAuditEntry("Security", "User changed account password.");
     }
-
     function handleLogin(e) {
       e.preventDefault();
       const u = document.getElementById('login-user').value.trim();
@@ -596,7 +608,6 @@
       document.getElementById('auth-overlay').style.display = 'flex';
       addAuditEntry("System Session", "User logged out.");
     }
-
     function addAuditEntry(action, details) {
       auditLogs.unshift({ time: new Date().toLocaleTimeString(), action, details });
       renderAuditLogs();
@@ -613,7 +624,6 @@
         </div>
       `).join('');
     }
-
     async function loadEnterpriseData() {
       let itemsData = [];
       if (db) {
@@ -626,7 +636,6 @@
         itemsData = JSON.parse(localStorage.getItem('local_items_fallback') || '[]');
       }
       enterpriseItems = itemsData;
-
       let salesData = [];
       if (db) {
         try {
@@ -635,13 +644,11 @@
         } catch(e) { salesData = []; }
       }
       salesHistory = [...salesData, ...JSON.parse(localStorage.getItem('local_sales_fallback') || '[]')];
-
       updateAnalyticsDeck();
       renderCharts();
       renderEnterpriseTable(enterpriseItems);
       renderSalesHistoryDrawer();
     }
-
     function updateAnalyticsDeck() {
       let totalQty = enterpriseItems.reduce((acc, i) => acc + (parseInt(i.quantity) || 0), 0);
       let cats = new Set(enterpriseItems.map(i => i.category)).size;
@@ -649,24 +656,20 @@
       let now = new Date();
       let oneYearFromNow = new Date();
       oneYearFromNow.setFullYear(now.getFullYear() + 1);
-
       let expiringSoon = enterpriseItems.filter(i => {
         if (i.category !== "Chemicals & Reagents" || !i.expire_date) return false;
         let exp = new Date(i.expire_date);
         return exp >= now && exp <= oneYearFromNow;
       }).length;
-
       document.getElementById('stat-total-items').textContent = `${totalQty} Units`;
       document.getElementById('stat-categories-count').textContent = `${cats} Active`;
       document.getElementById('stat-expiry-alert').textContent = `${expiringSoon} Items`;
     }
-
     function renderCharts() {
       let catCounts = {};
       enterpriseItems.forEach(i => {
         catCounts[i.category] = (catCounts[i.category] || 0) + (parseInt(i.quantity) || 0);
       });
-
       const catCtx = document.getElementById('categoryChart').getContext('2d');
       if (categoryChartInstance) categoryChartInstance.destroy();
       categoryChartInstance = new Chart(catCtx, {
@@ -684,7 +687,6 @@
           plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, color: '#94a3b8', font: { size: 10 } } } }
         }
       });
-
       let now = new Date();
       let expBuckets = { '< 3 Months': 0, '3 - 6 Months': 0, '6 - 12 Months': 0, 'Safe (> 1 Year)': 0 };
       
@@ -698,7 +700,6 @@
         else if (diffMonths <= 12) expBuckets['6 - 12 Months']++;
         else expBuckets['Safe (> 1 Year)']++;
       });
-
       const expCtx = document.getElementById('expiryChart').getContext('2d');
       if (expiryChartInstance) expiryChartInstance.destroy();
       expiryChartInstance = new Chart(expCtx, {
@@ -722,20 +723,17 @@
         }
       });
     }
-
     function toggleCategoryFields() {
       const isChem = document.getElementById('ent-category').value === "Chemicals & Reagents";
       document.getElementById('chem-special-fields').style.display = isChem ? 'block' : 'none';
       document.getElementById('standard-spec-fields').style.display = isChem ? 'none' : 'block';
     }
-
     function switchEnterpriseView(mode) {
       currentView = mode;
       document.getElementById('tab-equipment').classList.toggle('active', mode === 'equipment');
       document.getElementById('tab-chemicals').classList.toggle('active', mode === 'chemicals');
       renderEnterpriseTable(enterpriseItems);
     }
-
     function renderEnterpriseTable(items) {
       const thead = document.getElementById('ent-table-head');
       const tbody = document.getElementById('ent-table-body');
@@ -743,20 +741,16 @@
         const isChem = item.category === "Chemicals & Reagents";
         return currentView === 'chemicals' ? isChem : !isChem;
       });
-
       document.getElementById('table-record-count').textContent = `Showing ${filtered.length} records`;
-
       if (currentView === 'chemicals') {
         thead.innerHTML = `<tr><th>#</th><th>Chemical Name</th><th>Category</th><th>CAS Number</th><th>Stock Qty</th><th>Unit Price</th><th>Expiry Date</th><th>Actions</th></tr>`;
       } else {
         thead.innerHTML = `<tr><th>#</th><th>Item Description</th><th>Category</th><th>Brand / Model</th><th>Stock Qty</th><th>Unit Price</th><th>Catalogue Spec</th><th>Actions</th></tr>`;
       }
-
       if (!filtered.length) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color: var(--text-muted); padding:20px;">No records found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color: var(--text-muted); padding:20px;">No records found. Click category tabs above to navigate pages.</td></tr>`;
         return;
       }
-
       tbody.innerHTML = filtered.map((item, index) => {
         const qty = parseInt(item.quantity) || 0;
         const pdfUrl = item.pdf_url;
@@ -774,7 +768,7 @@
               <td>
                 <div style="display:flex; gap:5px;">
                   <button class="btn-action" style="padding:4px 7px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${recordId})"><i class="fa-solid fa-pen"></i></button>
-                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${recordId})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i></button>
+                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${recordId})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
                   <button class="btn-action" style="padding:4px 7px; background:var(--accent-rose); color:#fff;" onclick="deleteItem(${recordId}, '${item.item_name}')"><i class="fa-solid fa-trash"></i></button>
                 </div>
               </td>
@@ -792,7 +786,7 @@
               <td>
                 <div style="display:flex; gap:5px;">
                   <button class="btn-action" style="padding:4px 7px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${recordId})"><i class="fa-solid fa-pen"></i></button>
-                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${recordId})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i></button>
+                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${recordId})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
                   <button class="btn-action" style="padding:4px 7px; background:var(--accent-rose); color:#fff;" onclick="deleteItem(${recordId}, '${item.item_name}')"><i class="fa-solid fa-trash"></i></button>
                 </div>
               </td>
@@ -800,7 +794,6 @@
         }
       }).join('');
     }
-
     function convertFileToBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -809,7 +802,6 @@
         reader.onerror = error => reject(error);
       });
     }
-
     async function handleItemSubmit(e) {
       e.preventDefault();
       const pdfFile = document.getElementById('ent-pdf-file').files[0];
@@ -828,19 +820,16 @@
         cas_number: document.getElementById('ent-cas').value || null,
         expire_date: document.getElementById('ent-expire').value || null
       };
-
       if (db) {
         try { await db.from('items').insert([payload]); } catch(err) {}
       }
       let localItems = JSON.parse(localStorage.getItem('local_items_fallback') || '[]');
       localItems.unshift(payload);
       localStorage.setItem('local_items_fallback', JSON.stringify(localItems));
-
       addAuditEntry("Asset Registered", `Added "${payload.item_name}"`);
       document.getElementById('enterprise-form').reset();
       loadEnterpriseData();
     }
-
     async function deleteItem(id, itemName) {
       if (!confirm(`Are you sure you want to delete "${itemName}"?`)) return;
       if (db) {
@@ -849,11 +838,9 @@
       let localItems = JSON.parse(localStorage.getItem('local_items_fallback') || '[]');
       localItems = localItems.filter(i => i.id !== id);
       localStorage.setItem('local_items_fallback', JSON.stringify(localItems));
-
       addAuditEntry("Asset Deleted", `Removed "${itemName}"`);
       loadEnterpriseData();
     }
-
     function openEditModal(id) {
       const item = enterpriseItems.find(i => i.id === id || i.id == id);
       if (!item) return;
@@ -867,13 +854,11 @@
       document.getElementById('edit-modal').classList.add('active');
     }
     function closeEditModal() { document.getElementById('edit-modal').classList.remove('active'); }
-
     async function handleEditSubmit(e) {
       e.preventDefault();
       const id = parseInt(document.getElementById('edit-id').value);
       const pdfFile = document.getElementById('edit-pdf-file').files[0];
       let catalogUrl = pdfFile ? await convertFileToBase64(pdfFile) : undefined;
-
       const updated = {
         category: document.getElementById('edit-category').value,
         item_name: document.getElementById('edit-name').value,
@@ -883,19 +868,16 @@
         price: parseFloat(document.getElementById('edit-price').value) || 0
       };
       if (catalogUrl) updated.pdf_url = catalogUrl;
-
       if (db) {
         try { await db.from('items').update(updated).eq('id', id); } catch(err) {}
       }
       let localItems = JSON.parse(localStorage.getItem('local_items_fallback') || '[]');
       localItems = localItems.map(i => i.id === id ? { ...i, ...updated } : i);
       localStorage.setItem('local_items_fallback', JSON.stringify(localItems));
-
       addAuditEntry("Asset Updated", `Modified "${updated.item_name}"`);
       closeEditModal();
       loadEnterpriseData();
     }
-
     function openSaleModal(id) {
       const item = enterpriseItems.find(i => i.id === id || i.id == id);
       if (!item) return;
@@ -908,7 +890,6 @@
       document.getElementById('sale-modal').classList.add('active');
     }
     function closeSaleModal() { document.getElementById('sale-modal').classList.remove('active'); }
-
     async function handleSaleSubmit(e) {
       e.preventDefault();
       const itemId = parseInt(document.getElementById('sale-item-id').value);
@@ -916,7 +897,6 @@
       const item = enterpriseItems.find(i => i.id === itemId || i.id == itemId);
       
       if (!item || item.quantity < qtySold) { alert("Insufficient stock quantity!"); return; }
-
       const saleRecord = {
         id: Date.now(),
         item_id: itemId,
@@ -928,14 +908,12 @@
         total_price: qtySold * parseFloat(document.getElementById('sale-unit-price').value),
         sale_date: document.getElementById('sale-date').value
       };
-
       if (db) {
         try { await db.from('sales_log').insert([saleRecord]); } catch(err) {}
       }
       let localSales = JSON.parse(localStorage.getItem('local_sales_fallback') || '[]');
       localSales.unshift(saleRecord);
       localStorage.setItem('local_sales_fallback', JSON.stringify(localSales));
-
       const newQty = item.quantity - qtySold;
       if (db) {
         try { await db.from('items').update({ quantity: newQty }).eq('id', itemId); } catch(err) {}
@@ -943,15 +921,12 @@
       let localItems = JSON.parse(localStorage.getItem('local_items_fallback') || '[]');
       localItems = localItems.map(i => i.id === itemId ? { ...i, quantity: newQty } : i);
       localStorage.setItem('local_items_fallback', JSON.stringify(localItems));
-
-      addAuditEntry("Sale Recorded", `Dispatched ${qtySold}x "${saleRecord.item_name}" to ${saleRecord.client_name}`);
+      addAuditEntry("Sale Recorded", `Dispatched ${qtySold}x "${saleRecord.item_name}" to ${saleRecord.client_name} (${saleRecord.sale_type})`);
       closeSaleModal();
       loadEnterpriseData();
     }
-
     function toggleSalesDrawer() { document.getElementById('sales-drawer').classList.toggle('open'); }
     function toggleAuditDrawer() { document.getElementById('audit-drawer').classList.toggle('open'); }
-
     function renderSalesHistoryDrawer() {
       const c = document.getElementById('sales-history-container');
       if (!salesHistory.length) { c.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:12px;">No sales recorded.</div>`; return; }
@@ -969,15 +944,12 @@
         </div>
       `).join('');
     }
-
     function openExportModal() { document.getElementById('export-modal').classList.add('active'); }
     function closeExportModal() { document.getElementById('export-modal').classList.remove('active'); }
-
     function processExportRequest() {
       const target = document.getElementById('export-target').value;
       let csv = "data:text/csv;charset=utf-8,";
       let filename = target === 'inventory' ? "inventory_export.csv" : "sales_export.csv";
-
       if (target === 'inventory') {
         csv += "Category,Item Name,Brand,Model,Quantity,Price (ETB)\r\n";
         enterpriseItems.forEach(i => { csv += `"${i.category}","${i.item_name}","${i.brand || ''}","${i.model || ''}",${i.quantity},${i.price}\r\n`; });
@@ -985,7 +957,6 @@
         csv += "Item Name,Sale Type,Client Name,Quantity,Unit Price,Total,Date\r\n";
         salesHistory.forEach(s => { csv += `"${s.item_name}","${s.sale_type}","${s.client_name}",${s.quantity},${s.unit_price},${s.total_price},"${s.sale_date}"\r\n`; });
       }
-
       const link = document.createElement("a");
       link.setAttribute("href", encodeURI(csv));
       link.setAttribute("download", filename);
