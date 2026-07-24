@@ -31,7 +31,6 @@
       box-shadow: 0 0 0 4px var(--accent-cyan), 0 0 25px rgba(56, 189, 248, 0.6) !important;
       transition: all 0.3s ease;
     }
-
     /* ULTRA-MODERN FANCY AUTH OVERLAY */
     #auth-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -94,7 +93,6 @@
       letter-spacing: 0.5px;
     }
     .auth-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(56, 189, 248, 0.5); background: linear-gradient(135deg, #7dd3fc, #0284c7); }
-
     /* NAVBAR */
     .navbar {
       background: var(--panel-bg);
@@ -150,7 +148,6 @@
     .analytics-card.amber::before { background: var(--accent-amber); }
     .analytics-card.emerald::before { background: var(--accent-emerald); }
     .analytics-card.purple::before { background: var(--accent-purple); }
-
     /* CHARTS & VISUAL TIMELINE STYLES */
     .charts-grid {
       display: grid;
@@ -167,7 +164,6 @@
       flex-direction: column;
     }
     .chart-wrapper { position: relative; flex: 1; width: 100%; height: 100%; }
-
     /* EXPIRY INTERPISRE-STYLE TIMELINE CARDS */
     .expiry-visual-container {
       background: var(--panel-bg);
@@ -201,7 +197,6 @@
       border-radius: 5px;
       transition: width 0.6s ease;
     }
-
     /* FORM STYLES */
     .form-group { margin-bottom: 12px; text-align: left; }
     .form-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; text-transform: uppercase; }
@@ -248,7 +243,6 @@
     .sale-msg-card:hover { background: rgba(255, 255, 255, 0.07); border-color: var(--accent-emerald); }
     .sale-msg-body { display: none; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border-light); font-size: 12px; color: var(--text-muted); }
     .sale-msg-card.expanded .sale-msg-body { display: block; }
-
     /* FLOATING TOUR GUIDE BANNER */
     #tour-floating-box {
       position: fixed; bottom: 25px; right: 25px; width: 340px;
@@ -283,7 +277,6 @@
       </form>
     </div>
   </div>
-
   <!-- NAVBAR -->
   <header class="navbar">
     <div class="brand" id="tour-step-1-target">
@@ -310,7 +303,6 @@
       </button>
     </div>
   </header>
-
   <!-- APP CONTAINER -->
   <div class="app-container">
     
@@ -349,6 +341,10 @@
             <div class="form-group"><label>Expiry Date</label><input type="date" class="form-control" id="ent-expire"></div>
           </div>
         </div>
+        <div class="form-group">
+          <label>Expiry State Number (Days/Batch ID)</label>
+          <input type="number" class="form-control" id="ent-expiry-state-number" placeholder="e.g. 365" min="0">
+        </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
           <div class="form-group"><label>Unit</label><input type="text" class="form-control" id="ent-unit" placeholder="Pcs" required></div>
           <div class="form-group"><label>Qty</label><input type="number" class="form-control" id="ent-qty" required min="0"></div>
@@ -359,7 +355,6 @@
         </button>
       </form>
     </aside>
-
     <!-- CONTENT AREA -->
     <main class="content-area">
       
@@ -381,7 +376,6 @@
         </div>
         <div style="font-size: 12px; color: var(--text-muted);" id="table-record-count">Showing 0 records</div>
       </div>
-
       <!-- PAGE CONTAINER 1: EQUIPMENT -->
       <div id="page-equipment" class="page-section">
         <div class="table-container" id="tour-step-12-target">
@@ -391,7 +385,6 @@
           </table>
         </div>
       </div>
-
       <!-- PAGE CONTAINER 2: CHEMICALS -->
       <div id="page-chemicals" class="page-section" style="display: none;">
         <div class="table-container">
@@ -401,7 +394,6 @@
           </table>
         </div>
       </div>
-
       <!-- PAGE CONTAINER 3: VISUALS & EXPIRY TIMELINES -->
       <div id="page-visuals-expiry" class="page-section" style="display: none; flex-direction: column; gap: 15px;">
         <div class="dashboard-deck" id="tour-step-8-target">
@@ -421,14 +413,12 @@
             <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"><i class="fa-solid fa-triangle-exclamation"></i> Real-time shelf-life intelligence</div>
           </div>
         </div>
-
         <div class="charts-grid" id="tour-step-9-target">
           <div class="chart-box">
             <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;"><i class="fa-solid fa-chart-pie"></i> Inventory Distribution by Category</h4>
             <div class="chart-wrapper"><canvas id="categoryChart"></canvas></div>
           </div>
         </div>
-
         <!-- NEW CHEMICAL EXPIRY TIMELINE DIAGRAMS -->
         <div class="expiry-visual-container">
           <h4 style="font-size: 14px; color: var(--accent-cyan); display: flex; align-items: center; gap: 8px;">
@@ -440,7 +430,6 @@
           </div>
         </div>
       </div>
-
       <!-- PAGE CONTAINER 4: INTELLIGENCE HUB REPLENISHMENT PAGE -->
       <div id="page-hub" class="page-section" style="display: none; flex-direction: column; gap: 15px;">
         <div class="dashboard-deck">
@@ -471,7 +460,6 @@
       </div>
     </main>
   </div>
-
   <!-- FLOATING TOUR GUIDE BOX -->
   <div id="tour-floating-box">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -485,7 +473,6 @@
       <button class="btn-action btn-primary" id="tour-next-btn" onclick="travelTourStep(1)">Next <i class="fa-solid fa-arrow-right"></i></button>
     </div>
   </div>
-
   <!-- PASSWORD MODAL -->
   <div class="modal-overlay" id="password-modal">
     <div class="modal-box" style="max-width: 400px;">
@@ -501,7 +488,6 @@
       </form>
     </div>
   </div>
-
   <!-- EDIT MODAL -->
   <div class="modal-overlay" id="edit-modal">
     <div class="modal-box">
@@ -529,6 +515,7 @@
             <div class="form-group"><label>Expiry Date</label><input type="date" class="form-control" id="edit-expire"></div>
           </div>
         </div>
+        <div class="form-group"><label>Expiry State Number</label><input type="number" class="form-control" id="edit-expiry-state-number" placeholder="e.g. 365" min="0"></div>
         <div class="form-group" id="edit-pdf-group"><label>Update PDF Catalog</label><input type="file" class="form-control" id="edit-pdf-file" accept=".pdf"></div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
           <div class="form-group"><label>Stock Qty</label><input type="number" class="form-control" id="edit-qty" required></div>
@@ -541,7 +528,6 @@
       </form>
     </div>
   </div>
-
   <!-- SALE MODAL -->
   <div class="modal-overlay" id="sale-modal">
     <div class="modal-box">
@@ -570,15 +556,23 @@
       </form>
     </div>
   </div>
-
   <!-- EXPORT MODAL -->
   <div class="modal-overlay" id="export-modal">
     <div class="modal-box">
       <h3 style="color: var(--accent-cyan); margin-bottom: 10px;"><i class="fa-solid fa-file-csv"></i> Export Data Center</h3>
       <div class="form-group"><label>Target Dataset</label>
-        <select class="form-control" id="export-target">
+        <select class="form-control" id="export-target" onchange="toggleExportFilterOptions()">
           <option value="inventory">Entire Inventory Directory</option>
           <option value="sales">Past Sales History</option>
+        </select>
+      </div>
+      <div class="form-group" id="export-sales-filter-group" style="display: none;">
+        <label>Time Period Filter for Past Sales</label>
+        <select class="form-control" id="export-sales-timeframe">
+          <option value="all">All-Time Past Sales</option>
+          <option value="week">Past Week</option>
+          <option value="month">Past Month</option>
+          <option value="year">Past Year</option>
         </select>
       </div>
       <div style="display: flex; gap: 10px; margin-top: 15px;">
@@ -587,7 +581,6 @@
       </div>
     </div>
   </div>
-
   <!-- AUDIT LOG DRAWER -->
   <div id="audit-drawer" class="side-drawer">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
@@ -596,7 +589,6 @@
     </div>
     <div id="audit-log-container"></div>
   </div>
-
   <!-- SALES HISTORY DRAWER -->
   <div id="sales-drawer" class="side-drawer">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
@@ -605,7 +597,6 @@
     </div>
     <div id="sales-history-container"></div>
   </div>
-
   <!-- JAVASCRIPT ENGINE -->
   <script>
     const SUPABASE_URL = "https://cbmvbbfbgauqusibdnup.supabase.co";
@@ -636,7 +627,6 @@
       { targetId: 'tour-step-12-target', title: 'Stage 12: Item Matrix & Edit/Sell Actions', desc: 'Edit asset records, trigger sales, or manage stock.' },
       { targetId: 'tab-hub', title: 'Stage 13: Intelligence Hub Replenishment Page', desc: 'Explore portfolio valuation metrics and automated low-stock reorder recommendations.' }
     ];
-
     function startInteractiveTour() {
       currentTourIndex = 0;
       document.getElementById('tour-floating-box').style.display = 'block';
@@ -668,7 +658,6 @@
       nBtn.innerHTML = currentTourIndex === tourStepsDef.length - 1 ? `Finish <i class="fa-solid fa-check"></i>` : `Next <i class="fa-solid fa-arrow-right"></i>`;
       nBtn.onclick = currentTourIndex === tourStepsDef.length - 1 ? closeInteractiveTour : () => travelTourStep(1);
     }
-
     function openPasswordModal() { document.getElementById('password-modal').classList.add('active'); }
     function closePasswordModal() { document.getElementById('password-modal').classList.remove('active'); }
     function handlePasswordChange(e) {
@@ -714,7 +703,6 @@
         </div>
       `).join('');
     }
-
     async function loadEnterpriseData() {
       let itemsData = [];
       if (db) {
@@ -742,7 +730,6 @@
       renderEnterpriseTable(enterpriseItems);
       renderSalesHistoryDrawer();
     }
-
     function updateAnalyticsDeck() {
       let totalQty = enterpriseItems.reduce((acc, i) => acc + (parseInt(i.quantity) || 0), 0);
       let cats = new Set(enterpriseItems.map(i => i.category)).size;
@@ -759,7 +746,6 @@
       document.getElementById('stat-categories-count').textContent = `${cats} Active`;
       document.getElementById('stat-expiry-alert').textContent = `${expiringSoon} Items`;
     }
-
     // RENDER INTERPISRE-STYLE CHEMICAL EXPIRY TIMELINE DIAGRAMS
     function renderExpiryTimelines() {
       const container = document.getElementById('expiry-timeline-list');
@@ -769,7 +755,6 @@
         container.innerHTML = `<div style="text-align:center; color: var(--text-muted); font-size:12px; padding:15px;">No chemical expiry dates registered. Add chemical assets with expiry dates to view timelines.</div>`;
         return;
       }
-
       const now = new Date();
       container.innerHTML = chemicals.map(chem => {
         const expDate = new Date(chem.expire_date);
@@ -794,11 +779,10 @@
           barColor = 'var(--accent-amber)';
           statusBadge = '<span style="color:var(--accent-amber); font-weight:700;"><i class="fa-solid fa-clock"></i> Expires within 1 Year</span>';
         }
-
         return `
           <div class="expiry-timeline-row">
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px;">
-              <div><strong>${chem.item_name}</strong> <span style="font-size:11px; color:var(--text-muted); font-family:monospace;">(CAS: ${chem.cas_number || 'N/A'})</span></div>
+              <div><strong>${chem.item_name}</strong> <span style="font-size:11px; color:var(--text-muted); font-family:monospace;">(CAS: ${chem.cas_number || 'N/A'} | Expiry No: ${chem.expiry_state_number || 'N/A'})</span></div>
               <div>${statusBadge}</div>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted);">
@@ -812,7 +796,6 @@
         `;
       }).join('');
     }
-
     function renderHubData() {
       let totalVal = enterpriseItems.reduce((acc, i) => acc + ((parseInt(i.quantity) || 0) * (parseFloat(i.price) || 0)), 0);
       document.getElementById('stat-total-valuation').textContent = totalVal.toLocaleString() + " ETB";
@@ -840,7 +823,6 @@
         `;
       }).join('');
     }
-
     function renderCharts() {
       let catCounts = {};
       enterpriseItems.forEach(i => {
@@ -864,7 +846,6 @@
         }
       });
     }
-
     function toggleCategoryFields() {
       const isChem = document.getElementById('ent-category').value === "Chemicals & Reagents";
       document.getElementById('chem-special-fields').style.display = isChem ? 'block' : 'none';
@@ -876,7 +857,6 @@
       document.getElementById('edit-brand-model-group').style.display = isChem ? 'none' : 'grid';
       document.getElementById('edit-pdf-group').style.display = isChem ? 'none' : 'block';
     }
-
     function switchEnterpriseView(mode) {
       currentView = mode;
       document.getElementById('tab-equipment').classList.toggle('active', mode === 'equipment');
@@ -900,7 +880,6 @@
         renderEnterpriseTable(enterpriseItems);
       }
     }
-
     function renderEnterpriseTable(items) {
       const thead = document.getElementById('ent-table-head');
       const tbody = document.getElementById('ent-table-body');
@@ -911,9 +890,9 @@
       
       if (currentView === 'equipment') {
         document.getElementById('table-record-count').textContent = `Showing ${equipmentItems.length} records`;
-        thead.innerHTML = `<tr><th>#</th><th>Item Description</th><th>Category</th><th>Brand / Model</th><th>Stock Qty</th><th>Unit Price</th><th>Catalogue Spec</th><th>Actions</th></tr>`;
+        thead.innerHTML = `<tr><th>#</th><th>Item Description</th><th>Category</th><th>Brand / Model</th><th>Expiry State No.</th><th>Stock Qty</th><th>Unit Price</th><th>Catalogue Spec</th><th>Actions</th></tr>`;
         if (!equipmentItems.length) {
-          tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color: var(--text-muted); padding:20px;">No equipment records found.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color: var(--text-muted); padding:20px;">No equipment records found.</td></tr>`;
         } else {
           tbody.innerHTML = equipmentItems.map((item, index) => {
             const qty = parseInt(item.quantity) || 0;
@@ -925,9 +904,10 @@
                 <td><strong>${item.item_name}</strong></td>
                 <td><span style="font-size:11px; padding:2px 6px; background:rgba(255,255,255,0.05); border-radius:4px;">${item.category}</span></td>
                 <td><span style="font-size:12px; color:var(--text-muted);">${item.brand || '-'} / ${item.model || '-'}</span></td>
+                <td><span style="font-size:12px; color:var(--accent-amber);">${item.expiry_state_number || '-'}</span></td>
                 <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
                 <td><strong style="color:var(--accent-cyan);">${item.price} ETB</strong></td>
-                <td>${pdfUrl ? `<a href="${pdfUrl}" target="_blank" class="btn-action" style="padding:4px 7px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> View</a>` : `<span style="color:var(--text-muted); font-size:11px;">None</span>`}</td>
+                <td>${pdfUrl ? `<div style="display:flex; gap:4px; align-items:center;"><a href="${pdfUrl}" target="_blank" class="btn-action" style="padding:4px 7px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> View</a><button class="btn-action" style="padding:4px 7px; background:rgba(244,63,94,0.15); color:var(--accent-rose); border-color:var(--accent-rose);" onclick="deleteItemPdf(${recordId})"><i class="fa-solid fa-trash"></i></button></div>` : `<span style="color:var(--text-muted); font-size:11px;">None</span>`}</td>
                 <td>
                   <div style="display:flex; gap:5px;">
                     <button class="btn-action" style="padding:4px 7px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${recordId})"><i class="fa-solid fa-pen"></i></button>
@@ -939,9 +919,9 @@
         }
       } else if (currentView === 'chemicals') {
         document.getElementById('table-record-count').textContent = `Showing ${chemicalItems.length} records`;
-        chemThead.innerHTML = `<tr><th>#</th><th>Chemical Name</th><th>Category</th><th>CAS Number</th><th>Stock Qty</th><th>Unit Price</th><th>Expiry Date</th><th>Actions</th></tr>`;
+        chemThead.innerHTML = `<tr><th>#</th><th>Chemical Name</th><th>Category</th><th>CAS Number</th><th>Expiry State No.</th><th>Stock Qty</th><th>Unit Price</th><th>Expiry Date</th><th>Actions</th></tr>`;
         if (!chemicalItems.length) {
-          chemTbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color: var(--text-muted); padding:20px;">No chemical records found.</td></tr>`;
+          chemTbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color: var(--text-muted); padding:20px;">No chemical records found.</td></tr>`;
         } else {
           chemTbody.innerHTML = chemicalItems.map((item, index) => {
             const qty = parseInt(item.quantity) || 0;
@@ -952,6 +932,7 @@
                 <td><strong>${item.item_name}</strong></td>
                 <td><span style="font-size:11px; padding:2px 6px; background:rgba(255,255,255,0.05); border-radius:4px;">${item.category}</span></td>
                 <td><span style="font-family:monospace; color:var(--accent-purple);">${item.cas_number || 'N/A'}</span></td>
+                <td><span style="font-size:12px; color:var(--accent-amber);">${item.expiry_state_number || '-'}</span></td>
                 <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
                 <td><strong style="color:var(--accent-cyan);">${item.price} ETB</strong></td>
                 <td><span style="color:var(--accent-amber);">${item.expire_date || 'N/A'}</span></td>
@@ -966,7 +947,17 @@
         }
       }
     }
-
+    async function deleteItemPdf(id) {
+      if (!confirm("Are you sure you want to delete the PDF catalogue for this item?")) return;
+      if (db) {
+        try { await db.from('items').update({ pdf_url: null }).eq('id', id); } catch(err) {}
+      }
+      let localItems = JSON.parse(localStorage.getItem('local_items_fallback') || '[]');
+      localItems = localItems.map(i => (i.id === id || i.id == id) ? { ...i, pdf_url: null } : i);
+      localStorage.setItem('local_items_fallback', JSON.stringify(localItems));
+      addAuditEntry("PDF Deleted", `Removed catalogue PDF from item ID ${id}`);
+      loadEnterpriseData();
+    }
     function convertFileToBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -975,7 +966,6 @@
         reader.onerror = error => reject(error);
       });
     }
-
     async function handleItemSubmit(e) {
       e.preventDefault();
       const pdfFile = document.getElementById('ent-pdf-file').files[0];
@@ -988,6 +978,7 @@
         brand: document.getElementById('ent-brand').value,
         model: document.getElementById('ent-model').value,
         pdf_url: catalogUrl,
+        expiry_state_number: document.getElementById('ent-expiry-state-number').value || null,
         unit_of_measure: document.getElementById('ent-unit').value,
         quantity: parseInt(document.getElementById('ent-qty').value) || 0,
         price: parseFloat(document.getElementById('ent-price').value) || 0,
@@ -1004,7 +995,6 @@
       document.getElementById('enterprise-form').reset();
       loadEnterpriseData();
     }
-
     function openEditModal(id) {
       const item = enterpriseItems.find(i => i.id === id || i.id == id);
       if (!item) return;
@@ -1015,13 +1005,13 @@
       document.getElementById('edit-model').value = item.model || '';
       document.getElementById('edit-cas').value = item.cas_number || '';
       document.getElementById('edit-expire').value = item.expire_date || '';
+      document.getElementById('edit-expiry-state-number').value = item.expiry_state_number || '';
       document.getElementById('edit-qty').value = item.quantity;
       document.getElementById('edit-price').value = item.price;
       toggleEditCategoryFields();
       document.getElementById('edit-modal').classList.add('active');
     }
     function closeEditModal() { document.getElementById('edit-modal').classList.remove('active'); }
-
     async function handleEditSubmit(e) {
       e.preventDefault();
       const id = parseInt(document.getElementById('edit-id').value);
@@ -1032,6 +1022,7 @@
       const updated = {
         category: category,
         item_name: document.getElementById('edit-name').value,
+        expiry_state_number: document.getElementById('edit-expiry-state-number').value || null,
         quantity: parseInt(document.getElementById('edit-qty').value) || 0,
         price: parseFloat(document.getElementById('edit-price').value) || 0
       };
@@ -1049,13 +1040,12 @@
         try { await db.from('items').update(updated).eq('id', id); } catch(err) {}
       }
       let localItems = JSON.parse(localStorage.getItem('local_items_fallback') || '[]');
-      localItems = localItems.map(i => i.id === id ? { ...i, ...updated } : i);
+      localItems = localItems.map(i => (i.id === id || i.id == id) ? { ...i, ...updated } : i);
       localStorage.setItem('local_items_fallback', JSON.stringify(localItems));
       addAuditEntry("Asset Updated", `Modified "${updated.item_name}"`);
       closeEditModal();
       loadEnterpriseData();
     }
-
     function openSaleModal(id) {
       const item = enterpriseItems.find(i => i.id === id || i.id == id);
       if (!item) return;
@@ -1068,7 +1058,6 @@
       document.getElementById('sale-modal').classList.add('active');
     }
     function closeSaleModal() { document.getElementById('sale-modal').classList.remove('active'); }
-
     async function handleSaleSubmit(e) {
       e.preventDefault();
       const itemId = parseInt(document.getElementById('sale-item-id').value);
@@ -1098,16 +1087,14 @@
         try { await db.from('items').update({ quantity: newQty }).eq('id', itemId); } catch(err) {}
       }
       let localItems = JSON.parse(localStorage.getItem('local_items_fallback') || '[]');
-      localItems = localItems.map(i => i.id === itemId ? { ...i, quantity: newQty } : i);
+      localItems = localItems.map(i => (i.id === itemId || i.id == itemId) ? { ...i, quantity: newQty } : i);
       localStorage.setItem('local_items_fallback', JSON.stringify(localItems));
       addAuditEntry("Sale Recorded", `Dispatched ${qtySold}x "${saleRecord.item_name}" to ${saleRecord.client_name} (${saleRecord.sale_type})`);
       closeSaleModal();
       loadEnterpriseData();
     }
-
     function toggleSalesDrawer() { document.getElementById('sales-drawer').classList.toggle('open'); }
     function toggleAuditDrawer() { document.getElementById('audit-drawer').classList.toggle('open'); }
-
     function renderSalesHistoryDrawer() {
       const c = document.getElementById('sales-history-container');
       if (!salesHistory.length) { c.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:12px;">No sales recorded.</div>`; return; }
@@ -1125,20 +1112,41 @@
         </div>
       `).join('');
     }
-
-    function openExportModal() { document.getElementById('export-modal').classList.add('active'); }
+    function openExportModal() {
+      document.getElementById('export-target').value = 'inventory';
+      toggleExportFilterOptions();
+      document.getElementById('export-modal').classList.add('active');
+    }
     function closeExportModal() { document.getElementById('export-modal').classList.remove('active'); }
-
+    function toggleExportFilterOptions() {
+      const target = document.getElementById('export-target').value;
+      document.getElementById('export-sales-filter-group').style.display = target === 'sales' ? 'block' : 'none';
+    }
     function processExportRequest() {
       const target = document.getElementById('export-target').value;
       let csv = "data:text/csv;charset=utf-8,";
       let filename = target === 'inventory' ? "inventory_export.csv" : "sales_export.csv";
+      
       if (target === 'inventory') {
-        csv += "Category,Item Name,Brand,Model,Quantity,Price (ETB)\r\n";
-        enterpriseItems.forEach(i => { csv += `"${i.category}","${i.item_name}","${i.brand || ''}","${i.model || ''}",${i.quantity},${i.price}\r\n`; });
+        csv += "Category,Item Name,Brand,Model,Expiry State No.,Quantity,Price (ETB)\r\n";
+        enterpriseItems.forEach(i => { csv += `"${i.category}","${i.item_name}","${i.brand || ''}","${i.model || ''}","${i.expiry_state_number || ''}",${i.quantity},${i.price}\r\n`; });
       } else {
+        const timeframe = document.getElementById('export-sales-timeframe').value;
+        const now = new Date();
+        
+        let filteredSales = salesHistory.filter(s => {
+          if (!s.sale_date) return timeframe === 'all';
+          const sDate = new Date(s.sale_date);
+          const diffDays = (now - sDate) / (1000 * 60 * 60 * 24);
+          if (timeframe === 'week') return diffDays <= 7;
+          if (timeframe === 'month') return diffDays <= 30;
+          if (timeframe === 'year') return diffDays <= 365;
+          return true;
+        });
+        
+        filename = `sales_export_${timeframe}.csv`;
         csv += "Item Name,Sale Type,Client Name,Quantity,Unit Price,Total,Date\r\n";
-        salesHistory.forEach(s => { csv += `"${s.item_name}","${s.sale_type}","${s.client_name}",${s.quantity},${s.unit_price},${s.total_price},"${s.sale_date}"\r\n`; });
+        filteredSales.forEach(s => { csv += `"${s.item_name}","${s.sale_type}","${s.client_name}",${s.quantity},${s.unit_price},${s.total_price},"${s.sale_date}"\r\n`; });
       }
       const link = document.createElement("a");
       link.setAttribute("href", encodeURI(csv));
