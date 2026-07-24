@@ -374,7 +374,13 @@
             <i class="fa-solid fa-brain"></i> Intelligence Hub Replenishment
           </button>
         </div>
-        <div style="font-size: 12px; color: var(--text-muted);" id="table-record-count">Showing 0 records</div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="position: relative;">
+            <i class="fa-solid fa-search" style="position: absolute; left: 10px; top: 10px; color: var(--text-muted); font-size: 12px;"></i>
+            <input type="text" id="global-search-input" class="form-control" placeholder="Search items & chemicals..." style="padding-left: 30px; width: 220px; font-size: 12px;" oninput="handleGlobalSearch(this.value)">
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted);" id="table-record-count">Showing 0 records</div>
+        </div>
       </div>
       <!-- PAGE CONTAINER 1: EQUIPMENT -->
       <div id="page-equipment" class="page-section">
@@ -877,16 +883,31 @@
         renderHubData();
         document.getElementById('table-record-count').textContent = 'Intelligence & Replenishment Hub Active';
       } else {
-        renderEnterpriseTable(enterpriseItems);
+        const query = document.getElementById('global-search-input').value;
+        renderEnterpriseTable(enterpriseItems, query);
       }
     }
-    function renderEnterpriseTable(items) {
+    function handleGlobalSearch(query) {
+      renderEnterpriseTable(enterpriseItems, query);
+    }
+    function renderEnterpriseTable(items, searchQuery = '') {
+      const query = searchQuery.toLowerCase().trim();
+      const filteredItems = items.filter(item => {
+        if (!query) return true;
+        const name = (item.item_name || '').toLowerCase();
+        const cat = (item.category || '').toLowerCase();
+        const brand = (item.brand || '').toLowerCase();
+        const model = (item.model || '').toLowerCase();
+        const cas = (item.cas_number || '').toLowerCase();
+        return name.includes(query) || cat.includes(query) || brand.includes(query) || model.includes(query) || cas.includes(query);
+      });
+
       const thead = document.getElementById('ent-table-head');
       const tbody = document.getElementById('ent-table-body');
       const chemThead = document.getElementById('chem-table-head');
       const chemTbody = document.getElementById('chem-table-body');
-      const equipmentItems = items.filter(item => item.category !== "Chemicals & Reagents");
-      const chemicalItems = items.filter(item => item.category === "Chemicals & Reagents");
+      const equipmentItems = filteredItems.filter(item => item.category !== "Chemicals & Reagents");
+      const chemicalItems = filteredItems.filter(item => item.category === "Chemicals & Reagents");
       
       if (currentView === 'equipment') {
         document.getElementById('table-record-count').textContent = `Showing ${equipmentItems.length} records`;
