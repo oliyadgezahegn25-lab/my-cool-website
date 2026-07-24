@@ -299,36 +299,7 @@
     <!-- CONTENT AREA -->
     <main class="content-area">
       
-      <!-- DYNAMIC INTELLIGENCE VISUALIZATION DECK -->
-      <div class="dashboard-deck" id="tour-step-8-target">
-        <div class="analytics-card">
-          <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Total Inventory Volume</div>
-          <div style="font-size: 26px; font-weight: 800; color: var(--accent-cyan); margin-top: 4px;" id="stat-total-items">0 Units</div>
-          <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"><i class="fa-solid fa-database"></i> Live Cloud Database Synchronized</div>
-        </div>
-        <div class="analytics-card amber">
-          <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Equipment Categories</div>
-          <div style="font-size: 26px; font-weight: 800; color: var(--accent-amber); margin-top: 4px;" id="stat-categories-count">0 Active</div>
-          <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"><i class="fa-solid fa-layer-group"></i> Multi-Sector Tenders Ready</div>
-        </div>
-        <div class="analytics-card emerald">
-          <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Chemicals Expiry Alert (< 1 Year)</div>
-          <div style="font-size: 26px; font-weight: 800; color: var(--accent-rose); margin-top: 4px;" id="stat-expiry-alert">0 Items</div>
-          <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"><i class="fa-solid fa-triangle-exclamation"></i> Real-time shelf-life intelligence</div>
-        </div>
-      </div>
-      <!-- CHARTS SECTION -->
-      <div class="charts-grid" id="tour-step-9-target">
-        <div class="chart-box">
-          <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;"><i class="fa-solid fa-chart-pie"></i> Inventory Distribution by Category</h4>
-          <div class="chart-wrapper"><canvas id="categoryChart"></canvas></div>
-        </div>
-        <div class="chart-box">
-          <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;"><i class="fa-solid fa-chart-line"></i> Chemical Expiry Timeline (< 1 Year Horizon)</h4>
-          <div class="chart-wrapper"><canvas id="expiryChart"></canvas></div>
-        </div>
-      </div>
-      <!-- VIEW TABS & TABLE -->
+      <!-- VIEW TABS SWITCHER -->
       <div class="view-tabs" id="tour-step-10-target">
         <div class="tab-group" id="tour-step-11-target">
           <button class="tab-btn active" id="tab-equipment" onclick="switchEnterpriseView('equipment')">
@@ -337,15 +308,66 @@
           <button class="tab-btn" id="tab-chemicals" onclick="switchEnterpriseView('chemicals')">
             <i class="fa-solid fa-flask"></i> Chemicals & Reagents Page
           </button>
+          <button class="tab-btn" id="tab-visuals" onclick="switchEnterpriseView('visuals')">
+            <i class="fa-solid fa-chart-pie"></i> Visuals & Expiry Charts Page
+          </button>
         </div>
         <div style="font-size: 12px; color: var(--text-muted);" id="table-record-count">Showing 0 records</div>
       </div>
-      <div class="table-container" id="tour-step-12-target">
-        <table>
-          <thead id="ent-table-head"></thead>
-          <tbody id="ent-table-body"></tbody>
-        </table>
+
+      <!-- PAGE CONTAINER 1: EQUIPMENT -->
+      <div id="page-equipment" class="page-section">
+        <div class="table-container" id="tour-step-12-target">
+          <table>
+            <thead id="ent-table-head"></thead>
+            <tbody id="ent-table-body"></tbody>
+          </table>
+        </div>
       </div>
+
+      <!-- PAGE CONTAINER 2: CHEMICALS -->
+      <div id="page-chemicals" class="page-section" style="display: none;">
+        <div class="table-container">
+          <table>
+            <thead id="chem-table-head"></thead>
+            <tbody id="chem-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PAGE CONTAINER 3: VISUALS & EXPIRY CHARTS (DEDICATED PAGE WINDOW) -->
+      <div id="page-visuals" class="page-section" style="display: none; flex-direction: column; gap: 15px;">
+        <!-- DYNAMIC INTELLIGENCE VISUALIZATION DECK -->
+        <div class="dashboard-deck" id="tour-step-8-target">
+          <div class="analytics-card">
+            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Total Inventory Volume</div>
+            <div style="font-size: 26px; font-weight: 800; color: var(--accent-cyan); margin-top: 4px;" id="stat-total-items">0 Units</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"><i class="fa-solid fa-database"></i> Live Cloud Database Synchronized</div>
+          </div>
+          <div class="analytics-card amber">
+            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Equipment Categories</div>
+            <div style="font-size: 26px; font-weight: 800; color: var(--accent-amber); margin-top: 4px;" id="stat-categories-count">0 Active</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"><i class="fa-solid fa-layer-group"></i> Multi-Sector Tenders Ready</div>
+          </div>
+          <div class="analytics-card emerald">
+            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Chemicals Expiry Alert (< 1 Year)</div>
+            <div style="font-size: 26px; font-weight: 800; color: var(--accent-rose); margin-top: 4px;" id="stat-expiry-alert">0 Items</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"><i class="fa-solid fa-triangle-exclamation"></i> Real-time shelf-life intelligence</div>
+          </div>
+        </div>
+        <!-- CHARTS SECTION -->
+        <div class="charts-grid" id="tour-step-9-target">
+          <div class="chart-box">
+            <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;"><i class="fa-solid fa-chart-pie"></i> Inventory Distribution by Category</h4>
+            <div class="chart-wrapper"><canvas id="categoryChart"></canvas></div>
+          </div>
+          <div class="chart-box">
+            <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;"><i class="fa-solid fa-chart-line"></i> Chemical Expiry Timeline (< 1 Year Horizon)</h4>
+            <div class="chart-wrapper"><canvas id="expiryChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
   <!-- FLOATING TOUR GUIDE BOX -->
@@ -540,7 +562,7 @@
       {
         targetId: 'tour-step-11-target',
         title: 'Stage 11: Sector Page Switcher (Touch to Jump)',
-        desc: 'Touch these tabs to instantly switch between Laboratory Equipment and Chemicals & Reagents page views.'
+        desc: 'Touch these tabs to instantly switch between Laboratory Equipment, Chemicals & Reagents, and Visuals & Expiry Charts pages.'
       },
       {
         targetId: 'tour-step-12-target',
@@ -732,67 +754,86 @@
       currentView = mode;
       document.getElementById('tab-equipment').classList.toggle('active', mode === 'equipment');
       document.getElementById('tab-chemicals').classList.toggle('active', mode === 'chemicals');
-      renderEnterpriseTable(enterpriseItems);
+      document.getElementById('tab-visuals').classList.toggle('active', mode === 'visuals');
+
+      document.getElementById('page-equipment').style.display = mode === 'equipment' ? 'block' : 'none';
+      document.getElementById('page-chemicals').style.display = mode === 'chemicals' ? 'block' : 'none';
+      document.getElementById('page-visuals').style.display = mode === 'visuals' ? 'flex' : 'none';
+
+      if (mode === 'visuals') {
+        renderCharts();
+        document.getElementById('table-record-count').textContent = 'Analytics Dashboard Active';
+      } else {
+        renderEnterpriseTable(enterpriseItems);
+      }
     }
     function renderEnterpriseTable(items) {
       const thead = document.getElementById('ent-table-head');
       const tbody = document.getElementById('ent-table-body');
-      const filtered = items.filter(item => {
-        const isChem = item.category === "Chemicals & Reagents";
-        return currentView === 'chemicals' ? isChem : !isChem;
-      });
-      document.getElementById('table-record-count').textContent = `Showing ${filtered.length} records`;
-      if (currentView === 'chemicals') {
-        thead.innerHTML = `<tr><th>#</th><th>Chemical Name</th><th>Category</th><th>CAS Number</th><th>Stock Qty</th><th>Unit Price</th><th>Expiry Date</th><th>Actions</th></tr>`;
-      } else {
+      const chemThead = document.getElementById('chem-table-head');
+      const chemTbody = document.getElementById('chem-table-body');
+
+      const equipmentItems = items.filter(item => item.category !== "Chemicals & Reagents");
+      const chemicalItems = items.filter(item => item.category === "Chemicals & Reagents");
+
+      if (currentView === 'equipment') {
+        document.getElementById('table-record-count').textContent = `Showing ${equipmentItems.length} records`;
         thead.innerHTML = `<tr><th>#</th><th>Item Description</th><th>Category</th><th>Brand / Model</th><th>Stock Qty</th><th>Unit Price</th><th>Catalogue Spec</th><th>Actions</th></tr>`;
-      }
-      if (!filtered.length) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color: var(--text-muted); padding:20px;">No records found. Click category tabs above to navigate pages.</td></tr>`;
-        return;
-      }
-      tbody.innerHTML = filtered.map((item, index) => {
-        const qty = parseInt(item.quantity) || 0;
-        const pdfUrl = item.pdf_url;
-        const recordId = item.id || index;
-        if (currentView === 'chemicals') {
-          return `
-            <tr>
-              <td><strong>${index + 1}</strong></td>
-              <td><strong>${item.item_name}</strong></td>
-              <td><span style="font-size:11px; padding:2px 6px; background:rgba(255,255,255,0.05); border-radius:4px;">${item.category}</span></td>
-              <td><span style="font-family:monospace; color:var(--accent-purple);">${item.cas_number || 'N/A'}</span></td>
-              <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
-              <td><strong style="color:var(--accent-cyan);">${item.price} ETB</strong></td>
-              <td><span style="color:var(--accent-amber);">${item.expire_date || 'N/A'}</span></td>
-              <td>
-                <div style="display:flex; gap:5px;">
-                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${recordId})"><i class="fa-solid fa-pen"></i></button>
-                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${recordId})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
-                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-rose); color:#fff;" onclick="deleteItem(${recordId}, '${item.item_name}')"><i class="fa-solid fa-trash"></i></button>
-                </div>
-              </td>
-            </tr>`;
+        if (!equipmentItems.length) {
+          tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color: var(--text-muted); padding:20px;">No equipment records found.</td></tr>`;
         } else {
-          return `
-            <tr>
-              <td><strong>${index + 1}</strong></td>
-              <td><strong>${item.item_name}</strong></td>
-              <td><span style="font-size:11px; padding:2px 6px; background:rgba(255,255,255,0.05); border-radius:4px;">${item.category}</span></td>
-              <td><span style="font-size:12px; color:var(--text-muted);">${item.brand || '-'} / ${item.model || '-'}</span></td>
-              <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
-              <td><strong style="color:var(--accent-cyan);">${item.price} ETB</strong></td>
-              <td>${pdfUrl ? `<a href="${pdfUrl}" target="_blank" class="btn-action" style="padding:4px 7px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> View</a>` : `<span style="color:var(--text-muted); font-size:11px;">None</span>`}</td>
-              <td>
-                <div style="display:flex; gap:5px;">
-                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${recordId})"><i class="fa-solid fa-pen"></i></button>
-                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${recordId})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
-                  <button class="btn-action" style="padding:4px 7px; background:var(--accent-rose); color:#fff;" onclick="deleteItem(${recordId}, '${item.item_name}')"><i class="fa-solid fa-trash"></i></button>
-                </div>
-              </td>
-            </tr>`;
+          tbody.innerHTML = equipmentItems.map((item, index) => {
+            const qty = parseInt(item.quantity) || 0;
+            const pdfUrl = item.pdf_url;
+            const recordId = item.id || index;
+            return `
+              <tr>
+                <td><strong>${index + 1}</strong></td>
+                <td><strong>${item.item_name}</strong></td>
+                <td><span style="font-size:11px; padding:2px 6px; background:rgba(255,255,255,0.05); border-radius:4px;">${item.category}</span></td>
+                <td><span style="font-size:12px; color:var(--text-muted);">${item.brand || '-'} / ${item.model || '-'}</span></td>
+                <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
+                <td><strong style="color:var(--accent-cyan);">${item.price} ETB</strong></td>
+                <td>${pdfUrl ? `<a href="${pdfUrl}" target="_blank" class="btn-action" style="padding:4px 7px; font-size:11px;"><i class="fa-solid fa-file-pdf"></i> View</a>` : `<span style="color:var(--text-muted); font-size:11px;">None</span>`}</td>
+                <td>
+                  <div style="display:flex; gap:5px;">
+                    <button class="btn-action" style="padding:4px 7px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${recordId})"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-action" style="padding:4px 7px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${recordId})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
+                    <button class="btn-action" style="padding:4px 7px; background:var(--accent-rose); color:#fff;" onclick="deleteItem(${recordId}, '${item.item_name}')"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>`;
+          }).join('');
         }
-      }).join('');
+      } else if (currentView === 'chemicals') {
+        document.getElementById('table-record-count').textContent = `Showing ${chemicalItems.length} records`;
+        chemThead.innerHTML = `<tr><th>#</th><th>Chemical Name</th><th>Category</th><th>CAS Number</th><th>Stock Qty</th><th>Unit Price</th><th>Expiry Date</th><th>Actions</th></tr>`;
+        if (!chemicalItems.length) {
+          chemTbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color: var(--text-muted); padding:20px;">No chemical records found.</td></tr>`;
+        } else {
+          chemTbody.innerHTML = chemicalItems.map((item, index) => {
+            const qty = parseInt(item.quantity) || 0;
+            const recordId = item.id || index;
+            return `
+              <tr>
+                <td><strong>${index + 1}</strong></td>
+                <td><strong>${item.item_name}</strong></td>
+                <td><span style="font-size:11px; padding:2px 6px; background:rgba(255,255,255,0.05); border-radius:4px;">${item.category}</span></td>
+                <td><span style="font-family:monospace; color:var(--accent-purple);">${item.cas_number || 'N/A'}</span></td>
+                <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
+                <td><strong style="color:var(--accent-cyan);">${item.price} ETB</strong></td>
+                <td><span style="color:var(--accent-amber);">${item.expire_date || 'N/A'}</span></td>
+                <td>
+                  <div style="display:flex; gap:5px;">
+                    <button class="btn-action" style="padding:4px 7px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${recordId})"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-action" style="padding:4px 7px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${recordId})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
+                    <button class="btn-action" style="padding:4px 7px; background:var(--accent-rose); color:#fff;" onclick="deleteItem(${recordId}, '${item.item_name}')"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+                </td>
+              </tr>`;
+          }).join('');
+        }
+      }
     }
     function convertFileToBase64(file) {
       return new Promise((resolve, reject) => {
@@ -831,14 +872,14 @@
       loadEnterpriseData();
     }
     async function deleteItem(id, itemName) {
-      if (!confirm(`Are you sure you want to delete "${itemName}"?`)) return;
+      if (!confirm(`Are you sure you want to completely delete "${itemName}"? This will remove the record and all associated history permanently.`)) return;
       if (db) {
         try { await db.from('items').delete().eq('id', id); } catch(err) {}
       }
       let localItems = JSON.parse(localStorage.getItem('local_items_fallback') || '[]');
       localItems = localItems.filter(i => i.id !== id);
       localStorage.setItem('local_items_fallback', JSON.stringify(localItems));
-      addAuditEntry("Asset Deleted", `Removed "${itemName}"`);
+      addAuditEntry("Asset Deleted", `Permanently removed "${itemName}"`);
       loadEnterpriseData();
     }
     function openEditModal(id) {
@@ -963,7 +1004,7 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      closeExportModal();
+      closeExportManagerModal();
     }
   </script>
 </body>
