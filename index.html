@@ -341,7 +341,7 @@
             <div class="form-group"><label>Expiry Date</label><input type="date" class="form-control" id="ent-expire"></div>
           </div>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="ent-expiry-state-group">
           <label>Expiry State Number (Days/Batch ID)</label>
           <input type="number" class="form-control" id="ent-expiry-state-number" placeholder="e.g. 365" min="0">
         </div>
@@ -521,7 +521,7 @@
             <div class="form-group"><label>Expiry Date</label><input type="date" class="form-control" id="edit-expire"></div>
           </div>
         </div>
-        <div class="form-group"><label>Expiry State Number</label><input type="number" class="form-control" id="edit-expiry-state-number" placeholder="e.g. 365" min="0"></div>
+        <div class="form-group" id="edit-expiry-state-group"><label>Expiry State Number</label><input type="number" class="form-control" id="edit-expiry-state-number" placeholder="e.g. 365" min="0"></div>
         <div class="form-group" id="edit-pdf-group"><label>Update PDF Catalog</label><input type="file" class="form-control" id="edit-pdf-file" accept=".pdf"></div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
           <div class="form-group"><label>Stock Qty</label><input type="number" class="form-control" id="edit-qty" required></div>
@@ -788,7 +788,7 @@
         return `
           <div class="expiry-timeline-row">
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px;">
-              <div><strong>${chem.item_name}</strong> <span style="font-size:11px; color:var(--text-muted); font-family:monospace;">(CAS: ${chem.cas_number || 'N/A'} | Expiry No: ${chem.expiry_state_number || 'N/A'})</span></div>
+              <div><strong>${chem.item_name}</strong> <span style="font-size:11px; color:var(--text-muted); font-family:monospace;">(CAS: ${chem.cas_number || 'N/A'})</span></div>
               <div>${statusBadge}</div>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted);">
@@ -856,12 +856,14 @@
       const isChem = document.getElementById('ent-category').value === "Chemicals & Reagents";
       document.getElementById('chem-special-fields').style.display = isChem ? 'block' : 'none';
       document.getElementById('standard-spec-fields').style.display = isChem ? 'none' : 'block';
+      document.getElementById('ent-expiry-state-group').style.display = isChem ? 'none' : 'block';
     }
     function toggleEditCategoryFields() {
       const isChem = document.getElementById('edit-category').value === "Chemicals & Reagents";
       document.getElementById('edit-chem-fields').style.display = isChem ? 'block' : 'none';
       document.getElementById('edit-brand-model-group').style.display = isChem ? 'none' : 'grid';
       document.getElementById('edit-pdf-group').style.display = isChem ? 'none' : 'block';
+      document.getElementById('edit-expiry-state-group').style.display = isChem ? 'none' : 'block';
     }
     function switchEnterpriseView(mode) {
       currentView = mode;
@@ -901,7 +903,6 @@
         const cas = (item.cas_number || '').toLowerCase();
         return name.includes(query) || cat.includes(query) || brand.includes(query) || model.includes(query) || cas.includes(query);
       });
-
       const thead = document.getElementById('ent-table-head');
       const tbody = document.getElementById('ent-table-body');
       const chemThead = document.getElementById('chem-table-head');
@@ -940,9 +941,9 @@
         }
       } else if (currentView === 'chemicals') {
         document.getElementById('table-record-count').textContent = `Showing ${chemicalItems.length} records`;
-        chemThead.innerHTML = `<tr><th>#</th><th>Chemical Name</th><th>Category</th><th>CAS Number</th><th>Expiry State No.</th><th>Stock Qty</th><th>Unit Price</th><th>Expiry Date</th><th>Actions</th></tr>`;
+        chemThead.innerHTML = `<tr><th>#</th><th>Chemical Name</th><th>Category</th><th>CAS Number</th><th>Stock Qty</th><th>Unit Price</th><th>Expiry Date</th><th>Actions</th></tr>`;
         if (!chemicalItems.length) {
-          chemTbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color: var(--text-muted); padding:20px;">No chemical records found.</td></tr>`;
+          chemTbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color: var(--text-muted); padding:20px;">No chemical records found.</td></tr>`;
         } else {
           chemTbody.innerHTML = chemicalItems.map((item, index) => {
             const qty = parseInt(item.quantity) || 0;
@@ -953,7 +954,6 @@
                 <td><strong>${item.item_name}</strong></td>
                 <td><span style="font-size:11px; padding:2px 6px; background:rgba(255,255,255,0.05); border-radius:4px;">${item.category}</span></td>
                 <td><span style="font-family:monospace; color:var(--accent-purple);">${item.cas_number || 'N/A'}</span></td>
-                <td><span style="font-size:12px; color:var(--accent-amber);">${item.expiry_state_number || '-'}</span></td>
                 <td><strong>${qty}</strong> ${item.unit_of_measure || ''}</td>
                 <td><strong style="color:var(--accent-cyan);">${item.price} ETB</strong></td>
                 <td><span style="color:var(--accent-amber);">${item.expire_date || 'N/A'}</span></td>
@@ -989,17 +989,18 @@
     }
     async function handleItemSubmit(e) {
       e.preventDefault();
+      const category = document.getElementById('ent-category').value;
       const pdfFile = document.getElementById('ent-pdf-file').files[0];
       let catalogUrl = pdfFile ? await convertFileToBase64(pdfFile) : null;
       
       const payload = {
         id: Date.now(),
-        category: document.getElementById('ent-category').value,
+        category: category,
         item_name: document.getElementById('ent-name').value,
-        brand: document.getElementById('ent-brand').value,
-        model: document.getElementById('ent-model').value,
-        pdf_url: catalogUrl,
-        expiry_state_number: document.getElementById('ent-expiry-state-number').value || null,
+        brand: category === "Chemicals & Reagents" ? null : document.getElementById('ent-brand').value,
+        model: category === "Chemicals & Reagents" ? null : document.getElementById('ent-model').value,
+        pdf_url: category === "Chemicals & Reagents" ? null : catalogUrl,
+        expiry_state_number: category === "Chemicals & Reagents" ? null : (document.getElementById('ent-expiry-state-number').value || null),
         unit_of_measure: document.getElementById('ent-unit').value,
         quantity: parseInt(document.getElementById('ent-qty').value) || 0,
         price: parseFloat(document.getElementById('ent-price').value) || 0,
@@ -1043,16 +1044,18 @@
       const updated = {
         category: category,
         item_name: document.getElementById('edit-name').value,
-        expiry_state_number: document.getElementById('edit-expiry-state-number').value || null,
         quantity: parseInt(document.getElementById('edit-qty').value) || 0,
         price: parseFloat(document.getElementById('edit-price').value) || 0
       };
       if (category === "Chemicals & Reagents") {
         updated.cas_number = document.getElementById('edit-cas').value || null;
         updated.expire_date = document.getElementById('edit-expire').value || null;
+        updated.expiry_state_number = null;
         updated.brand = null;
         updated.model = null;
+        updated.pdf_url = null;
       } else {
+        updated.expiry_state_number = document.getElementById('edit-expiry-state-number').value || null;
         updated.brand = document.getElementById('edit-brand').value;
         updated.model = document.getElementById('edit-model').value;
         if (catalogUrl) updated.pdf_url = catalogUrl;
