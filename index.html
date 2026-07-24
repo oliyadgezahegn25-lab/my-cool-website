@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Labaid trading PLC inventory - Ultimate Enterprise Intelligence System</title>
+  <title>Labaid Trading PLC Inventory System</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -205,7 +205,7 @@
       <div class="auth-logo-badge">
         <i class="fa-solid fa-shield-halved"></i>
       </div>
-      <h2>Labaid trading PLC inventory</h2>
+      <h2>Welcome to Labaid Trading PLC Inventory System</h2>
       <p style="color: var(--text-muted); font-size: 13px; margin: 10px 0 25px 0;">Enterprise Intelligence System. Authenticate to launch workstation.</p>
       <form onsubmit="handleLogin(event)">
         <div class="form-group" style="text-align: left;">
@@ -226,7 +226,7 @@
   <!-- NAVBAR -->
   <header class="navbar">
     <div class="brand" id="tour-step-1-target">
-      <i class="fa-solid fa-microchip"></i> LABAID INTELLIGENCE ENGINE
+      <i class="fa-solid fa-microchip"></i> Labaid trading PLC inventory
     </div>
     <div class="nav-actions">
       <button class="btn-action" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); border-color: var(--accent-cyan);" onclick="startInteractiveTour()">
@@ -339,8 +339,8 @@
           </table>
         </div>
       </div>
-      <!-- PAGE CONTAINER 3: VISUALS (CHARTS) -->
-      <div id="page-visuals" class="page-section" style="display: none; flex-direction: column; gap: 15px;">
+      <!-- PAGE CONTAINER 3 & 4 COMBINED: VISUALS AND EXPIRY IN ONE PAGE -->
+      <div id="page-visuals-expiry" class="page-section" style="display: none; flex-direction: column; gap: 15px;">
         <div class="dashboard-deck" id="tour-step-8-target">
           <div class="analytics-card">
             <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Total Inventory Volume</div>
@@ -368,10 +368,9 @@
             <div class="chart-wrapper"><canvas id="expiryChart"></canvas></div>
           </div>
         </div>
-      </div>
-      <!-- PAGE CONTAINER 4: EXPIRY MONITORING PAGE -->
-      <div id="page-expiry" class="page-section" style="display: none; flex-direction: column; gap: 15px;">
-        <div class="dashboard-deck">
+
+        <!-- EXPIRY SECTION PLACED UNDER THE VISUALS -->
+        <div class="dashboard-deck" style="margin-top: 10px;">
           <div class="analytics-card amber">
             <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Critical Expiry (< 3 Months)</div>
             <div style="font-size: 26px; font-weight: 800; color: var(--accent-rose); margin-top: 4px;" id="stat-expiry-critical">0 Items</div>
@@ -389,10 +388,10 @@
           </div>
           <table>
             <thead>
-              <tr><th>Chemical Name</th><th>CAS Number</th><th>Stock Qty</th><th>Expiry Date</th><th>Time Remaining / Status</th><th>Recommended Action</th></tr>
+              <tr><th>#</th><th>Chemical Name</th><th>CAS Number</th><th>Stock Qty</th><th>Expiry Date</th><th>Time Remaining / Status</th><th>Recommended Action</th></tr>
             </thead>
             <tbody id="expiry-recommendations-body">
-              <tr><td colspan="6" style="text-align:center; color: var(--text-muted); padding:20px;">Analyzing chemical expiration dates...</td></tr>
+              <tr><td colspan="7" style="text-align:center; color: var(--text-muted); padding:20px;">Analyzing chemical expiration dates...</td></tr>
             </tbody>
           </table>
         </div>
@@ -417,10 +416,10 @@
           </div>
           <table>
             <thead>
-              <tr><th>Item Description</th><th>Category</th><th>Current Stock</th><th>Status</th><th>Recommended Action</th></tr>
+              <tr><th>#</th><th>Item Description</th><th>Category</th><th>Current Stock</th><th>Status</th><th>Recommended Action</th></tr>
             </thead>
             <tbody id="hub-recommendations-body">
-              <tr><td colspan="5" style="text-align:center; color: var(--text-muted); padding:20px;">Analyzing inventory parameters...</td></tr>
+              <tr><td colspan="6" style="text-align:center; color: var(--text-muted); padding:20px;">Analyzing inventory parameters...</td></tr>
             </tbody>
           </table>
         </div>
@@ -575,7 +574,7 @@
       {
         targetId: 'tour-step-1-target',
         title: 'Stage 1: Enterprise Brand Header',
-        desc: 'Core navigation header running the Labaid Intelligence Engine with rapid action shortcuts.'
+        desc: 'Core navigation header running the Labaid Trading PLC Inventory with rapid action shortcuts.'
       },
       {
         targetId: 'tour-step-2-target',
@@ -620,12 +619,12 @@
       {
         targetId: 'tour-step-10-target',
         title: 'Stage 10: Page View Control & Separated Buttons',
-        desc: 'Quickly access Lab Equipment, Chemicals, Visuals, Expiry, and Intelligence Hub pages.'
+        desc: 'Quickly access Lab Equipment, Chemicals, Visuals & Expiry, and Intelligence Hub pages.'
       },
       {
         targetId: 'tour-step-11-target',
         title: 'Stage 11: Sector Page Switcher',
-        desc: 'Switch between Equipment, Chemicals, Visuals, Expiry, and Intelligence Hub pages seamlessly.'
+        desc: 'Switch between Equipment, Chemicals, Visuals & Expiry, and Intelligence Hub pages seamlessly.'
       },
       {
         targetId: 'tour-step-12-target',
@@ -638,9 +637,9 @@
         desc: 'Explore portfolio valuation metrics and automated low-stock reorder recommendations.'
       },
       {
-        targetId: 'tab-expiry',
-        title: 'Stage 14: Expiry Monitoring Page',
-        desc: 'Track chemical expiry dates line by line with clear threshold indicators.'
+        targetId: 'tab-visuals',
+        title: 'Stage 14: Visuals & Expiry Monitoring Page',
+        desc: 'Track charts and chemical expiry dates line by line under one combined unified page.'
       }
     ];
     function startInteractiveTour() {
@@ -771,14 +770,15 @@
       
       const tbody = document.getElementById('hub-recommendations-body');
       if (!enterpriseItems.length) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--text-muted); padding:20px;">No inventory records available for analysis.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--text-muted); padding:20px;">No inventory records available for analysis.</td></tr>`;
         return;
       }
-      tbody.innerHTML = enterpriseItems.map(i => {
+      tbody.innerHTML = enterpriseItems.map((i, index) => {
         const qty = parseInt(i.quantity) || 0;
         const isLow = qty <= 5;
         return `
           <tr>
+            <td><strong>${index + 1}</strong></td>
             <td><strong>${i.item_name}</strong></td>
             <td><span style="font-size:11px; padding:2px 6px; background:rgba(255,255,255,0.05); border-radius:4px;">${i.category}</span></td>
             <td><strong>${qty}</strong> ${i.unit_of_measure || ''}</td>
@@ -795,7 +795,6 @@
       let now = new Date();
       let threeMonthsFromNow = new Date();
       threeMonthsFromNow.setMonth(now.getMonth() + 3);
-
       let criticalCount = chemicalItems.filter(i => {
         if (!i.expire_date) return false;
         let exp = new Date(i.expire_date);
@@ -803,26 +802,21 @@
         let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays <= 90;
       }).length;
-
       document.getElementById('stat-expiry-critical').textContent = `${criticalCount} Items`;
-
       const tbody = document.getElementById('expiry-recommendations-body');
       if (!chemicalItems.length) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--text-muted); padding:20px;">No chemical records available for expiry tracking.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-muted); padding:20px;">No chemical records available for expiry tracking.</td></tr>`;
         return;
       }
-
-      tbody.innerHTML = chemicalItems.map(i => {
+      tbody.innerHTML = chemicalItems.map((i, index) => {
         const qty = parseInt(i.quantity) || 0;
         const expDateStr = i.expire_date || 'N/A';
         let statusBadge = '<span style="color:var(--accent-emerald);">Safe (> 3 Months)</span>';
         let actionText = 'Shelf life stable; maintain standard storage conditions';
-
         if (i.expire_date) {
           let exp = new Date(i.expire_date);
           let diffTime = exp - now;
           let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
           if (diffDays < 0) {
             statusBadge = '<span style="color:var(--accent-rose); font-weight:700;"><i class="fa-solid fa-triangle-exclamation"></i> Expired</span>';
             actionText = 'Immediate quarantine and disposal required';
@@ -833,9 +827,9 @@
             statusBadge = `<span style="color:var(--accent-emerald);">Stable (${Math.floor(diffDays / 30)} months remaining)</span>`;
           }
         }
-
         return `
           <tr>
+            <td><strong>${index + 1}</strong></td>
             <td><strong>${i.item_name}</strong></td>
             <td><span style="font-family:monospace; color:var(--accent-purple);">${i.cas_number || 'N/A'}</span></td>
             <td><strong>${qty}</strong> ${i.unit_of_measure || ''}</td>
@@ -925,16 +919,12 @@
       
       document.getElementById('page-equipment').style.display = mode === 'equipment' ? 'block' : 'none';
       document.getElementById('page-chemicals').style.display = mode === 'chemicals' ? 'block' : 'none';
-      document.getElementById('page-visuals').style.display = mode === 'visuals' ? 'flex' : 'none';
-      document.getElementById('page-expiry').style.display = mode === 'expiry' ? 'flex' : 'none';
+      document.getElementById('page-visuals-expiry').style.display = (mode === 'visuals' || mode === 'expiry') ? 'flex' : 'none';
       document.getElementById('page-hub').style.display = mode === 'hub' ? 'flex' : 'none';
-
-      if (mode === 'visuals') {
+      if (mode === 'visuals' || mode === 'expiry') {
         renderCharts();
-        document.getElementById('table-record-count').textContent = 'Visual Analytics Dashboard Active';
-      } else if (mode === 'expiry') {
         renderExpiryData();
-        document.getElementById('table-record-count').textContent = 'Chemical Expiry Monitoring Active';
+        document.getElementById('table-record-count').textContent = 'Visual Analytics & Expiry Dashboard Active';
       } else if (mode === 'hub') {
         renderHubData();
         document.getElementById('table-record-count').textContent = 'Intelligence & Replenishment Hub Active';
@@ -972,7 +962,6 @@
                   <div style="display:flex; gap:5px;">
                     <button class="btn-action" style="padding:4px 7px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${recordId})"><i class="fa-solid fa-pen"></i></button>
                     <button class="btn-action" style="padding:4px 7px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${recordId})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
-                    <button class="btn-action" style="padding:4px 7px; background:var(--accent-rose); color:#fff;" onclick="deleteItem(${recordId}, '${item.item_name}')"><i class="fa-solid fa-trash"></i></button>
                   </div>
                 </td>
               </tr>`;
@@ -1000,7 +989,6 @@
                   <div style="display:flex; gap:5px;">
                     <button class="btn-action" style="padding:4px 7px; background:var(--accent-amber); color:#020617;" onclick="openEditModal(${recordId})"><i class="fa-solid fa-pen"></i></button>
                     <button class="btn-action" style="padding:4px 7px; background:var(--accent-emerald); color:#020617;" onclick="openSaleModal(${recordId})" ${qty <= 0 ? 'disabled' : ''}><i class="fa-solid fa-cart-shopping"></i> Sell</button>
-                    <button class="btn-action" style="padding:4px 7px; background:var(--accent-rose); color:#fff;" onclick="deleteItem(${recordId}, '${item.item_name}')"><i class="fa-solid fa-trash"></i></button>
                   </div>
                 </td>
               </tr>`;
@@ -1042,17 +1030,6 @@
       localStorage.setItem('local_items_fallback', JSON.stringify(localItems));
       addAuditEntry("Asset Registered", `Added "${payload.item_name}"`);
       document.getElementById('enterprise-form').reset();
-      loadEnterpriseData();
-    }
-    async function deleteItem(id, itemName) {
-      if (!confirm(`Are you sure you want to completely delete "${itemName}"? This will remove the record and all associated history permanently.`)) return;
-      if (db) {
-        try { await db.from('items').delete().eq('id', id); } catch(err) {}
-      }
-      let localItems = JSON.parse(localStorage.getItem('local_items_fallback') || '[]');
-      localItems = localItems.filter(i => i.id !== id);
-      localStorage.setItem('local_items_fallback', JSON.stringify(localItems));
-      addAuditEntry("Asset Deleted", `Permanently removed "${itemName}"`);
       loadEnterpriseData();
     }
     function openEditModal(id) {
