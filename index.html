@@ -123,6 +123,7 @@
     }
     .analytics-card.amber::before { background: var(--accent-amber); }
     .analytics-card.emerald::before { background: var(--accent-emerald); }
+    .analytics-card.purple::before { background: var(--accent-purple); }
     /* CHARTS CONTAINER */
     .charts-grid {
       display: grid;
@@ -154,7 +155,7 @@
     
     /* TABS */
     .view-tabs { display: flex; gap: 10px; border-bottom: 1px solid var(--border-light); padding-bottom: 8px; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-    .tab-group { display: flex; gap: 8px; }
+    .tab-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .tab-btn { background: none; border: none; color: var(--text-muted); padding: 7px 14px; font-size: 13px; font-weight: 700; cursor: pointer; border-radius: 6px; }
     .tab-btn.active { background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); }
     
@@ -299,22 +300,26 @@
     <!-- CONTENT AREA -->
     <main class="content-area">
       
-      <!-- VIEW TABS SWITCHER -->
+      <!-- VIEW TABS SWITCHER (SEPARATED VISUALIZATION BUTTON AT TOP LEFT) -->
       <div class="view-tabs" id="tour-step-10-target">
         <div class="tab-group" id="tour-step-11-target">
+          <!-- SEPARATED VISUALIZATION BUTTON AT THE TOP LEFT -->
+          <button class="tab-btn" id="tab-visuals" onclick="switchEnterpriseView('visuals')" style="background: rgba(56, 189, 248, 0.2); border: 1px solid var(--accent-cyan); color: var(--accent-cyan);">
+            <i class="fa-solid fa-chart-pie"></i> Visuals & Expiry Charts Page
+          </button>
+          <button class="tab-btn" id="tab-hub" onclick="switchEnterpriseView('hub')" style="background: rgba(168, 85, 247, 0.2); border: 1px solid var(--accent-purple); color: var(--accent-purple);">
+            <i class="fa-solid fa-brain"></i> Intelligence Hub & Replenishment
+          </button>
+          <span style="color:var(--border-light);">|</span>
           <button class="tab-btn active" id="tab-equipment" onclick="switchEnterpriseView('equipment')">
-            <i class="fa-solid fa-microscope"></i> Equipment & Supplies Page
+            <i class="fa-solid fa-microscope"></i> Equipment & Supplies
           </button>
           <button class="tab-btn" id="tab-chemicals" onclick="switchEnterpriseView('chemicals')">
-            <i class="fa-solid fa-flask"></i> Chemicals & Reagents Page
-          </button>
-          <button class="tab-btn" id="tab-visuals" onclick="switchEnterpriseView('visuals')">
-            <i class="fa-solid fa-chart-pie"></i> Visuals & Expiry Charts Page
+            <i class="fa-solid fa-flask"></i> Chemicals & Reagents
           </button>
         </div>
         <div style="font-size: 12px; color: var(--text-muted);" id="table-record-count">Showing 0 records</div>
       </div>
-
       <!-- PAGE CONTAINER 1: EQUIPMENT -->
       <div id="page-equipment" class="page-section">
         <div class="table-container" id="tour-step-12-target">
@@ -324,7 +329,6 @@
           </table>
         </div>
       </div>
-
       <!-- PAGE CONTAINER 2: CHEMICALS -->
       <div id="page-chemicals" class="page-section" style="display: none;">
         <div class="table-container">
@@ -334,7 +338,6 @@
           </table>
         </div>
       </div>
-
       <!-- PAGE CONTAINER 3: VISUALS & EXPIRY CHARTS (DEDICATED PAGE WINDOW) -->
       <div id="page-visuals" class="page-section" style="display: none; flex-direction: column; gap: 15px;">
         <!-- DYNAMIC INTELLIGENCE VISUALIZATION DECK -->
@@ -367,13 +370,40 @@
           </div>
         </div>
       </div>
-
+      <!-- PAGE CONTAINER 4: NEW INTELLIGENCE HUB & REPLENISHMENT PAGE -->
+      <div id="page-hub" class="page-section" style="display: none; flex-direction: column; gap: 15px;" id="tour-step-13-target">
+        <div class="dashboard-deck">
+          <div class="analytics-card purple">
+            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Total Asset Portfolio Valuation</div>
+            <div style="font-size: 26px; font-weight: 800; color: var(--accent-purple); margin-top: 4px;" id="stat-total-valuation">0.00 ETB</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"><i class="fa-solid fa-wallet"></i> Calculated on live stock unit prices</div>
+          </div>
+          <div class="analytics-card amber">
+            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Low Stock Replenishment Needed</div>
+            <div style="font-size: 26px; font-weight: 800; color: var(--accent-amber); margin-top: 4px;" id="stat-low-stock">0 Items</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"><i class="fa-solid fa-triangle-exclamation"></i> Items with stock count $\le 5$</div>
+          </div>
+        </div>
+        <div class="table-container">
+          <div style="padding: 16px; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border-light); font-weight: 700; color: var(--accent-purple);">
+            <i class="fa-solid fa-robot"></i> Automated Enterprise Reorder & Tender Readiness Recommendations
+          </div>
+          <table>
+            <thead>
+              <tr><th>Item Description</th><th>Category</th><th>Current Stock</th><th>Status</th><th>Recommended Action</th></tr>
+            </thead>
+            <tbody id="hub-recommendations-body">
+              <tr><td colspan="5" style="text-align:center; color: var(--text-muted); padding:20px;">Analyzing inventory parameters...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </main>
   </div>
   <!-- FLOATING TOUR GUIDE BOX -->
   <div id="tour-floating-box">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-      <span id="tour-step-badge" style="font-size: 10px; background: rgba(56,189,248,0.2); color: var(--accent-cyan); padding: 2px 6px; border-radius: 4px; font-weight: 700;">STEP 1 OF 12</span>
+      <span id="tour-step-badge" style="font-size: 10px; background: rgba(56,189,248,0.2); color: var(--accent-cyan); padding: 2px 6px; border-radius: 4px; font-weight: 700;">STEP 1 OF 14</span>
       <button onclick="closeInteractiveTour()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">&times;</button>
     </div>
     <h4 id="tour-step-title" style="font-size: 14px; margin-bottom: 6px; color: var(--text-main);"></h4>
@@ -398,14 +428,14 @@
       </form>
     </div>
   </div>
-  <!-- EDIT MODAL -->
+  <!-- EDIT MODAL (DYNAMIC CHEMICAL EXPIRY FIELD SUPPORT) -->
   <div class="modal-overlay" id="edit-modal">
     <div class="modal-box">
       <h3 style="color: var(--accent-amber); margin-bottom: 15px;"><i class="fa-solid fa-pen-to-square"></i> Edit Asset Record</h3>
       <form id="edit-form" onsubmit="handleEditSubmit(event)">
         <input type="hidden" id="edit-id">
         <div class="form-group"><label>Category</label>
-          <select class="form-control" id="edit-category">
+          <select class="form-control" id="edit-category" onchange="toggleEditCategoryFields()">
             <option value="Laboratory Equipment">Laboratory Equipment</option>
             <option value="Educational & Lab Supplies">Educational & Lab Supplies</option>
             <option value="Electrical & Power Supplies">Electrical & Power Supplies</option>
@@ -415,11 +445,17 @@
           </select>
         </div>
         <div class="form-group"><label>Item Name</label><input type="text" class="form-control" id="edit-name" required></div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;" id="edit-brand-model-group">
           <div class="form-group"><label>Brand</label><input type="text" class="form-control" id="edit-brand"></div>
           <div class="form-group"><label>Model</label><input type="text" class="form-control" id="edit-model"></div>
         </div>
-        <div class="form-group"><label>Update PDF Catalog</label><input type="file" class="form-control" id="edit-pdf-file" accept=".pdf"></div>
+        <div id="edit-chem-fields" style="display: none;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="form-group"><label>CAS Number</label><input type="text" class="form-control" id="edit-cas"></div>
+            <div class="form-group"><label>Expiry Date</label><input type="date" class="form-control" id="edit-expire"></div>
+          </div>
+        </div>
+        <div class="form-group" id="edit-pdf-group"><label>Update PDF Catalog</label><input type="file" class="form-control" id="edit-pdf-file" accept=".pdf"></div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
           <div class="form-group"><label>Stock Qty</label><input type="number" class="form-control" id="edit-qty" required></div>
           <div class="form-group"><label>Unit Price</label><input type="number" step="0.01" class="form-control" id="edit-price" required></div>
@@ -507,7 +543,7 @@
     let categoryChartInstance = null;
     let expiryChartInstance = null;
     
-    // 12-STAGE EXTENDED TOUR GUIDE
+    // 14-STAGE EXTENDED TOUR GUIDE
     const tourStepsDef = [
       {
         targetId: 'tour-step-1-target',
@@ -556,18 +592,28 @@
       },
       {
         targetId: 'tour-step-10-target',
-        title: 'Stage 10: Page View Control',
-        desc: 'Manage dataset views and pagination parameters.'
+        title: 'Stage 10: Page View Control & Separated Visualization Button',
+        desc: 'Quickly access the dedicated Visuals page from the top-left button.'
       },
       {
         targetId: 'tour-step-11-target',
-        title: 'Stage 11: Sector Page Switcher (Touch to Jump)',
-        desc: 'Touch these tabs to instantly switch between Laboratory Equipment, Chemicals & Reagents, and Visuals & Expiry Charts pages.'
+        title: 'Stage 11: Sector Page Switcher',
+        desc: 'Switch between Visuals, Intelligence Hub, Equipment, and Chemicals pages seamlessly.'
       },
       {
         targetId: 'tour-step-12-target',
-        title: 'Stage 12: Item Matrix & Sell/Cart Action',
-        desc: 'View active items, trigger shopping cart sell actions, edit parameters, or delete securely.'
+        title: 'Stage 12: Item Matrix & Edit/Sell Actions',
+        desc: 'Edit asset records (including chemical expiry dates), trigger sales, or manage stock.'
+      },
+      {
+        targetId: 'tab-hub',
+        title: 'Stage 13: New Intelligence Hub Page',
+        desc: 'Explore portfolio valuation metrics and automated low-stock reorder recommendations.'
+      },
+      {
+        targetId: 'tab-visuals',
+        title: 'Stage 14: Separated Visuals Button',
+        desc: 'Jump directly to graphical charts and expiration stats anytime.'
       }
     ];
     function startInteractiveTour() {
@@ -668,6 +714,7 @@
       salesHistory = [...salesData, ...JSON.parse(localStorage.getItem('local_sales_fallback') || '[]')];
       updateAnalyticsDeck();
       renderCharts();
+      renderHubData();
       renderEnterpriseTable(enterpriseItems);
       renderSalesHistoryDrawer();
     }
@@ -686,6 +733,32 @@
       document.getElementById('stat-total-items').textContent = `${totalQty} Units`;
       document.getElementById('stat-categories-count').textContent = `${cats} Active`;
       document.getElementById('stat-expiry-alert').textContent = `${expiringSoon} Items`;
+    }
+    function renderHubData() {
+      let totalVal = enterpriseItems.reduce((acc, i) => acc + ((parseInt(i.quantity) || 0) * (parseFloat(i.price) || 0)), 0);
+      document.getElementById('stat-total-valuation').textContent = totalVal.toLocaleString() + " ETB";
+      
+      let lowStockItems = enterpriseItems.filter(i => (parseInt(i.quantity) || 0) <= 5);
+      document.getElementById('stat-low-stock').textContent = `${lowStockItems.length} Items`;
+      
+      const tbody = document.getElementById('hub-recommendations-body');
+      if (!enterpriseItems.length) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--text-muted); padding:20px;">No inventory records available for analysis.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = enterpriseItems.map(i => {
+        const qty = parseInt(i.quantity) || 0;
+        const isLow = qty <= 5;
+        return `
+          <tr>
+            <td><strong>${i.item_name}</strong></td>
+            <td><span style="font-size:11px; padding:2px 6px; background:rgba(255,255,255,0.05); border-radius:4px;">${i.category}</span></td>
+            <td><strong>${qty}</strong> ${i.unit_of_measure || ''}</td>
+            <td>${isLow ? '<span style="color:var(--accent-rose); font-weight:700;"><i class="fa-solid fa-triangle-exclamation"></i> Low Stock</span>' : '<span style="color:var(--accent-emerald);">Optimal</span>'}</td>
+            <td><span style="font-size:12px; color:var(--accent-cyan);">${isLow ? 'Immediate reorder recommended for upcoming tenders' : 'Stock levels sufficient for operations'}</span></td>
+          </tr>
+        `;
+      }).join('');
     }
     function renderCharts() {
       let catCounts = {};
@@ -750,19 +823,29 @@
       document.getElementById('chem-special-fields').style.display = isChem ? 'block' : 'none';
       document.getElementById('standard-spec-fields').style.display = isChem ? 'none' : 'block';
     }
+    function toggleEditCategoryFields() {
+      const isChem = document.getElementById('edit-category').value === "Chemicals & Reagents";
+      document.getElementById('edit-chem-fields').style.display = isChem ? 'block' : 'none';
+      document.getElementById('edit-brand-model-group').style.display = isChem ? 'none' : 'grid';
+      document.getElementById('edit-pdf-group').style.display = isChem ? 'none' : 'block';
+    }
     function switchEnterpriseView(mode) {
       currentView = mode;
       document.getElementById('tab-equipment').classList.toggle('active', mode === 'equipment');
       document.getElementById('tab-chemicals').classList.toggle('active', mode === 'chemicals');
       document.getElementById('tab-visuals').classList.toggle('active', mode === 'visuals');
-
+      document.getElementById('tab-hub').classList.toggle('active', mode === 'hub');
+      
       document.getElementById('page-equipment').style.display = mode === 'equipment' ? 'block' : 'none';
       document.getElementById('page-chemicals').style.display = mode === 'chemicals' ? 'block' : 'none';
       document.getElementById('page-visuals').style.display = mode === 'visuals' ? 'flex' : 'none';
-
+      document.getElementById('page-hub').style.display = mode === 'hub' ? 'flex' : 'none';
       if (mode === 'visuals') {
         renderCharts();
-        document.getElementById('table-record-count').textContent = 'Analytics Dashboard Active';
+        document.getElementById('table-record-count').textContent = 'Visual Analytics Dashboard Active';
+      } else if (mode === 'hub') {
+        renderHubData();
+        document.getElementById('table-record-count').textContent = 'Intelligence & Replenishment Hub Active';
       } else {
         renderEnterpriseTable(enterpriseItems);
       }
@@ -772,10 +855,8 @@
       const tbody = document.getElementById('ent-table-body');
       const chemThead = document.getElementById('chem-table-head');
       const chemTbody = document.getElementById('chem-table-body');
-
       const equipmentItems = items.filter(item => item.category !== "Chemicals & Reagents");
       const chemicalItems = items.filter(item => item.category === "Chemicals & Reagents");
-
       if (currentView === 'equipment') {
         document.getElementById('table-record-count').textContent = `Showing ${equipmentItems.length} records`;
         thead.innerHTML = `<tr><th>#</th><th>Item Description</th><th>Category</th><th>Brand / Model</th><th>Stock Qty</th><th>Unit Price</th><th>Catalogue Spec</th><th>Actions</th></tr>`;
@@ -890,25 +971,37 @@
       document.getElementById('edit-name').value = item.item_name;
       document.getElementById('edit-brand').value = item.brand || '';
       document.getElementById('edit-model').value = item.model || '';
+      document.getElementById('edit-cas').value = item.cas_number || '';
+      document.getElementById('edit-expire').value = item.expire_date || '';
       document.getElementById('edit-qty').value = item.quantity;
       document.getElementById('edit-price').value = item.price;
+      toggleEditCategoryFields();
       document.getElementById('edit-modal').classList.add('active');
     }
     function closeEditModal() { document.getElementById('edit-modal').classList.remove('active'); }
     async function handleEditSubmit(e) {
       e.preventDefault();
       const id = parseInt(document.getElementById('edit-id').value);
+      const category = document.getElementById('edit-category').value;
       const pdfFile = document.getElementById('edit-pdf-file').files[0];
       let catalogUrl = pdfFile ? await convertFileToBase64(pdfFile) : undefined;
+      
       const updated = {
-        category: document.getElementById('edit-category').value,
+        category: category,
         item_name: document.getElementById('edit-name').value,
-        brand: document.getElementById('edit-brand').value,
-        model: document.getElementById('edit-model').value,
         quantity: parseInt(document.getElementById('edit-qty').value) || 0,
         price: parseFloat(document.getElementById('edit-price').value) || 0
       };
-      if (catalogUrl) updated.pdf_url = catalogUrl;
+      if (category === "Chemicals & Reagents") {
+        updated.cas_number = document.getElementById('edit-cas').value || null;
+        updated.expire_date = document.getElementById('edit-expire').value || null;
+        updated.brand = null;
+        updated.model = null;
+      } else {
+        updated.brand = document.getElementById('edit-brand').value;
+        updated.model = document.getElementById('edit-model').value;
+        if (catalogUrl) updated.pdf_url = catalogUrl;
+      }
       if (db) {
         try { await db.from('items').update(updated).eq('id', id); } catch(err) {}
       }
@@ -1004,7 +1097,7 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      closeExportManagerModal();
+      closeExportModal();
     }
   </script>
 </body>
